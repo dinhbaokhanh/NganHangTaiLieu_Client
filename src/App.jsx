@@ -7,7 +7,7 @@ const Login = lazy(() => import('./pages/Login'))
 const App = () => {
   return (
     <BrowserRouter>
-      <Suspense>
+      <Suspense fallback={<div>Loading....</div>}>
         <Routes>
           <Route>
             {/* App Route */}
