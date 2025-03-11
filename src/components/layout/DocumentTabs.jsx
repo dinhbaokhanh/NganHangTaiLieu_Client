@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
 
 const DocumentTabs = ({ activeTab, setActiveTab }) => {
@@ -21,6 +21,7 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
 
   const [dropdownOpen, setDropdownOpen] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState('')
+  const dropdownRef = useRef(null)
 
   const toggleDropdown = (tabId, isDropdown) => {
     if (isDropdown) {
@@ -32,11 +33,27 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
     }
   }
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   return (
     <div className="w-full max-w-3xl mx-auto">
       <div className="flex w-full justify-between items-center bg-white py-2">
         {tabs.map((tab, index) => (
-          <div key={tab.id} className="relative flex-1 text-center">
+          <div
+            key={tab.id}
+            className="relative flex-1 text-center"
+            ref={dropdownRef}
+          >
             <button
               onClick={() => toggleDropdown(tab.id, tab.isDropdown)}
               className={`relative w-full text-lg font-medium px-4 py-2 transition duration-200 ease-in-out cursor-pointer 

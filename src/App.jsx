@@ -3,7 +3,7 @@ import './index.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 const Home = lazy(() => import('./pages/Home'))
-const Auth = lazy(() => import('./pages/Auth'))
+const Login = lazy(() => import('./pages/Login'))
 
 const App = () => {
   return (
@@ -14,7 +14,7 @@ const App = () => {
             {/* App Route */}
             <Route path="/" element={<Home />} />
           </Route>
-          <Route path="auth" element={<Auth />} />
+          <Route path="login" element={<Login />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
