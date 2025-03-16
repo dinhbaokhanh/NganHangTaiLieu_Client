@@ -1,57 +1,71 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from 'react'
-import { ChevronDown } from 'lucide-react'
+import React, { useState, useRef } from "react";
+import { ChevronDown } from "lucide-react";
 
 const DocumentTabs = ({ activeTab, setActiveTab }) => {
   const tabs = [
-    { id: 'theory', label: 'Tài liệu', isDropdown: true },
-    { id: 'exam', label: 'Ngân hàng câu hỏi', isDropdown: true },
-    { id: 'saved', label: 'Tài liệu đã lưu', isDropdown: false },
-  ]
+    { id: "theory", label: "Tài liệu", isDropdown: true },
+    { id: "exam", label: "Ngân hàng câu hỏi", isDropdown: true },
+    { id: "saved", label: "Tài liệu đã lưu", isDropdown: false },
+  ];
 
   const categories = [
-    { value: 'it', label: 'Công nghệ thông tin' },
-    { value: 'electronics', label: 'Kỹ thuật điện tử viễn thông' },
-    { value: 'cs', label: 'Khoa học máy tính' },
-    { value: 'security', label: 'An toàn thông tin' },
-    { value: 'media', label: 'Truyền thông đa phương tiện' },
-    { value: 'marketing', label: 'Marketing' },
-    { value: 'business', label: 'Quản trị kinh doanh' },
-  ]
+    { value: "it", label: "Công nghệ thông tin" },
+    { value: "electronics", label: "Kỹ thuật điện tử viễn thông" },
+    { value: "cs", label: "Khoa học máy tính" },
+    { value: "security", label: "An toàn thông tin" },
+    { value: "media", label: "Truyền thông đa phương tiện" },
+    { value: "marketing", label: "Marketing" },
+    { value: "business", label: "Quản trị kinh doanh" },
+  ];
 
-  const [dropdownOpen, setDropdownOpen] = useState(null)
-  const [selectedCategory, setSelectedCategory] = useState('')
+  const [dropdownOpen, setDropdownOpen] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const timeoutRef = useRef(null);
 
-  const toggleDropdown = (tabId, isDropdown) => {
+  const changeTab = (tabId, isDropdown) => {
+    setActiveTab(tabId);
     if (isDropdown) {
-      setDropdownOpen(dropdownOpen === tabId ? null : tabId)
-      setActiveTab(tabId)
-    } else {
-      setDropdownOpen(null)
-      setActiveTab(tabId)
+      setDropdownOpen(null);
     }
-  }
+  };
+
+  const openDropdown = (tabId) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setDropdownOpen(tabId);
+  };
+
+  const closeDropdown = () => {
+    timeoutRef.current = setTimeout(() => {
+      setDropdownOpen(null);
+    }, 200);
+  };
 
   return (
     <div className="w-full max-w-3xl mx-auto">
       <div className="flex w-full justify-between items-center bg-white py-2">
         {tabs.map((tab, index) => (
-          <div key={tab.id} className="relative flex-1 text-center">
+          <div
+            key={tab.id}
+            className="relative flex-1 text-center"
+            onMouseEnter={() => openDropdown(tab.id)}
+            onMouseLeave={closeDropdown}
+          >
             <button
-              onClick={() => toggleDropdown(tab.id, tab.isDropdown)}
+              onClick={() => changeTab(tab.id, tab.isDropdown)}
               className={`relative w-full text-lg font-medium px-4 py-2 transition duration-200 ease-in-out cursor-pointer 
                 ${
                   activeTab === tab.id
-                    ? 'text-red-500 font-bold'
-                    : 'text-gray-600'
+                    ? "text-red-500 font-bold"
+                    : "text-gray-600"
                 }`}
             >
-              {tab.label}{' '}
+              {tab.label}{" "}
               {tab.isDropdown && (
                 <ChevronDown
                   size={16}
                   className={`inline ml-1 transition-transform ${
-                    dropdownOpen === tab.id ? 'rotate-180' : ''
+                    dropdownOpen === tab.id ? "rotate-180" : ""
                   }`}
                 />
               )}
@@ -62,13 +76,17 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
               </span>
             )}
             {dropdownOpen === tab.id && tab.isDropdown && (
-              <div className="absolute left-0 mt-2 w-full bg-white border rounded-md shadow-md z-10">
+              <div
+                className="absolute left-0 mt-2 w-full bg-white border rounded-md shadow-md z-10"
+                onMouseEnter={() => openDropdown(tab.id)}
+                onMouseLeave={closeDropdown}
+              >
                 {categories.map((category) => (
                   <button
                     key={category.value}
                     onClick={() => {
-                      setSelectedCategory(category.value)
-                      setDropdownOpen(null)
+                      setSelectedCategory(category.value);
+                      setDropdownOpen(null);
                     }}
                     className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100"
                   >
@@ -81,7 +99,7 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DocumentTabs
+export default DocumentTabs;
