@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useRef } from "react";
-import { ChevronDown } from "lucide-react";
+
+import React, { useState, useRef, useEffect } from 'react'
+import { ChevronDown } from 'lucide-react'
 
 const DocumentTabs = ({ activeTab, setActiveTab }) => {
   const tabs = [
@@ -19,9 +20,11 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
     { value: "business", label: "Quản trị kinh doanh" },
   ];
 
+
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
   const timeoutRef = useRef(null);
+
 
   const changeTab = (tabId, isDropdown) => {
     setActiveTab(tabId);
@@ -41,6 +44,18 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
     }, 200);
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   return (
     <div className="w-full max-w-3xl mx-auto">
       <div className="flex w-full justify-between items-center bg-white py-2">
@@ -48,8 +63,10 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
           <div
             key={tab.id}
             className="relative flex-1 text-center"
+
             onMouseEnter={() => openDropdown(tab.id)}
             onMouseLeave={closeDropdown}
+
           >
             <button
               onClick={() => changeTab(tab.id, tab.isDropdown)}
