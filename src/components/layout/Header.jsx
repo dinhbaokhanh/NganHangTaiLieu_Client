@@ -52,13 +52,13 @@ const Header = () => {
           {isOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg overflow-hidden z-50">
               <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                <User size={18} /> Information
+                <User size={18} /> Thông tin cá nhân
               </button>
               <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                <Key size={18} /> Change Password
+                <Key size={18} /> Đổi mật khẩu
               </button>
               <button className="w-full flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-gray-100 cursor-pointer">
-                <LogOut size={18} /> Log out
+                <LogOut size={18} /> Đăng xuất
               </button>
             </div>
           )}
