@@ -1,22 +1,34 @@
 import React, { lazy, Suspense } from 'react'
 import './index.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import AppLayout from './components/layout/AppLayout'
+import AuthLayout from './components/layout/AuthLayout'
 
 const Home = lazy(() => import('./pages/Home'))
-const Login = lazy(() => import('./pages/Login'))
 const FileDetails = lazy(() => import('./pages/FileDetails'))
+const Login = lazy(() => import('./pages/Auth/Login'))
+const Register = lazy(() => import('./pages/Auth/Register'))
+const Forgot = lazy(() => import('./pages/Auth/ForgotPassword'))
+const Reset = lazy(() => import('./pages/Auth/ResetPassword'))
 
 const App = () => {
   return (
     <BrowserRouter>
       <Suspense fallback={<div>Loading....</div>}>
         <Routes>
-          <Route>
-            {/* App Route */}
+          {/* Layout chính của app */}
+          <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/file" element={<FileDetails />} />
           </Route>
-          <Route path="login" element={<Login />} />
+
+          {/* Layout cho Auth */}
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot" element={<Forgot />} />
+            <Route path="/reset" element={<Reset />} />
+          </Route>
         </Routes>
       </Suspense>
     </BrowserRouter>

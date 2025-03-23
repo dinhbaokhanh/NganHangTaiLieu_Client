@@ -1,15 +1,14 @@
-/* eslint-disable no-unused-vars */
 import React from 'react'
 import Title from '../shared/Title'
 import Header from './Header'
-import DocumentTabs from './DocumentTabs'
+import { Outlet } from 'react-router-dom'
 
-const AppLayout = (WrappedComponent) => {
-  return (props) => (
+const AppLayout = () => {
+  return (
     <>
       <Title />
       <Header />
-      <WrappedComponent {...props} />
+      <Outlet />
     </>
   )
 }
