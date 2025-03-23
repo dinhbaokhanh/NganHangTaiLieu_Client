@@ -1,6 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { useState } from 'react'
-import AppLayout from '../components/layout/AppLayout'
 import DocumentTabs from '../components/layout/DocumentTabs'
 import documents from '../data/sampleDocuments'
 import defaultFileImg from '../assets/doc_image_default.png'
@@ -40,4 +39,4 @@ const Home = () => {
   )
 }
 
-export default AppLayout(Home)
+export default Home
