@@ -21,6 +21,7 @@ const Login = () => {
           PTIT DOCUMENTS
         </h2>
         <h3 className="text-[#000000] text-center text-base sm:text-lg font-sans font-bold mt-2">
+
           {view === "forgot"
             ? "Lấy lại mật khẩu"
             : view === "reset"
@@ -28,6 +29,7 @@ const Login = () => {
             : view === "login"
             ? "Đăng nhập"
             : "Đăng ký"}
+
         </h3>
 
         <form className="mt-4" onSubmit={handleSubmit}>
@@ -40,6 +42,7 @@ const Login = () => {
               />
             </div>
           )}
+
 
           {view !== "forgot" && view !== "reset" && (
             <div className="mb-3 sm:mb-4">
@@ -62,11 +65,13 @@ const Login = () => {
           )}
 
           {view === "register" && (
+
             <div className="mb-3 sm:mb-4">
               <input
                 type="password"
                 placeholder="Xác nhận mật khẩu"
                 className="w-full px-3 py-2 font-sans border border-black bg-white text-black rounded-md"
+
               />
             </div>
           )}
@@ -98,7 +103,9 @@ const Login = () => {
                 className="text-black hover:text-red-600"
                 onClick={(e) => {
                   e.preventDefault();
+
                   setView("register");
+
                 }}
               >
                 Đăng ký
@@ -116,6 +123,7 @@ const Login = () => {
             </div>
           )}
 
+
           <button
             type="submit"
             className="w-full bg-red-600 text-white py-2 font-semibold rounded-md border border-transparent hover:bg-white hover:text-red-600 hover:border hover:border-red-600 
@@ -128,6 +136,7 @@ const Login = () => {
               : view === "login"
               ? "Đăng nhập"
               : "Đăng ký"}
+
           </button>
         </form>
 
@@ -135,7 +144,9 @@ const Login = () => {
           <p className="mt-3 text-center">
             <button
               className="text-black transition duration-200 hover:text-red-600 cursor-pointer"
+
               onClick={() => setView("login")}
+
             >
               Về trang đăng nhập
             </button>
