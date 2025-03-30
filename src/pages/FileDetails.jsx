@@ -27,8 +27,6 @@ const FileDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header />
-
       <div className="max-w-5xl mx-auto py-6">
         <button className="flex items-center text-red-600 font-semibold mb-4">
           ← Quay về trang trước
