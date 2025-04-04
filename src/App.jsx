@@ -1,53 +1,42 @@
-import React from 'react'
-import { Outlet, NavLink } from 'react-router-dom'
-import { FaUsers, FaThLarge, FaFolder } from 'react-icons/fa'
+import React, { lazy, Suspense } from 'react'
+import './index.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import AppLayout from './components/layout/AppLayout'
+import AuthLayout from './components/layout/AuthLayout'
+import AdminLayout from './components/layout/AdminLayout'
 
-const Sidebar = () => {
+const Home = lazy(() => import('./pages/Home'))
+const FileDetails = lazy(() => import('./pages/FileDetails'))
+const Login = lazy(() => import('./pages/Auth/Login'))
+const Register = lazy(() => import('./pages/Auth/Register'))
+const Forgot = lazy(() => import('./pages/Auth/ForgotPassword'))
+const Reset = lazy(() => import('./pages/Auth/ResetPassword'))
+
+const App = () => {
   return (
-    <div className="h-screen w-64 bg-gray-900 text-white flex flex-col">
-      <div className="flex items-center p-4 bg-blue-500">
-        <div className="w-10 h-10 bg-pink-500 text-white flex items-center justify-center rounded-full font-bold">
-          B
-        </div>
-        <h2 className="ml-3 text-lg font-semibold">Admin Panel</h2>
-      </div>
+    <BrowserRouter>
+      <Suspense fallback={<div>Loading....</div>}>
+        <Routes>
+          {/* Layout chính của app */}
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/file" element={<FileDetails />} />
+          </Route>
 
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
-          <SidebarItem icon={<FaThLarge />} text="Dashboard" link="/admin" />
-          <SidebarItem icon={<FaUsers />} text="Users" link="/admin/users" />
-          <SidebarItem icon={<FaFolder />} text="Files" link="/admin/files" />
-        </ul>
-      </nav>
-    </div>
+          {/* Layout cho Auth */}
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot" element={<Forgot />} />
+            <Route path="/reset" element={<Reset />} />
+          </Route>
+
+          {/* Layout cho Admin */}
+          <Route element={<AdminLayout />}></Route>
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
   )
 }
 
-const SidebarItem = ({ icon, text, link }) => (
-  <li>
-    <NavLink
-      to={link}
-      className={({ isActive }) =>
-        `flex items-center p-2 rounded-lg cursor-pointer ${
-          isActive ? 'bg-blue-500' : 'hover:bg-gray-700'
-        }`
-      }
-    >
-      {icon}
-      <span className="ml-3">{text}</span>
-    </NavLink>
-  </li>
-)
-
-const AdminLayout = () => {
-  return (
-    <div className="flex">
-      <Sidebar />
-      <div className="flex-1 p-6">
-        <Outlet />
-      </div>
-    </div>
-  )
-}
-
-export default AdminLayout
+export default App
