@@ -5,8 +5,8 @@ import { FaUsers, FaThLarge, FaFolder } from 'react-icons/fa'
 const Sidebar = () => {
   return (
     <div className="h-screen w-64 bg-gray-900 text-white flex flex-col">
-      <div className="flex items-center p-4 bg-blue-500">
-        <div className="w-10 h-10 bg-pink-500 text-white flex items-center justify-center rounded-full font-bold">
+      <div className="flex items-center p-4 bg-red-600">
+        <div className="w-10 h-10 bg-white text-red-600 flex items-center justify-center rounded-full font-bold">
           B
         </div>
         <h2 className="ml-3 text-lg font-semibold">Admin Panel</h2>
@@ -29,7 +29,7 @@ const SidebarItem = ({ icon, text, link }) => (
       to={link}
       className={({ isActive }) =>
         `flex items-center p-2 rounded-lg cursor-pointer ${
-          isActive ? 'bg-blue-500' : 'hover:bg-gray-700'
+          isActive ? 'bg-red-600' : 'hover:bg-gray-700'
         }`
       }
     >

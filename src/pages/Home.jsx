@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import React, { useState } from 'react'
 import DocumentTabs from '../components/layout/DocumentTabs'
 import documents from '../data/sampleDocuments'
