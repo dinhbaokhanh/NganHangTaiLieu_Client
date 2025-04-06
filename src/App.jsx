@@ -6,6 +6,8 @@ import AuthLayout from './components/layout/AuthLayout'
 
 const Home = lazy(() => import('./pages/Home'))
 const FileDetails = lazy(() => import('./pages/FileDetails'))
+const Profile = lazy(() => import('./pages/Profile'));
+const ChangePassword = lazy(() => import('./pages/ChangePasssword'));
 const Login = lazy(() => import('./pages/Auth/Login'))
 const Register = lazy(() => import('./pages/Auth/Register'))
 const Forgot = lazy(() => import('./pages/Auth/ForgotPassword'))
@@ -20,6 +22,8 @@ const App = () => {
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/file" element={<FileDetails />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/change" element={<ChangePassword />} />
           </Route>
 
           {/* Layout cho Auth */}
