@@ -7,8 +7,8 @@ import AdminLayout from './components/layout/AdminLayout'
 
 const Home = lazy(() => import('./pages/Home'))
 const FileDetails = lazy(() => import('./pages/FileDetails'))
-const Profile = lazy(() => import('./pages/Profile'));
-const ChangePassword = lazy(() => import('./pages/ChangePasssword'));
+const Profile = lazy(() => import('./pages/Profile'))
+const ChangePassword = lazy(() => import('./pages/Auth/ChangePassword'))
 const Login = lazy(() => import('./pages/Auth/Login'))
 const Register = lazy(() => import('./pages/Auth/Register'))
 const Forgot = lazy(() => import('./pages/Auth/ForgotPassword'))

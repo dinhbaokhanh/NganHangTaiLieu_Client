@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import React from 'react'
-import Header from '../components/layout/Header'
 import { FaEye, FaDownload, FaBookmark, FaFlag } from 'react-icons/fa'
 import documents from '../data/sampleDocuments'
 
