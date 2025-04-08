@@ -11,13 +11,14 @@ const Login = lazy(() => import('./pages/Auth/Login'))
 const Register = lazy(() => import('./pages/Auth/Register'))
 const Forgot = lazy(() => import('./pages/Auth/ForgotPassword'))
 const Reset = lazy(() => import('./pages/Auth/ResetPassword'))
+const Users = lazy(() => import('./pages/Admin/Users'))
 
 const App = () => {
   return (
     <BrowserRouter>
       <Suspense fallback={<div>Loading....</div>}>
         <Routes>
-          {/* Layout chính của app */}
+          {/* Layout của app */}
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/file" element={<FileDetails />} />
@@ -32,7 +33,9 @@ const App = () => {
           </Route>
 
           {/* Layout cho Admin */}
-          <Route element={<AdminLayout />}></Route>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/users" element={<Users />} />
+          </Route>
         </Routes>
       </Suspense>
     </BrowserRouter>
