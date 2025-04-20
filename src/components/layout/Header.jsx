@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Bell, Search, User, Key, LogOut } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import LogoIcon from '../../assets/logo.png'
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -21,7 +23,12 @@ const Header = () => {
   return (
     <div className="bg-white px-6 py-3 shadow-md flex justify-between items-center relative">
       <div className="flex items-center gap-3">
-        <img src={LogoIcon} alt="Logo" className="h-10" />
+        <img
+          src={LogoIcon}
+          alt="Logo"
+          className="h-10 cursor-pointer"
+          onClick={() => navigate('/')}
+        />
       </div>
 
       <div className="relative w-72">
@@ -51,13 +58,31 @@ const Header = () => {
 
           {isOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg overflow-hidden z-50">
-              <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer">
+              <button
+                className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => {
+                  navigate('/profile')
+                  setIsOpen(false)
+                }}
+              >
                 <User size={18} /> Thông tin cá nhân
               </button>
-              <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer">
+              <button
+                className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => {
+                  navigate('/change')
+                  setIsOpen(false)
+                }}
+              >
                 <Key size={18} /> Đổi mật khẩu
               </button>
-              <button className="w-full flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-gray-100 cursor-pointer">
+              <button
+                className="w-full flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-gray-100 cursor-pointer"
+                onClick={() => {
+                  navigate('/login')
+                  setIsOpen(false)
+                }}
+              >
                 <LogOut size={18} /> Đăng xuất
               </button>
             </div>
