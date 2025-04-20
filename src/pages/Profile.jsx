@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaUser, FaEnvelope } from "react-icons/fa"; // Import icon
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -36,28 +37,36 @@ const Profile = () => {
             console.log("Lưu:", name, email);
           }}
         >
-          <div className="flex flex-col">
+          {/* Input Tên người dùng */}
+          <div className="flex flex-col relative">
             <label className="font-semibold text-gray-700 mb-1">
               Tên người dùng
             </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
+            <div className="relative">
+              <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md "
+              />
+            </div>
           </div>
 
-          <div className="flex flex-col">
+          {/* Input Email */}
+          <div className="flex flex-col relative">
             <label className="font-semibold text-gray-700 mb-1">
               Email
             </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
+            <div className="relative">
+              <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md"
+              />
+            </div>
           </div>
 
           <div className="flex items-center">
