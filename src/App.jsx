@@ -14,7 +14,7 @@ const Register = lazy(() => import('./pages/Auth/Register'))
 const Forgot = lazy(() => import('./pages/Auth/ForgotPassword'))
 const Reset = lazy(() => import('./pages/Auth/ResetPassword'))
 const Users = lazy(() => import('./pages/Admin/Users'))
-
+const Files = lazy(() => import('./pages/Admin/Files'))
 const App = () => {
   return (
     <BrowserRouter>
@@ -39,6 +39,7 @@ const App = () => {
           {/* Layout cho Admin */}
           <Route element={<AdminLayout />}>
             <Route path="/admin/users" element={<Users />} />
+            <Route path="/admin/files" element={<Files />} />
           </Route>
         </Routes>
       </Suspense>
