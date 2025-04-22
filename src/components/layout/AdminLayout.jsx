@@ -5,7 +5,6 @@ import { FaUsers, FaThLarge, FaFolder, FaSignOutAlt } from 'react-icons/fa'
 const Sidebar = () => {
   return (
     <div className="h-screen w-64 bg-gray-800 text-white flex flex-col">
-      {/* Sidebar Header */}
       <div className="flex items-center p-4 bg-red-600">
         <div className="w-10 h-10 bg-white text-red-600 flex items-center justify-center rounded-full font-bold">
           B
@@ -13,16 +12,18 @@ const Sidebar = () => {
         <h2 className="ml-3 text-lg font-semibold">Admin Panel</h2>
       </div>
 
-      {/* Sidebar Navigation */}
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
-          <SidebarItem icon={<FaThLarge />} text="Dashboard" link="/admin" />
+          <SidebarItem
+            icon={<FaThLarge />}
+            text="Dashboard"
+            link="/admin/dashboard"
+          />
           <SidebarItem icon={<FaUsers />} text="Users" link="/admin/users" />
           <SidebarItem icon={<FaFolder />} text="Files" link="/admin/files" />
         </ul>
       </nav>
 
-      {/* Sidebar Footer with Logout */}
       <div className="p-4 bg-gray-700">
         <button className="flex items-center w-full text-left text-gray-300 cursor-pointer hover:text-white">
           <FaSignOutAlt className="mr-3" />
@@ -39,7 +40,9 @@ const SidebarItem = ({ icon, text, link }) => (
       to={link}
       className={({ isActive }) =>
         `flex items-center p-3 rounded-lg cursor-pointer transition ${
-          isActive ? 'bg-red-600 text-white' : 'hover:bg-gray-700 hover:text-white'
+          isActive
+            ? 'bg-red-600 text-white'
+            : 'hover:bg-gray-700 hover:text-white'
         }`
       }
     >
