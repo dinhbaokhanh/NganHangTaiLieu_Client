@@ -1,26 +1,46 @@
 import React, { useState } from 'react'
-import { FaEllipsisV, FaPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
+import { FaEllipsisV, FaPlus, FaChevronLeft, FaChevronRight, FaEdit, FaTrash } from 'react-icons/fa'
+import FileForm from '../../components/admin/FileForm'
 
 const Files = () => {
-  const documents = [
-    { id: 1, name: 'Giáo trình Lập trình', major: 'Công nghệ thông tin', author: 'Nguyễn Văn A', year: 2023 },
-    { id: 2, name: 'Kinh tế học cơ bản', major: 'Kinh tế', author: 'Trần Thị B', year: 2022 },
-    { id: 3, name: 'Quản trị doanh nghiệp', major: 'Quản trị kinh doanh', author: 'Lê Văn C', year: 2021 },
-    { id: 4, name: 'Giải thuật nâng cao', major: 'Công nghệ thông tin', author: 'Phạm Thị D', year: 2020 },
-    { id: 5, name: 'Phân tích tài chính', major: 'Kinh tế', author: 'Hoàng Văn E', year: 2019 },
-  ]
+  const [documents, setDocuments] = useState([
+    { id: 1, name: 'Giáo trình Lập trình', major: 'Công nghệ thông tin', author: 'Nguyễn Văn A', year: 2023, type: 'Giáo trình' },
+    { id: 2, name: 'Kinh tế học cơ bản', major: 'Kinh tế', author: 'Trần Thị B', year: 2022, type: 'Giáo trình' },
+    { id: 3, name: 'Quản trị doanh nghiệp', major: 'Quản trị kinh doanh', author: 'Lê Văn C', year: 2021, type: 'Ngân hàng câu hỏi' },
+    { id: 4, name: 'Giải thuật nâng cao', major: 'Công nghệ thông tin', author: 'Phạm Thị D', year: 2020, type: 'Giáo trình' },
+    { id: 5, name: 'Phân tích tài chính', major: 'Kinh tế', author: 'Hoàng Văn E', year: 2019, type: 'Ngân hàng câu hỏi' },
+  ])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingDocument, setEditingDocument] = useState(null)
 
   const [search, setSearch] = useState('')
   const [selectedMajor, setSelectedMajor] = useState('')
   const [selectedAuthor, setSelectedAuthor] = useState('')
   const [selectedYear, setSelectedYear] = useState('')
+  const [selectedType, setSelectedType] = useState('')
+
+  const handleAddDocument = (newDocument) => {
+    setDocuments([...documents, { id: Date.now(), ...newDocument }])
+    setIsModalOpen(false)
+  }
+
+  const handleEditDocument = (updatedDocument) => {
+    setDocuments(
+      documents.map((doc) =>
+        doc.id === editingDocument.id ? { ...doc, ...updatedDocument } : doc
+      )
+    )
+    setEditingDocument(null)
+    setIsModalOpen(false)
+  }
 
   const filteredDocuments = documents.filter((doc) => {
     const matchesName = doc.name.toLowerCase().includes(search.toLowerCase())
     const matchesMajor = selectedMajor ? doc.major === selectedMajor : true
     const matchesAuthor = selectedAuthor ? doc.author === selectedAuthor : true
     const matchesYear = selectedYear ? doc.year === parseInt(selectedYear) : true
-    return matchesName && matchesMajor && matchesAuthor && matchesYear
+    const matchesType = selectedType ? doc.type === selectedType : true
+    return matchesName && matchesMajor && matchesAuthor && matchesYear && matchesType
   })
 
   return (
@@ -29,7 +49,13 @@ const Files = () => {
         {/* Tiêu đề và nút thêm tài liệu */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-red-600">Danh sách tài liệu</h2>
-          <button className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition">
+          <button
+            onClick={() => {
+              setEditingDocument(null)
+              setIsModalOpen(true)
+            }}
+            className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition"
+          >
             <FaPlus />
             Thêm tài liệu
           </button>
@@ -44,6 +70,15 @@ const Files = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 px-4 py-2 border rounded-md"
           />
+          <select
+            className="px-4 py-2 border rounded-md"
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+          >
+            <option value="">Chọn loại tài liệu</option>
+            <option value="Giáo trình">Giáo trình</option>
+            <option value="Ngân hàng câu hỏi">Ngân hàng câu hỏi</option>
+          </select>
           <select
             className="px-4 py-2 border rounded-md"
             value={selectedMajor}
@@ -85,6 +120,7 @@ const Files = () => {
           <thead>
             <tr className="bg-gray-100">
               <th className="border border-gray-300 px-4 py-2 text-left">Tên tài liệu</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Loại tài liệu</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Ngành</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Tác giả</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Năm xuất bản</th>
@@ -95,12 +131,27 @@ const Files = () => {
             {filteredDocuments.map((doc) => (
               <tr key={doc.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{doc.name}</td>
+                <td className="border border-gray-300 px-4 py-2">{doc.type}</td>
                 <td className="border border-gray-300 px-4 py-2">{doc.major}</td>
                 <td className="border border-gray-300 px-4 py-2">{doc.author}</td>
                 <td className="border border-gray-300 px-4 py-2">{doc.year}</td>
                 <td className="border border-gray-300 px-4 py-2 text-center">
-                  <button className="text-gray-600 hover:text-red-600">
-                    <FaEllipsisV />
+                  {/* Icon chỉnh sửa */}
+                  <button
+                    onClick={() => {
+                      setEditingDocument(doc)
+                      setIsModalOpen(true)
+                    }}
+                    className="text-gray-600 cursor-pointer hover:text-blue-600 mr-4"
+                  >
+                    <FaEdit />
+                  </button>
+
+                  {/* Icon xóa */}
+                  <button
+                    className="text-gray-600 cursor-pointer hover:text-red-600"
+                  >
+                    <FaTrash />
                   </button>
                 </td>
               </tr>
@@ -134,6 +185,16 @@ const Files = () => {
           </button>
         </div>
       </div>
+
+      {/* Modal thêm/cập nhật tài liệu */}
+      {isModalOpen && (
+        <FileForm
+          mode={editingDocument ? 'edit' : 'add'}
+          initialData={editingDocument || {}}
+          onSubmit={editingDocument ? handleEditDocument : handleAddDocument}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   )
 }
