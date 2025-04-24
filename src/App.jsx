@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import AppLayout from './components/layout/AppLayout'
 import AuthLayout from './components/layout/AuthLayout'
 import AdminLayout from './components/layout/AdminLayout'
+import Dashboard from './pages/Admin/Dashboard'
 
 const Home = lazy(() => import('./pages/Home'))
 const FileDetails = lazy(() => import('./pages/FileDetails'))
@@ -38,6 +39,7 @@ const App = () => {
 
           {/* Layout cho Admin */}
           <Route element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/users" element={<Users />} />
             <Route path="/admin/files" element={<Files />} />
           </Route>

@@ -43,6 +43,7 @@ const Users = () => {
             }}
             className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition"
           >
+
             <FaPlus />
             Thêm người dùng
           </button>
@@ -74,23 +75,47 @@ const Users = () => {
         <table className="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-4 py-2 text-left">Họ và tên</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Mã sinh viên</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Lớp</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Ngành</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Email</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Trạng thái</th>
-              <th className="border border-gray-300 px-4 py-2 text-center">Hành động</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                Họ và tên
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                Mã sinh viên
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                Lớp
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                Ngành
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                Email
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                Trạng thái
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-center">
+                Hành động
+              </th>
             </tr>
           </thead>
           <tbody>
             {filteredUsers.map((user) => (
               <tr key={user.id} className="hover:bg-gray-50">
-                <td className="border border-gray-300 px-4 py-2">{user.name}</td>
-                <td className="border border-gray-300 px-4 py-2">{user.studentId}</td>
-                <td className="border border-gray-300 px-4 py-2">{user.class}</td>
-                <td className="border border-gray-300 px-4 py-2">{user.major}</td>
-                <td className="border border-gray-300 px-4 py-2">{user.email}</td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {user.name}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {user.studentId}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {user.class}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {user.major}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {user.email}
+                </td>
                 <td className="border border-gray-300 px-4 py-2">
                   <span className="px-2 py-1 text-sm text-green-600 bg-green-100 rounded-full">
                     {user.status}
