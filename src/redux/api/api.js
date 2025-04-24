@@ -1,3 +1,6 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { server } from '../../constants/config.js'
+
 const api = createApi({
   reducerPath: 'api', // Tên reducer slice trong Redux store
   baseQuery: fetchBaseQuery({ baseUrl: `${server}/api/` }), // Base URL cho các API endpoint
