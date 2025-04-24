@@ -1,29 +1,48 @@
 import React, { useState } from 'react'
-import { FaEllipsisV, FaPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
+import { FaPlus, FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
+import UserForm from '../../components/admin/UserForm'
 
 const Users = () => {
-  const users = [
+  const [users, setUsers] = useState([
     { id: 1, name: 'Nguyễn Văn A', studentId: 'B180001', class: 'K62-CNTT', major: 'Công nghệ thông tin', email: 'nguyenvana@example.com', status: 'Active' },
     { id: 2, name: 'Trần Thị B', studentId: 'B180002', class: 'K62-KT', major: 'Kinh tế', email: 'tranthib@example.com', status: 'Active' },
     { id: 3, name: 'Lê Văn C', studentId: 'B180003', class: 'K62-CNTT', major: 'Công nghệ thông tin', email: 'levanc@example.com', status: 'Active' },
     { id: 4, name: 'Phạm Thị D', studentId: 'B180004', class: 'K62-QTKD', major: 'Quản trị kinh doanh', email: 'phamthid@example.com', status: 'Active' },
     { id: 5, name: 'Hoàng Văn E', studentId: 'B180005', class: 'K62-CNTT', major: 'Công nghệ thông tin', email: 'hoangvane@example.com', status: 'Active' },
-    // Thêm người dùng khác tại đây
-  ]
+  ])
 
   const [search, setSearch] = useState('')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState(null)
 
   const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(search.toLowerCase())
   )
 
+  const handleAddUser = (newUser) => {
+    setUsers([...users, { id: Date.now(), ...newUser }])
+    setIsModalOpen(false)
+  }
+
+  const handleEditUser = (updatedUser) => {
+    setUsers(users.map((user) => (user.id === editingUser.id ? { ...updatedUser, id: editingUser.id } : user)))
+    setEditingUser(null)
+    setIsModalOpen(false)
+  }
+
   return (
     <div className="p-6 bg-gray-100 h-full">
       <div className="bg-white p-6 rounded-lg shadow-md">
-        {/* Nội dung bảng */}
+        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-red-600">Danh sách người dùng</h2>
-          <button className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition">
+          <button
+            onClick={() => {
+              setEditingUser(null)
+              setIsModalOpen(true)
+            }}
+            className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition"
+          >
             <FaPlus />
             Thêm người dùng
           </button>
@@ -38,14 +57,12 @@ const Users = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 px-4 py-2 border rounded-md"
           />
-          <select
-            className="px-4 py-2 border rounded-md"
-          >
+          <select className="px-4 py-2 border rounded-md">
             <option value="">Chọn trạng thái</option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </select>
-          <select className="px-2 py-2 border rounded-md">
+          <select className="px-4 py-2 border rounded-md">
             <option>Chọn ngành</option>
             <option>Công nghệ thông tin</option>
             <option>Kinh tế</option>
@@ -80,8 +97,19 @@ const Users = () => {
                   </span>
                 </td>
                 <td className="border border-gray-300 px-4 py-2 text-center">
-                  <button className="text-gray-600 hover:text-red-600">
-                    <FaEllipsisV />
+                  <button
+                    onClick={() => {
+                      setEditingUser(user)
+                      setIsModalOpen(true)
+                    }}
+                    className="text-gray-600 cursor-pointer hover:text-blue-600 mr-4"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="text-gray-600 cursor-pointer hover:text-red-600"
+                  >
+                    <FaTrash />
                   </button>
                 </td>
               </tr>
@@ -91,9 +119,7 @@ const Users = () => {
 
         {/* Pagination */}
         <div className="flex justify-between items-center mt-6">
-          <button
-            className="flex items-center justify-center gap-2 w-24 px-4 py-2 bg-gray-200 text-gray-600 rounded-md cursor-pointer hover:bg-red-600 hover:text-white transition"
-          >
+          <button className="flex items-center justify-center gap-2 w-24 px-4 py-2 bg-gray-200 text-gray-600 rounded-md cursor-pointer hover:bg-red-600 hover:text-white transition">
             <FaChevronLeft />
             Trước
           </button>
@@ -107,14 +133,22 @@ const Users = () => {
               </button>
             ))}
           </div>
-          <button
-            className="flex items-center justify-center gap-2 w-24 px-4 py-2 bg-gray-200 text-gray-600 rounded-md cursor-pointer hover:bg-red-600 hover:text-white transition"
-          >
+          <button className="flex items-center justify-center gap-2 w-24 px-4 py-2 bg-gray-200 text-gray-600 rounded-md cursor-pointer hover:bg-red-600 hover:text-white transition">
             Sau
             <FaChevronRight />
           </button>
         </div>
       </div>
+
+      {/* User Form Modal */}
+      {isModalOpen && (
+        <UserForm
+          mode={editingUser ? 'edit' : 'add'}
+          initialData={editingUser || {}}
+          onSubmit={editingUser ? handleEditUser : handleAddUser}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   )
 }
