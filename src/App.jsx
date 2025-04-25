@@ -34,7 +34,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot" element={<Forgot />} />
-            <Route path="/reset" element={<Reset />} />
+            <Route path="/reset-password/:id/:token" element={<Reset />} />
           </Route>
 
           {/* Layout cho Admin */}

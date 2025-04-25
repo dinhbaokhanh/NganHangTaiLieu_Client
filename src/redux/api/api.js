@@ -18,7 +18,7 @@ const api = createApi({
     }),
 
     forgotPassword: builder.mutation({
-      query: (email) => ({
+      query: ({ email }) => ({
         url: '/user/forgot-password',
         method: 'POST',
         body: { email },
@@ -26,10 +26,10 @@ const api = createApi({
     }),
 
     resetPassword: builder.mutation({
-      query: ({ id, token, password }) => ({
+      query: ({ id, token, password, confirmPassword }) => ({
         url: `/user/reset-password/${id}/${token}`,
         method: 'POST',
-        body: { password },
+        body: { password, confirmPassword },
       }),
     }),
   }),
