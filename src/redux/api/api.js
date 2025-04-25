@@ -4,25 +4,26 @@ import { server } from '../../constants/config.js'
 const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl: `${server}/api/` }),
-
   tagTypes: ['User'],
 
   endpoints: (builder) => ({
     registerUser: builder.mutation({
       query: (formData) => ({
-        url: '/user/register', // Endpoint phía server
-        method: 'POST', // Phương thức POST
-        body: formData, // Dữ liệu gửi đi (thường là từ form)
-        credentials: 'include', // Gửi cookie nếu cần (cho phiên đăng nhập)
+        url: '/user/register',
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
       }),
     }),
-    // Endpoint để gọi API đăng nhập người dùng
+
     loginUser: builder.mutation({
       query: (formData) => ({
-        url: '/user/login', // Endpoint phía server
-        method: 'POST', // Phương thức POST
-        body: formData, // Dữ liệu gửi đi (thường là từ form)
-        credentials: 'include', // Gửi cookie nếu cần (cho phiên đăng nhập)
+        url: '/user/login',
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      }),
+    }),
 
     forgotPassword: builder.mutation({
       query: ({ email }) => ({
