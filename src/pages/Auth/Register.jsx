@@ -1,22 +1,42 @@
 import { useState } from 'react'
-import { FaEnvelope, FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa'
-import { useRegisterUserMutation } from '../../redux/api/api.js'
-import { useAsyncMutation, useErrors } from '../../hooks/hook.js'
+import {
+  FaEnvelope,
+  FaUser,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaImage,
+} from 'react-icons/fa'
+import { useErrors } from '../../hooks/hook.js'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { server } from '../../constants/config.js'
+import {
+  isValidUsername,
+  useFileHandler,
+  useInputValidation,
+  useStrongPassword,
+} from '6pp'
+import axios from 'axios'
 
 const Register = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [errors, setErrors] = useState({})
-  const [formData, setFormData] = useState({
-    email: '',
-    username: '',
-    password: '',
-    confirmPassword: '',
-  })
 
-  const [register, loading] = useAsyncMutation(useRegisterUserMutation)
+  const usernameValidator = (username) => {
+    if (!isValidUsername(username))
+      return { isValid: false, errorMessage: 'Username is invalid' }
+  }
+
+  const username = useInputValidation('', usernameValidator)
+  const password = useStrongPassword()
+  const email = useInputValidation('')
+  const confirmPassword = useInputValidation('')
+
+  const avatar = useFileHandler('single')
 
   const apiErrors = [
     {
@@ -30,75 +50,59 @@ const Register = () => {
 
   useErrors(apiErrors)
 
-  const validateForm = () => {
-    const newErrors = {}
-
-    if (!formData.email) {
-      newErrors.email = 'Email không được để trống'
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email không hợp lệ'
-    }
-
-    if (!formData.username) {
-      newErrors.username = 'Tên đăng nhập không được để trống'
-    } else if (formData.username.length < 3) {
-      newErrors.username = 'Tên đăng nhập phải có ít nhất 3 ký tự'
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Mật khẩu không được để trống'
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự'
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Mật khẩu không khớp'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: '' })
-    }
+    if (name === 'email') email.changeHandler(e)
+    else if (name === 'username') username.changeHandler(e)
+    else if (name === 'password') password.changeHandler(e)
+    else if (name === 'confirmPassword') confirmPassword.changeHandler(e)
+
+    if (errors[name]) setErrors({ ...errors, [name]: '' })
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    const toastId = toast.loading('Đang đăng ký...')
+    setLoading(true)
+    const config = {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
 
-    if (!validateForm()) {
+    if (password.value !== confirmPassword.value) {
+      setErrors({ confirmPassword: 'Mật khẩu không khớp' })
+      toast.dismiss(toastId)
+      setLoading(false)
       return
     }
 
-    try {
-      const response = await register('Đang đăng ký...', {
-        email: formData.email,
-        username: formData.username,
-        password: formData.password,
-      })
+    const formData = new FormData()
+    formData.append('avatar', avatar.file)
+    formData.append('username', username.value)
+    formData.append('email', email.value)
+    formData.append('password', password.value)
 
-      if (response?.success) {
-        setTimeout(() => {
-          navigate('/login')
-        }, 1500)
+    try {
+      const { data } = await axios.post(
+        `${server}/api/user/register`,
+        formData,
+        config
+      )
+
+      if (data && data.success) {
+        toast.success('Đăng ký thành công!')
+        navigate('/login')
       } else {
-        setErrors({
-          ...errors,
-          api: true,
-          apiMessage: response?.error?.data?.message || 'Registration failed',
-        })
+        toast.error(data?.message || 'Đăng ký thất bại')
       }
+      toast.dismiss(toastId)
     } catch (error) {
-      console.error('Registration failed:', error)
-      setErrors({
-        ...errors,
-        api: true,
-        apiMessage: error?.message || 'Something went wrong',
-      })
+      toast.error(error?.response?.data?.message || 'Đã có lỗi xảy ra')
+      toast.dismiss(toastId)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -108,13 +112,37 @@ const Register = () => {
         Đăng ký
       </h3>
       <form className="mt-4" onSubmit={handleSubmit}>
+        <div className="flex justify-center mb-6 relative w-32 h-32 mx-auto">
+          <img
+            src={
+              avatar.preview || 'https://www.w3schools.com/howto/img_avatar.png'
+            }
+            alt="Avatar"
+            className="w-full h-full object-cover rounded-full border border-gray-300 shadow-md"
+          />
+          <label
+            htmlFor="avatar"
+            className="absolute bottom-0 right-0 bg-red-600 text-white p-2 rounded-full cursor-pointer border-2 border-white hover:bg-red-700 transition"
+            title="Chọn ảnh đại diện"
+          >
+            <FaImage />
+          </label>
+          <input
+            type="file"
+            id="avatar"
+            accept="image/*"
+            onChange={avatar.changeHandler}
+            className="hidden"
+          />
+        </div>
+
         <div className="mb-3 sm:mb-4 relative">
           <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="email"
             name="email"
             placeholder="Email"
-            value={formData.email}
+            value={email.value}
             onChange={handleChange}
             className={`w-full pl-10 px-3 py-2 border ${
               errors.email ? 'border-red-500' : 'border-black'
@@ -130,7 +158,7 @@ const Register = () => {
             type="text"
             name="username"
             placeholder="Tên đăng nhập"
-            value={formData.username}
+            value={username.value}
             onChange={handleChange}
             className={`w-full pl-10 px-3 py-2 border ${
               errors.username ? 'border-red-500' : 'border-black'
@@ -146,7 +174,7 @@ const Register = () => {
             type={showPassword ? 'text' : 'password'}
             name="password"
             placeholder="Mật khẩu"
-            value={formData.password}
+            value={password.value}
             onChange={handleChange}
             className={`w-full pl-10 px-3 py-2 border ${
               errors.password ? 'border-red-500' : 'border-black'
@@ -169,7 +197,7 @@ const Register = () => {
             type={showConfirmPassword ? 'text' : 'password'}
             name="confirmPassword"
             placeholder="Xác nhận mật khẩu"
-            value={formData.confirmPassword}
+            value={confirmPassword.value}
             onChange={handleChange}
             className={`w-full pl-10 px-3 py-2 border ${
               errors.confirmPassword ? 'border-red-500' : 'border-black'
