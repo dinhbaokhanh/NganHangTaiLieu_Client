@@ -8,17 +8,42 @@ const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false); // Trạng thái hiển thị mật khẩu
   const [formData, setFormData] = useState({ username: '', password: '' }); // Dữ liệu form đăng nhập
+  const [errors, setErrors] = useState({}); // Lưu lỗi của các trường
   const [loginUser, { isLoading }] = useLoginUserMutation(); // Hook gọi API đăng nhập
+
+  // Kiểm tra dữ liệu form
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.username) {
+      newErrors.username = 'Tên đăng nhập không được để trống';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Mật khẩu không được để trống';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Trả về true nếu không có lỗi
+  };
 
   // Xử lý thay đổi dữ liệu form
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' }); // Xóa lỗi khi người dùng nhập lại
+    }
   };
 
   // Xử lý khi submit form
   const handleSubmit = async (e) => {
     e.preventDefault(); // Ngăn chặn reload trang
+
+    if (!validateForm()) {
+      return; // Nếu có lỗi, không submit
+    }
+
     try {
       const response = await loginUser(formData).unwrap(); // Gọi API đăng nhập
       toast.success('Đăng nhập thành công!'); // Hiển thị thông báo thành công
@@ -44,8 +69,13 @@ const Login = () => {
             placeholder="Tên đăng nhập"
             value={formData.username}
             onChange={handleChange}
-            className="w-full pl-10 px-3 py-2 border border-black bg-white text-black rounded-md"
+            className={`w-full pl-10 px-3 py-2 border ${
+              errors.username ? 'border-red-500' : 'border-black'
+            } bg-white text-black rounded-md`}
           />
+          {errors.username && (
+            <p className="text-red-500 text-xs mt-1">{errors.username}</p>
+          )}
         </div>
         {/* Input mật khẩu */}
         <div className="mb-3 sm:mb-4 relative">
@@ -56,7 +86,9 @@ const Login = () => {
             placeholder="Mật khẩu"
             value={formData.password}
             onChange={handleChange}
-            className="w-full pl-10 px-3 py-2 border border-black bg-white text-black rounded-md"
+            className={`w-full pl-10 px-3 py-2 border ${
+              errors.password ? 'border-red-500' : 'border-black'
+            } bg-white text-black rounded-md`}
           />
           <button
             type="button"
@@ -65,6 +97,9 @@ const Login = () => {
           >
             {showPassword ? <FaEye /> : <FaEyeSlash />}
           </button>
+          {errors.password && (
+            <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+          )}
         </div>
         {/* Liên kết đến đăng ký và quên mật khẩu */}
         <div className="flex justify-between text-sm mb-4">
