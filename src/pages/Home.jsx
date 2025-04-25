@@ -1,17 +1,35 @@
-import React, { useState } from 'react'
-import DocumentTabs from '../components/layout/DocumentTabs'
-import documents from '../data/sampleDocuments'
-import defaultFileImg from '../assets/doc_image_default.png'
+import React, { useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import DocumentTabs from '../components/layout/DocumentTabs';
+import documents from '../data/sampleDocuments';
+import defaultFileImg from '../assets/doc_image_default.png';
 
 const Home = () => {
-  const [activeTab, setActiveTab] = useState('theory')
+  const [searchParams, setSearchParams] = useSearchParams(); // Quản lý query string
+  const navigate = useNavigate();
+  const tab = searchParams.get('tab') || 'theory'; // Lấy giá trị tab từ URL, mặc định là 'theory'
+  const token = localStorage.getItem('token'); // Kiểm tra trạng thái đăng nhập
+
+  // Chuyển hướng đến Login nếu tab là "saved" và chưa đăng nhập
+  useEffect(() => {
+    if (tab === 'saved' && !token) {
+      navigate(`/login?redirect=/?tab=saved`);
+    }
+  }, [tab, token, navigate]);
+
+  // Lọc tài liệu dựa trên tab hiện tại
   const filteredDocs = documents.filter((doc) =>
-    activeTab === 'saved' ? doc.saved : doc.category === activeTab
-  )
+    tab === 'saved' ? doc.saved : doc.category === tab
+  );
+
+  // Thay đổi tab
+  const handleTabChange = (newTab) => {
+    setSearchParams({ tab: newTab });
+  };
 
   return (
     <div className="container mx-auto p-4">
-      <DocumentTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <DocumentTabs activeTab={tab} setActiveTab={handleTabChange} />
 
       <div className="mt-4 p-4 rounded-lg bg-white grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {filteredDocs.length > 0 ? (
@@ -35,7 +53,7 @@ const Home = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

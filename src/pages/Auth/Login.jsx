@@ -1,15 +1,17 @@
-import { useNavigate } from 'react-router-dom'
-import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa'
-import { useState } from 'react'
-import { useLoginUserMutation } from '../../redux/api/api.js'
-import { toast } from 'react-toastify'
+import { useNavigate, useLocation } from 'react-router-dom';
+import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useState } from 'react';
+import { useLoginUserMutation } from '../../redux/api/api.js';
+import { toast } from 'react-toastify';
 
 const Login = () => {
-  const navigate = useNavigate()
-  const [showPassword, setShowPassword] = useState(false) // Trạng thái hiển thị mật khẩu
-  const [formData, setFormData] = useState({ username: '', password: '' }) // Dữ liệu form đăng nhập
-  const [errors, setErrors] = useState({}) // Lưu lỗi của các trường
-  const [loginUser, { isLoading }] = useLoginUserMutation() // Hook gọi API đăng nhập
+  const navigate = useNavigate();
+  const location = useLocation();
+  const redirect = new URLSearchParams(location.search).get('redirect') || '/'; // Lấy giá trị redirect từ query hoặc mặc định là "/"
+  const [showPassword, setShowPassword] = useState(false); // Trạng thái hiển thị mật khẩu
+  const [formData, setFormData] = useState({ username: '', password: '' }); // Dữ liệu form đăng nhập
+  const [errors, setErrors] = useState({}); // Lưu lỗi của các trường
+  const [loginUser, { isLoading }] = useLoginUserMutation(); // Hook gọi API đăng nhập
 
   // Kiểm tra dữ liệu form
   const validateForm = () => {
@@ -48,7 +50,7 @@ const Login = () => {
       const response = await loginUser(formData).unwrap()
       toast.success('Đăng nhập thành công!')
       localStorage.setItem('token', response.token)
-
+      navigate(redirect);
       // Check for admin role in the response
       if (response.user && response.user.role === 'admin') {
         navigate('/admin/dashboard')
