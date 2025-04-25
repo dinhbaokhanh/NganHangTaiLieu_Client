@@ -42,7 +42,7 @@ const App = () => {
           {/* Layout của app */}
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} /> {/* Trang Home không yêu cầu đăng nhập */}
-            <Route path="/file" element={<PrivateRoute><FileDetails /></PrivateRoute>} />
+            <Route path="/file" element={<FileDetails />} /> {/* Trang FileDetails không yêu cầu đăng nhập */}
             <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
             <Route path="/change" element={<PrivateRoute><ChangePassword /></PrivateRoute>} />
           </Route>

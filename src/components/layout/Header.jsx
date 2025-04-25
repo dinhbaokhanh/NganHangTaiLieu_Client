@@ -1,33 +1,35 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { Bell, Search, User, Key, LogOut } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
-import { logout } from '../../redux/reducers/auth'
-import LogoIcon from '../../assets/logo.png'
+import React, { useState, useRef, useEffect } from 'react';
+import { Bell, Search, User, Key, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../redux/reducers/auth';
+import LogoIcon from '../../assets/logo.png';
 
 const Header = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const dropdownRef = useRef(null)
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const token = localStorage.getItem('token'); // Kiểm tra trạng thái đăng nhập
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false)
+        setIsOpen(false);
       }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
+    };
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = () => {
-    dispatch(logout()) // Cập nhật Redux
-    localStorage.removeItem('token') // Xóa token khỏi localStorage
-    navigate('/') // Chuyển hướng về trang đăng nhập
-  }
+    dispatch(logout()); // Cập nhật Redux
+    localStorage.removeItem('token'); // Xóa token khỏi localStorage
+    navigate('/'); // Chuyển hướng về trang đăng nhập
+  };
 
   return (
     <div className="bg-white px-6 py-3 shadow-md flex justify-between items-center relative">
@@ -50,56 +52,67 @@ const Header = () => {
         <input
           type="text"
           placeholder="Tìm kiếm..."
-          className="w-full pl-10 pr-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-red-400"
+          className="w-full pl-10 pr-4 py-2 border rounded-full"
         />
       </div>
 
       {/* Menu người dùng */}
       <div className="flex items-center gap-4 relative">
-        <Bell
-          className="text-gray-600 cursor-pointer hover:text-red-500 transition duration-200"
-          size={24}
-        />
-        <span className="text-gray-400">|</span>
+        {token ? (
+          <>
+            <Bell
+              className="text-gray-600 cursor-pointer hover:text-red-500 transition duration-200"
+              size={24}
+            />
+            <span className="text-gray-400">|</span>
 
-        <div className="relative" ref={dropdownRef}>
-          <div
-            className="w-10 h-10 bg-gray-300 rounded-full cursor-pointer hover:opacity-80 transition duration-200"
-            onClick={() => setIsOpen(!isOpen)}
-          />
+            <div className="relative" ref={dropdownRef}>
+              <div
+                className="w-10 h-10 bg-gray-300 rounded-full cursor-pointer hover:opacity-80 transition duration-200"
+                onClick={() => setIsOpen(!isOpen)}
+              ></div> {/* Đóng thẻ <div> đúng cách */}
 
-          {isOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg overflow-hidden z-50">
-              <button
-                className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => {
-                  navigate('/profile')
-                  setIsOpen(false)
-                }}
-              >
-                <User size={18} /> Thông tin cá nhân
-              </button>
-              <button
-                className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => {
-                  navigate('/change')
-                  setIsOpen(false)
-                }}
-              >
-                <Key size={18} /> Đổi mật khẩu
-              </button>
-              <button
-                className="w-full flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-gray-100 cursor-pointer"
-                onClick={handleLogout}
-              >
-                <LogOut size={18} /> Đăng xuất
-              </button>
+              {isOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg overflow-hidden z-50">
+                  <button
+                    className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      navigate('/profile');
+                      setIsOpen(false);
+                    }}
+                  >
+                    <User size={18} /> Thông tin cá nhân
+                  </button>
+                  <button
+                    className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      navigate('/change');
+                      setIsOpen(false);
+                    }}
+                  >
+                    <Key size={18} /> Đổi mật khẩu
+                  </button>
+                  <button
+                    className="w-full flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-gray-100 cursor-pointer"
+                    onClick={handleLogout}
+                  >
+                    <LogOut size={18} /> Đăng xuất
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <button
+            onClick={() => navigate('/login')}
+            className="text-white bg-red-500 font-semibold px-4 py-2 rounded-full cursor-pointer hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200"
+          >
+            Đăng nhập
+          </button>
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

@@ -1,10 +1,16 @@
 /* eslint-disable no-unused-vars */
-import React from 'react'
-import { FaEye, FaDownload, FaBookmark, FaFlag } from 'react-icons/fa'
-import documents from '../data/sampleDocuments'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate để điều hướng
+import { FaEye, FaDownload, FaBookmark, FaFlag } from 'react-icons/fa';
+import SuggestModal from '../components/shared/SuggestModal'; // Import SuggestModal
+import documents from '../data/sampleDocuments';
 
 const FileDetails = () => {
-  const file = documents[6]
+  const [showModal, setShowModal] = useState(false); // Trạng thái hiển thị modal
+  const token = localStorage.getItem('token'); // Kiểm tra trạng thái đăng nhập
+  const navigate = useNavigate(); // Hook điều hướng
+
+  const file = documents[6];
   const {
     category,
     title,
@@ -13,7 +19,7 @@ const FileDetails = () => {
     thumbnail,
     author,
     publishedYear,
-  } = file
+  } = file;
 
   const categoryPrefix =
     category === 'theory'
@@ -22,7 +28,16 @@ const FileDetails = () => {
       ? 'Ngân hàng: '
       : category === 'exam'
       ? 'Đề thi: '
-      : ''
+      : '';
+
+  // Xử lý khi bấm vào các nút
+  const handleAction = () => {
+    if (!token) {
+      setShowModal(true); // Hiển thị modal nếu chưa đăng nhập
+      return;
+    }
+    console.log('Người dùng đã đăng nhập, thực hiện hành động.');
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -71,7 +86,10 @@ const FileDetails = () => {
                 { icon: FaDownload, label: 'Tải về' },
               ].map(({ icon: Icon, label }, index) => (
                 <div key={index} className="group relative">
-                  <button className="p-3 w-12 h-12 bg-red-600 text-white rounded-md flex items-center justify-center hover:cursor-pointer hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200">
+                  <button
+                    onClick={handleAction} // Gọi hàm xử lý
+                    className="p-3 w-12 h-12 bg-red-600 text-white rounded-md flex items-center justify-center hover:cursor-pointer hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200"
+                  >
                     <Icon size={20} />
                   </button>
                   <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm font-medium text-white bg-gray-700 rounded w-max opacity-0 group-hover:opacity-100 transition-opacity">
@@ -80,7 +98,10 @@ const FileDetails = () => {
                 </div>
               ))}
 
-              <button className="flex items-center gap-2 p-3 px-4 border border-red-600 text-red-600 rounded-md cursor-pointer hover:bg-gray-100 transition duration-200">
+              <button
+                onClick={handleAction} // Gọi hàm xử lý
+                className="flex items-center gap-2 p-3 px-4 border border-red-600 text-red-600 rounded-md cursor-pointer hover:bg-gray-100 transition duration-200"
+              >
                 <FaFlag size={20} />
                 <span>Phản hồi</span>
               </button>
@@ -97,12 +118,24 @@ const FileDetails = () => {
               placeholder="Bình luận..."
               className="flex-1 p-2 border rounded-lg"
             />
-            <button className="p-2 bg-red-600 text-white rounded hover:cursor-pointer hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200">➤</button>
+            <button className="p-2 bg-red-600 text-white rounded hover:cursor-pointer hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200">
+              ➤
+            </button>
           </div>
         </div>
       </div>
-    </div>
-  )
-}
 
-export default FileDetails
+      {/* Modal */}
+      <SuggestModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="Bạn cần đăng nhập"
+        description="Đăng nhập để sử dụng chức năng này hoặc đăng ký nếu bạn chưa có tài khoản."
+        onLogin={() => navigate('/login')} // Điều hướng đến trang đăng nhập
+        onRegister={() => navigate('/register')} // Điều hướng đến trang đăng ký
+      />
+    </div>
+  );
+};
+
+export default FileDetails;
