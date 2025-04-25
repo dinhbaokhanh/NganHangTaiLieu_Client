@@ -12,6 +12,7 @@ const useErrors = (errors = []) => {
 }
 
 const useAsyncMutation = (mutationHook) => {
+
   const [isLoading, setIsLoading] = useState(false)
   const [data, setData] = useState(null)
 
@@ -54,9 +55,10 @@ const useAsyncMutation = (mutationHook) => {
     } finally {
       setIsLoading(false)
     }
-  }
+  };
+
 
   return [executeMutation, isLoading, data]
 }
 
-export { useErrors, useAsyncMutation }
+export { useErrors, useAsyncMutation };
