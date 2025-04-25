@@ -6,7 +6,6 @@ const authSlice = createSlice({
   initialState: {
     userInfo: null, // Lưu thông tin người dùng sau khi đăng ký/thành công
     token: null, // Lưu token sau khi đăng nhập
-    userInfo: null,
     isLoading: false,
     message: null,
   },
