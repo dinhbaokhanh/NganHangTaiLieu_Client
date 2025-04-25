@@ -7,15 +7,6 @@ const api = createApi({
   tagTypes: ['User'],
 
   endpoints: (builder) => ({
-    registerUser: builder.mutation({
-      query: (formData) => ({
-        url: '/user/register',
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      }),
-    }),
-
     loginUser: builder.mutation({
       query: (formData) => ({
         url: '/user/login',
@@ -46,7 +37,6 @@ const api = createApi({
 export default api
 
 export const {
-  useRegisterUserMutation,
   useForgotPasswordMutation,
   useLoginUserMutation,
   useResetPasswordMutation,

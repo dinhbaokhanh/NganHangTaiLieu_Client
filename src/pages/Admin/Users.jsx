@@ -1,14 +1,60 @@
 import React, { useState } from 'react'
-import { FaPlus, FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
+import {
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaChevronLeft,
+  FaChevronRight,
+} from 'react-icons/fa'
 import UserForm from '../../components/admin/UserForm'
 
 const Users = () => {
   const [users, setUsers] = useState([
-    { id: 1, name: 'Nguyễn Văn A', studentId: 'B180001', class: 'K62-CNTT', major: 'Công nghệ thông tin', email: 'nguyenvana@example.com', status: 'Active' },
-    { id: 2, name: 'Trần Thị B', studentId: 'B180002', class: 'K62-KT', major: 'Kinh tế', email: 'tranthib@example.com', status: 'Active' },
-    { id: 3, name: 'Lê Văn C', studentId: 'B180003', class: 'K62-CNTT', major: 'Công nghệ thông tin', email: 'levanc@example.com', status: 'Active' },
-    { id: 4, name: 'Phạm Thị D', studentId: 'B180004', class: 'K62-QTKD', major: 'Quản trị kinh doanh', email: 'phamthid@example.com', status: 'Active' },
-    { id: 5, name: 'Hoàng Văn E', studentId: 'B180005', class: 'K62-CNTT', major: 'Công nghệ thông tin', email: 'hoangvane@example.com', status: 'Active' },
+    {
+      id: 1,
+      name: 'Nguyễn Văn A',
+      studentId: 'B180001',
+      class: 'K62-CNTT',
+      major: 'Công nghệ thông tin',
+      email: 'nguyenvana@example.com',
+      status: 'Active',
+    },
+    {
+      id: 2,
+      name: 'Trần Thị B',
+      studentId: 'B180002',
+      class: 'K62-KT',
+      major: 'Kinh tế',
+      email: 'tranthib@example.com',
+      status: 'Active',
+    },
+    {
+      id: 3,
+      name: 'Lê Văn C',
+      studentId: 'B180003',
+      class: 'K62-CNTT',
+      major: 'Công nghệ thông tin',
+      email: 'levanc@example.com',
+      status: 'Active',
+    },
+    {
+      id: 4,
+      name: 'Phạm Thị D',
+      studentId: 'B180004',
+      class: 'K62-QTKD',
+      major: 'Quản trị kinh doanh',
+      email: 'phamthid@example.com',
+      status: 'Active',
+    },
+    {
+      id: 5,
+      name: 'Hoàng Văn E',
+      studentId: 'B180005',
+      class: 'K62-CNTT',
+      major: 'Công nghệ thông tin',
+      email: 'hoangvane@example.com',
+      status: 'Active',
+    },
   ])
 
   const [search, setSearch] = useState('')
@@ -25,7 +71,13 @@ const Users = () => {
   }
 
   const handleEditUser = (updatedUser) => {
-    setUsers(users.map((user) => (user.id === editingUser.id ? { ...updatedUser, id: editingUser.id } : user)))
+    setUsers(
+      users.map((user) =>
+        user.id === editingUser.id
+          ? { ...updatedUser, id: editingUser.id }
+          : user
+      )
+    )
     setEditingUser(null)
     setIsModalOpen(false)
   }
@@ -35,7 +87,9 @@ const Users = () => {
       <div className="bg-white p-6 rounded-lg shadow-md">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-red-600">Danh sách người dùng</h2>
+          <h2 className="text-2xl font-bold text-red-600">
+            Danh sách người dùng
+          </h2>
           <button
             onClick={() => {
               setEditingUser(null)
@@ -43,7 +97,6 @@ const Users = () => {
             }}
             className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition"
           >
-
             <FaPlus />
             Thêm người dùng
           </button>
@@ -79,15 +132,6 @@ const Users = () => {
                 Họ và tên
               </th>
               <th className="border border-gray-300 px-4 py-2 text-left">
-                Mã sinh viên
-              </th>
-              <th className="border border-gray-300 px-4 py-2 text-left">
-                Lớp
-              </th>
-              <th className="border border-gray-300 px-4 py-2 text-left">
-                Ngành
-              </th>
-              <th className="border border-gray-300 px-4 py-2 text-left">
                 Email
               </th>
               <th className="border border-gray-300 px-4 py-2 text-left">
@@ -103,15 +147,6 @@ const Users = () => {
               <tr key={user.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">
                   {user.name}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {user.studentId}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {user.class}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {user.major}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
                   {user.email}
@@ -131,9 +166,7 @@ const Users = () => {
                   >
                     <FaEdit />
                   </button>
-                  <button
-                    className="text-gray-600 cursor-pointer hover:text-red-600"
-                  >
+                  <button className="text-gray-600 cursor-pointer hover:text-red-600">
                     <FaTrash />
                   </button>
                 </td>

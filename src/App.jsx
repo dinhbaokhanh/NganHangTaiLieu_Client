@@ -57,9 +57,30 @@ const App = () => {
 
           {/* Layout cho Admin */}
           <Route element={<AdminLayout />}>
-            <Route path="/admin/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-            <Route path="/admin/users" element={<PrivateRoute><Users /></PrivateRoute>} />
-            <Route path="/admin/files" element={<PrivateRoute><Files /></PrivateRoute>} />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <PrivateRoute>
+                  <Users />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/files"
+              element={
+                <PrivateRoute>
+                  <Files />
+                </PrivateRoute>
+              }
+            />
           </Route>
         </Routes>
       </Suspense>
