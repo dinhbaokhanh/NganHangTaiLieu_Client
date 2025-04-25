@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { FaEnvelope, FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useRegisterUserMutation } from '../../redux/api/api.js'
 import { useAsyncMutation } from '../../hooks/hook.js'
-import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 
 const Register = () => {
