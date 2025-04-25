@@ -30,10 +30,31 @@ const App = () => {
         <Routes>
           {/* Layout của app */}
           <Route element={<AppLayout />}>
-            <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
-            <Route path="/file" element={<PrivateRoute><FileDetails /></PrivateRoute>} />
-            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-            <Route path="/change" element={<PrivateRoute><ChangePassword /></PrivateRoute>} />
+            <Route path="/" element={<Home />} />
+            <Route
+              path="/file"
+              element={
+                <PrivateRoute>
+                  <FileDetails />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/change"
+              element={
+                <PrivateRoute>
+                  <ChangePassword />
+                </PrivateRoute>
+              }
+            />
           </Route>
 
           {/* Layout cho Auth */}
@@ -46,9 +67,30 @@ const App = () => {
 
           {/* Layout cho Admin */}
           <Route element={<AdminLayout />}>
-            <Route path="/admin/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-            <Route path="/admin/users" element={<PrivateRoute><Users /></PrivateRoute>} />
-            <Route path="/admin/files" element={<PrivateRoute><Files /></PrivateRoute>} />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <PrivateRoute>
+                  <Users />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/files"
+              element={
+                <PrivateRoute>
+                  <Files />
+                </PrivateRoute>
+              }
+            />
           </Route>
         </Routes>
       </Suspense>
