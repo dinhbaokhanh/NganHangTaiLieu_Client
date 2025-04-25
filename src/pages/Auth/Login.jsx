@@ -1,58 +1,79 @@
-import { useNavigate } from 'react-router-dom';
-import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
-import { useState } from 'react';
-import { useLoginUserMutation } from '../../redux/api/api.js';
-import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom'
+import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa'
+import { useState } from 'react'
+import { useLoginUserMutation } from '../../redux/api/api.js'
+import { toast } from 'react-toastify'
 
 const Login = () => {
-  const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false); // Trạng thái hiển thị mật khẩu
-  const [formData, setFormData] = useState({ username: '', password: '' }); // Dữ liệu form đăng nhập
-  const [errors, setErrors] = useState({}); // Lưu lỗi của các trường
-  const [loginUser, { isLoading }] = useLoginUserMutation(); // Hook gọi API đăng nhập
+  const navigate = useNavigate()
+  const [showPassword, setShowPassword] = useState(false) // Trạng thái hiển thị mật khẩu
+  const [formData, setFormData] = useState({ username: '', password: '' }) // Dữ liệu form đăng nhập
+  const [errors, setErrors] = useState({}) // Lưu lỗi của các trường
+  const [loginUser, { isLoading }] = useLoginUserMutation() // Hook gọi API đăng nhập
 
   // Kiểm tra dữ liệu form
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors = {}
 
     if (!formData.username) {
-      newErrors.username = 'Tên đăng nhập không được để trống';
+      newErrors.username = 'Tên đăng nhập không được để trống'
     }
 
     if (!formData.password) {
-      newErrors.password = 'Mật khẩu không được để trống';
+      newErrors.password = 'Mật khẩu không được để trống'
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Trả về true nếu không có lỗi
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0 // Trả về true nếu không có lỗi
+  }
 
   // Xử lý thay đổi dữ liệu form
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
     if (errors[name]) {
-      setErrors({ ...errors, [name]: '' }); // Xóa lỗi khi người dùng nhập lại
+      setErrors({ ...errors, [name]: '' }) // Xóa lỗi khi người dùng nhập lại
     }
-  };
+  }
 
   // Xử lý khi submit form
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Ngăn chặn reload trang
+    e.preventDefault()
 
     if (!validateForm()) {
-      return; // Nếu có lỗi, không submit
+      return
     }
 
     try {
-      const response = await loginUser(formData).unwrap(); // Gọi API đăng nhập
-      toast.success('Đăng nhập thành công!'); // Hiển thị thông báo thành công
-      localStorage.setItem('token', response.token); // Lưu token vào localStorage
-      navigate('/'); // Chuyển hướng đến trang chính
+      const response = await loginUser(formData).unwrap()
+      toast.success('Đăng nhập thành công!')
+      localStorage.setItem('token', response.token)
+
+      // Check for admin role in the response
+      if (response.user && response.user.role === 'admin') {
+        navigate('/admin/dashboard')
+      } else {
+        // Try a separate verification endpoint
+        try {
+          const adminVerification = await fetch('/api/verify-admin', {
+            credentials: 'include', // This sends cookies automatically
+          })
+          const result = await adminVerification.json()
+
+          if (result.isAdmin) {
+            navigate('/admin/dashboard')
+          } else {
+            navigate('/')
+          }
+        } catch (verifyError) {
+          // If verification fails, go to home page
+          navigate('/')
+        }
+      }
     } catch (error) {
-      toast.error(error.data?.message || 'Đăng nhập thất bại!'); // Hiển thị thông báo lỗi
+      toast.error(error.data?.message || 'Đăng nhập thất bại!')
     }
-  };
+  }
 
   return (
     <>
@@ -128,7 +149,7 @@ const Login = () => {
         </button>
       </form>
     </>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
