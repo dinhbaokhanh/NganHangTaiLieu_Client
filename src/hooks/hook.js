@@ -1,4 +1,6 @@
-// Hook xử lý và hiển thị lỗi bằng toast (nếu có lỗi xảy ra)
+import { useState } from 'react'
+import { toast } from 'react-toastify'
+
 const useErrors = (errors = []) => {
   useEffect(() => {
     errors.forEach(({ isError, error, fallback }) => {
@@ -9,14 +11,12 @@ const useErrors = (errors = []) => {
   }, [errors]) // Chạy lại khi mảng errors thay đổi
 }
 
-// Hook để thực thi mutation bất đồng bộ và xử lý trạng thái loading, dữ liệu trả về, và hiển thị toast
 const useAsyncMutation = (mutationHook) => {
   const [isLoading, setIsLoading] = useState(false) // Trạng thái loading của mutation
   const [data, setData] = useState(null) // Dữ liệu trả về từ mutation
 
   const [mutate] = mutationHook() // Lấy hàm mutate từ mutation hook
 
-  // Hàm thực thi mutation, nhận message để hiển thị khi đang loading và các tham số cần cho mutation
   const executeMutation = async (toastMessage, ...args) => {
     setIsLoading(true)
     const toastId = toast.loading(toastMessage || 'Updating data...') // Hiển thị toast đang xử lý
@@ -25,7 +25,6 @@ const useAsyncMutation = (mutationHook) => {
       const result = await mutate(...args) // Gọi mutation
 
       if (result.data) {
-        // Nếu mutation thành công
         toast.update(toastId, {
           render: result.data.message || 'Update data successfully',
           type: 'success',

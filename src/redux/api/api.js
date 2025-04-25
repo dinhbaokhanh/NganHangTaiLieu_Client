@@ -2,13 +2,12 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { server } from '../../constants/config.js'
 
 const api = createApi({
-  reducerPath: 'api', // Tên reducer slice trong Redux store
-  baseQuery: fetchBaseQuery({ baseUrl: `${server}/api/` }), // Base URL cho các API endpoint
+  reducerPath: 'api',
+  baseQuery: fetchBaseQuery({ baseUrl: `${server}/api/` }),
 
-  tagTypes: ['User'], // Tag dùng để quản lý cache (tự động refetch khi cần)
+  tagTypes: ['User'],
 
   endpoints: (builder) => ({
-    // Endpoint để gọi API đăng ký người dùng
     registerUser: builder.mutation({
       query: (formData) => ({
         url: '/user/register', // Endpoint phía server
@@ -17,9 +16,29 @@ const api = createApi({
         credentials: 'include', // Gửi cookie nếu cần (cho phiên đăng nhập)
       }),
     }),
+
+    forgotPassword: builder.mutation({
+      query: (email) => ({
+        url: '/user/forgot-password',
+        method: 'POST',
+        body: { email },
+      }),
+    }),
+
+    resetPassword: builder.mutation({
+      query: ({ id, token, password }) => ({
+        url: `/user/reset-password/${id}/${token}`,
+        method: 'POST',
+        body: { password },
+      }),
+    }),
   }),
 })
 
 export default api
 
-export const { useRegisterUserMutation } = api // Export custom hook để gọi mutation từ component React
+export const {
+  useRegisterUserMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+} = api
