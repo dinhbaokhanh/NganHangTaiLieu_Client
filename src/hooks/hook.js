@@ -1,73 +1,64 @@
-import React, { useEffect, useState } from 'react'; // Import React hooks
-import { toast } from 'react-toastify'; // Import toast từ React Toastify
+import { useState, useEffect } from 'react'
+import { toast } from 'react-toastify'
 
-// Hook xử lý và hiển thị lỗi bằng toast (nếu có lỗi xảy ra)
 const useErrors = (errors = []) => {
   useEffect(() => {
     errors.forEach(({ isError, error, fallback }) => {
       if (isError)
-        if (fallback) fallback(); // Nếu có hàm fallback thì gọi fallback
-        else toast.error(error?.data?.message || 'Something went wrong'); // Nếu không có thì hiển thị lỗi bằng toast
-    });
-  }, [errors]); // Chạy lại khi mảng errors thay đổi
-};
+        if (fallback) fallback()
+        else toast.error(error?.data?.message || 'Something went wrong') // Nếu không có thì hiển thị lỗi bằng toast
+    })
+  }, [errors])
+}
 
-// Hook để thực thi mutation bất đồng bộ và xử lý trạng thái loading, dữ liệu trả về, và hiển thị toast
 const useAsyncMutation = (mutationHook) => {
-  const [isLoading, setIsLoading] = useState(false); // Trạng thái loading của mutation
-  const [data, setData] = useState(null); // Dữ liệu trả về từ mutation
 
-  const [mutate] = mutationHook(); // Lấy hàm mutate từ mutation hook
+  const [isLoading, setIsLoading] = useState(false)
+  const [data, setData] = useState(null)
 
-  // Hàm thực thi mutation, nhận message để hiển thị khi đang loading và các tham số cần cho mutation
+  const [mutate] = mutationHook()
+
   const executeMutation = async (toastMessage, ...args) => {
-    setIsLoading(true);
-    const toastId = toast.loading(toastMessage || 'Updating data...'); // Hiển thị toast đang xử lý
+    setIsLoading(true)
+    const toastId = toast.loading(toastMessage || 'Đang xử lý...')
 
     try {
-      const result = await mutate(...args); // Gọi mutation
+      const res = await mutate(...args)
 
-      if (result.data) {
-        // Nếu mutation thành công
+      if (res.data) {
         toast.update(toastId, {
-          render: result.data.message || 'Update data successfully',
+          render: res.data.message || 'Thành công!',
           type: 'success',
           isLoading: false,
           autoClose: 3000,
-        });
-
-        setData(result.data);
-        return result.data;
-      } else if (result.error) {
-        // Nếu mutation trả về lỗi
+        })
+        setData(res.data)
+        return { success: true, data: res.data }
+      } else {
         toast.update(toastId, {
-          render: result.error.data?.message || 'Something went wrong',
+          render: res?.error?.data?.message || 'Đã xảy ra lỗi',
           type: 'error',
           isLoading: false,
           autoClose: 3000,
-        });
-
-        throw result.error;
+        })
+        return { success: false, error: res.error }
       }
     } catch (error) {
-      // Nếu có lỗi bất ngờ xảy ra
-      console.log('Error in useAsyncMutation:', error);
-
+      console.error(error)
       toast.update(toastId, {
-        render: 'Something went wrong',
+        render: 'Lỗi hệ thống!',
         type: 'error',
         isLoading: false,
         autoClose: 3000,
-      });
-
-      throw error;
+      })
+      return { success: false, error }
     } finally {
-      setIsLoading(false); // Kết thúc loading
+      setIsLoading(false)
     }
   };
 
-  // Trả về hàm thực thi mutation, trạng thái loading và dữ liệu trả về
-  return [executeMutation, isLoading, data];
-};
+
+  return [executeMutation, isLoading, data]
+}
 
 export { useErrors, useAsyncMutation };

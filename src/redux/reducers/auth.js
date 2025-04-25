@@ -1,36 +1,68 @@
 import { createSlice } from '@reduxjs/toolkit'
 import api from '../api/api.js'
 
-// Tạo Redux slice để quản lý trạng thái xác thực người dùng (auth)
 const authSlice = createSlice({
-  name: 'user', // Tên slice
+  name: 'user',
   initialState: {
     userInfo: null, // Lưu thông tin người dùng sau khi đăng ký/thành công
     token: null, // Lưu token sau khi đăng nhập
-    isLoading: false, // Trạng thái loading khi đang xử lý request
+    userInfo: null,
+    isLoading: false,
+    message: null,
   },
-  reducers: {}, // Hiện tại không có reducer thông thường
+  reducers: {
+    clearMessage: (state) => {
+      state.message = null
+    },
+  },
 
-  // Xử lý các action async từ API (sử dụng với RTK Query hoặc createAsyncThunk)
   extraReducers: (builder) => {
     builder
-      // Khi đang gửi request đăng ký (pending)
+      // Register
       .addMatcher(api.endpoints.registerUser.matchPending, (state) => {
-        state.isLoading = true // Bật trạng thái loading
+        state.isLoading = true
       })
-
-      // Khi request đăng ký thành công (fulfilled)
       .addMatcher(
         api.endpoints.registerUser.matchFulfilled,
         (state, action) => {
-          state.userInfo = action.payload // Lưu thông tin người dùng trả về từ server
-          state.isLoading = false // Tắt trạng thái loading
+          state.userInfo = action.payload
+          state.isLoading = false
         }
       )
 
-      // Khi request đăng ký thất bại (rejected)
       .addMatcher(api.endpoints.registerUser.matchRejected, (state) => {
-        state.isLoading = false // Tắt trạng thái loading (nhưng không thay đổi userInfo)
+        state.isLoading = false
+      })
+
+      // Forgot Password
+      .addMatcher(api.endpoints.forgotPassword.matchPending, (state) => {
+        state.isLoading = true
+      })
+      .addMatcher(
+        api.endpoints.forgotPassword.matchFulfilled,
+        (state, action) => {
+          state.message = action.payload?.message || 'Reset link sent!'
+          state.isLoading = false
+        }
+      )
+      .addMatcher(api.endpoints.forgotPassword.matchRejected, (state) => {
+        state.isLoading = false
+      })
+
+      // Reset Password
+      .addMatcher(api.endpoints.resetPassword.matchPending, (state) => {
+        state.isLoading = true
+      })
+      .addMatcher(
+        api.endpoints.resetPassword.matchFulfilled,
+        (state, action) => {
+          state.message =
+            action.payload?.message || 'Password reset successfully!'
+          state.isLoading = false
+        }
+      )
+      .addMatcher(api.endpoints.resetPassword.matchRejected, (state) => {
+        state.isLoading = false
       })
 
       // Khi đang gửi request đăng nhập (pending)
@@ -55,4 +87,5 @@ const authSlice = createSlice({
   },
 })
 
-export default authSlice.reducer // Export reducer để sử dụng trong store
+export const { clearMessage } = authSlice.actions
+export default authSlice.reducer

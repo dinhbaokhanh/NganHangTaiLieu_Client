@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { FaEnvelope, FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useRegisterUserMutation } from '../../redux/api/api.js'
-import { useAsyncMutation } from '../../hooks/hook.js'
-import { toast } from 'react-toastify'
+import { useAsyncMutation, useErrors } from '../../hooks/hook.js'
 import { useNavigate } from 'react-router-dom'
 
 const Register = () => {
@@ -18,6 +17,18 @@ const Register = () => {
   })
 
   const [register, loading] = useAsyncMutation(useRegisterUserMutation)
+
+  const apiErrors = [
+    {
+      isError: errors.api,
+      error: { data: { message: errors.apiMessage } },
+      fallback: () => {
+        console.log('API error occurred:', errors.apiMessage)
+      },
+    },
+  ]
+
+  useErrors(apiErrors)
 
   const validateForm = () => {
     const newErrors = {}
@@ -64,17 +75,30 @@ const Register = () => {
     }
 
     try {
-      const result = await register('Đang đăng ký...', {
+      const response = await register('Đang đăng ký...', {
         email: formData.email,
         username: formData.username,
         password: formData.password,
       })
 
-      setTimeout(() => {
-        navigate('/login')
-      }, 1500)
+      if (response?.success) {
+        setTimeout(() => {
+          navigate('/login')
+        }, 1500)
+      } else {
+        setErrors({
+          ...errors,
+          api: true,
+          apiMessage: response?.error?.data?.message || 'Registration failed',
+        })
+      }
     } catch (error) {
       console.error('Registration failed:', error)
+      setErrors({
+        ...errors,
+        api: true,
+        apiMessage: error?.message || 'Something went wrong',
+      })
     }
   }
 
