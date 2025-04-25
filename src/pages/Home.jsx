@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import DocumentTabs from '../components/layout/DocumentTabs';
+import SuggestModal from '../components/shared/SuggestModal';
 import documents from '../data/sampleDocuments';
 import defaultFileImg from '../assets/doc_image_default.png';
 
@@ -9,13 +10,7 @@ const Home = () => {
   const navigate = useNavigate();
   const tab = searchParams.get('tab') || 'theory'; // Lấy giá trị tab từ URL, mặc định là 'theory'
   const token = localStorage.getItem('token'); // Kiểm tra trạng thái đăng nhập
-
-  // Chuyển hướng đến Login nếu tab là "saved" và chưa đăng nhập
-  useEffect(() => {
-    if (tab === 'saved' && !token) {
-      navigate(`/login?redirect=/?tab=saved`);
-    }
-  }, [tab, token, navigate]);
+  const [showModal, setShowModal] = useState(false); // Trạng thái hiển thị modal
 
   // Lọc tài liệu dựa trên tab hiện tại
   const filteredDocs = documents.filter((doc) =>
@@ -24,7 +19,11 @@ const Home = () => {
 
   // Thay đổi tab
   const handleTabChange = (newTab) => {
-    setSearchParams({ tab: newTab });
+    if (newTab === 'saved' && !token) {
+      setShowModal(true); // Hiển thị modal nếu chưa đăng nhập và chọn tab "Tài liệu đã lưu"
+    } else {
+      setSearchParams({ tab: newTab });
+    }
   };
 
   return (
@@ -52,6 +51,16 @@ const Home = () => {
           <p className="text-gray-500">Không có tài liệu nào.</p>
         )}
       </div>
+
+      {/* Modal */}
+      <SuggestModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="Bạn cần đăng nhập"
+        description="Đăng nhập để xem tài liệu đã lưu hoặc đăng ký nếu bạn chưa có tài khoản."
+        onLogin={() => navigate('/login')}
+        onRegister={() => navigate('/register')}
+      />
     </div>
   );
 };
