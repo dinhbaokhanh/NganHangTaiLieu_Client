@@ -17,9 +17,18 @@ const api = createApi({
         credentials: 'include', // Gửi cookie nếu cần (cho phiên đăng nhập)
       }),
     }),
+    // Endpoint để gọi API đăng nhập người dùng
+    loginUser: builder.mutation({
+      query: (formData) => ({
+        url: '/user/login', // Endpoint phía server
+        method: 'POST', // Phương thức POST
+        body: formData, // Dữ liệu gửi đi (thường là từ form)
+        credentials: 'include', // Gửi cookie nếu cần (cho phiên đăng nhập)
+      }),
+    }),
   }),
 })
 
 export default api
 
-export const { useRegisterUserMutation } = api // Export custom hook để gọi mutation từ component React
+export const { useRegisterUserMutation, useLoginUserMutation } = api // Export custom hook để gọi mutation từ component React
