@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Bell, Search, User, Key, LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { logout } from '../../redux/reducers/auth'
 import LogoIcon from '../../assets/logo.png'
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -20,8 +23,15 @@ const Header = () => {
     }
   }, [])
 
+  const handleLogout = () => {
+    dispatch(logout()) // Cập nhật Redux
+    localStorage.removeItem('token') // Xóa token khỏi localStorage
+    navigate('/') // Chuyển hướng về trang đăng nhập
+  }
+
   return (
     <div className="bg-white px-6 py-3 shadow-md flex justify-between items-center relative">
+      {/* Logo */}
       <div className="flex items-center gap-3">
         <img
           src={LogoIcon}
@@ -31,6 +41,7 @@ const Header = () => {
         />
       </div>
 
+      {/* Thanh tìm kiếm */}
       <div className="relative w-72">
         <Search
           className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -43,6 +54,7 @@ const Header = () => {
         />
       </div>
 
+      {/* Menu người dùng */}
       <div className="flex items-center gap-4 relative">
         <Bell
           className="text-gray-600 cursor-pointer hover:text-red-500 transition duration-200"
@@ -78,10 +90,7 @@ const Header = () => {
               </button>
               <button
                 className="w-full flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-gray-100 cursor-pointer"
-                onClick={() => {
-                  navigate('/login')
-                  setIsOpen(false)
-                }}
+                onClick={handleLogout}
               >
                 <LogOut size={18} /> Đăng xuất
               </button>

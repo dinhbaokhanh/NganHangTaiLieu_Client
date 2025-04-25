@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useState } from 'react';
 import { useLoginUserMutation } from '../../redux/api/api.js';
@@ -6,6 +6,8 @@ import { toast } from 'react-toastify';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirect = new URLSearchParams(location.search).get('redirect') || '/'; // Lấy giá trị redirect từ query hoặc mặc định là "/"
   const [showPassword, setShowPassword] = useState(false); // Trạng thái hiển thị mật khẩu
   const [formData, setFormData] = useState({ username: '', password: '' }); // Dữ liệu form đăng nhập
   const [errors, setErrors] = useState({}); // Lưu lỗi của các trường
@@ -48,7 +50,7 @@ const Login = () => {
       const response = await loginUser(formData).unwrap(); // Gọi API đăng nhập
       toast.success('Đăng nhập thành công!'); // Hiển thị thông báo thành công
       localStorage.setItem('token', response.token); // Lưu token vào localStorage
-      navigate('/'); // Chuyển hướng đến trang chính
+      navigate(redirect); // Chuyển hướng đến URL được chỉ định trong query redirect
     } catch (error) {
       toast.error(error.data?.message || 'Đăng nhập thất bại!'); // Hiển thị thông báo lỗi
     }

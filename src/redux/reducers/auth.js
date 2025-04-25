@@ -6,12 +6,18 @@ const authSlice = createSlice({
   initialState: {
     userInfo: null, // Lưu thông tin người dùng sau khi đăng ký/thành công
     token: null, // Lưu token sau khi đăng nhập
+    isAuthenticated: false, // Trạng thái xác thực
     isLoading: false,
     message: null,
   },
   reducers: {
     clearMessage: (state) => {
       state.message = null
+    },
+    logout: (state) => {
+      state.userInfo = null
+      state.token = null
+      state.isAuthenticated = false // Đánh dấu là chưa đăng nhập
     },
   },
 
@@ -28,7 +34,6 @@ const authSlice = createSlice({
           state.isLoading = false
         }
       )
-
       .addMatcher(api.endpoints.registerUser.matchRejected, (state) => {
         state.isLoading = false
       })
@@ -75,6 +80,7 @@ const authSlice = createSlice({
         (state, action) => {
           state.userInfo = action.payload.user // Lưu thông tin người dùng trả về từ server
           state.token = action.payload.token // Lưu token trả về từ server
+          state.isAuthenticated = true // Đánh dấu là đã đăng nhập
           state.isLoading = false // Tắt trạng thái loading
         }
       )
@@ -86,5 +92,6 @@ const authSlice = createSlice({
   },
 })
 
-export const { clearMessage } = authSlice.actions
+export const { clearMessage, logout } = authSlice.actions
+export const selectIsAuthenticated = (state) => state.user.isAuthenticated
 export default authSlice.reducer
