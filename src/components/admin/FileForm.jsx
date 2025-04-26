@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { FaCloudUploadAlt } from 'react-icons/fa'
 
 const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
-  const [name, setName] = useState(initialData.name || '')
+  const [title, setTitle] = useState(initialData.title || '')
   const [major, setMajor] = useState(initialData.major || '')
   const [author, setAuthor] = useState(initialData.author || '')
-  const [year, setYear] = useState(initialData.year || '')
+  const [publishedYear, setPublishedYear] = useState(
+    initialData.publishedYear || ''
+  )
   const [description, setDescription] = useState(initialData.description || '')
   const [file, setFile] = useState(initialData.file || null)
   const [type, setType] = useState(initialData.type || '')
@@ -19,10 +21,10 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
     e.preventDefault()
 
     const formData = new FormData()
-    formData.append('name', name)
+    formData.append('title', title)
     formData.append('major', major)
     formData.append('author', author)
-    formData.append('year', year)
+    formData.append('publishedYear', publishedYear)
     formData.append('description', description)
     formData.append('type', type)
     if (file) formData.append('file', file)
@@ -51,8 +53,8 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
               </label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 className="w-full px-4 py-2 border rounded-md"
                 placeholder="Nhập tên tài liệu"
               />
@@ -110,8 +112,8 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
               </label>
               <input
                 type="number"
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
+                value={publishedYear}
+                onChange={(e) => setPublishedYear(e.target.value)}
                 className="w-full px-4 py-2 border rounded-md"
                 placeholder="Nhập năm xuất bản"
               />
