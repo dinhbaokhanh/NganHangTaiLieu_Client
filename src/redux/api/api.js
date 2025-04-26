@@ -4,7 +4,7 @@ import { server } from '../../constants/config.js'
 const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl: `${server}/api/` }),
-  tagTypes: ['User'],
+  tagTypes: ['Document', 'User'],
 
   endpoints: (builder) => ({
     loginUser: builder.mutation({
@@ -31,6 +31,24 @@ const api = createApi({
         body: { password, confirmPassword },
       }),
     }),
+
+    uploadDocument: builder.mutation({
+      query: (formData) => ({
+        url: '/document/upload',
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      }),
+    }),
+
+    updateDocument: builder.mutation({
+      query: ({ id, ...updatedData }) => ({
+        url: `/document/update/${id}`,
+        method: 'PUT',
+        body: updatedData,
+        credentials: 'include',
+      }),
+    }),
   }),
 })
 
@@ -40,4 +58,6 @@ export const {
   useForgotPasswordMutation,
   useLoginUserMutation,
   useResetPasswordMutation,
+  useUploadDocumentMutation,
+  useUpdateDocumentMutation,
 } = api

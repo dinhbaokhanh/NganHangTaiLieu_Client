@@ -17,16 +17,25 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const formData = { name, major, author, year, description, file, type }
-    onSubmit(formData) // Gửi dữ liệu lên parent component
+
+    const formData = new FormData()
+    formData.append('name', name)
+    formData.append('major', major)
+    formData.append('author', author)
+    formData.append('year', year)
+    formData.append('description', description)
+    formData.append('type', type)
+    if (file) formData.append('file', file)
+
+    onSubmit(formData)
   }
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center z-50">
+    <div className="fixed inset-0 flex justify-center items-center z-50 bg-black/30">
       <div className="bg-white w-full max-w-3xl p-6 rounded-lg shadow-lg relative border-2 border-gray-700">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 cursor-pointer hover:text-red-600"
+          className="absolute top-3 right-3 text-gray-500 hover:text-red-600"
         >
           ✕
         </button>
@@ -34,7 +43,7 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
           {mode === 'add' ? 'Thêm tài liệu' : 'Cập nhật tài liệu'}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Tên tài liệu và Loại tài liệu */}
+          {/* Tên tài liệu + Loại tài liệu */}
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -78,7 +87,7 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
             />
           </div>
 
-          {/* Ngành và Năm xuất bản */}
+          {/* Ngành + Năm xuất bản */}
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -123,7 +132,7 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
             />
           </div>
 
-          {/* Upload tài liệu */}
+          {/* Upload file */}
           <div>
             <label className="block text-gray-700 font-semibold mb-2">
               Tài liệu
@@ -153,18 +162,17 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
             </div>
           </div>
 
-          {/* Nút hành động */}
           <div className="flex justify-end gap-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-600 rounded-md cursor-pointer hover:bg-gray-300 transition"
+              className="px-4 py-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 transition"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition"
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-white hover:text-red-600 border border-red-600 transition"
             >
               {mode === 'add' ? 'Thêm' : 'Cập nhật'}
             </button>
