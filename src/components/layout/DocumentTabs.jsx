@@ -1,9 +1,9 @@
+/* eslint-disable no-unused-vars */
+
 import React, { useState, useRef, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
 
 const DocumentTabs = ({ activeTab, setActiveTab }) => {
-  const navigate = useNavigate()
   const tabs = [
     { id: 'theory', label: 'Tài liệu', isDropdown: true },
     { id: 'exam', label: 'Ngân hàng câu hỏi', isDropdown: true },
@@ -25,16 +25,7 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
   const timeoutRef = useRef(null)
 
   const changeTab = (tabId, isDropdown) => {
-    const token = localStorage.getItem('token')
-
-    // Check nếu là "saved" và không có token thì điều hướng đến login
-    if (tabId === 'saved' && !token) {
-      navigate('/login')
-      return
-    }
-
     setActiveTab(tabId)
-
     if (isDropdown) {
       setDropdownOpen(null)
     }
@@ -70,7 +61,7 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
                     : 'text-gray-600'
                 }`}
             >
-              {tab.label}
+              {tab.label}{' '}
               {tab.isDropdown && (
                 <ChevronDown
                   size={16}
