@@ -3,7 +3,7 @@ import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useState } from 'react'
 import { useLoginUserMutation } from '../../redux/api/api.js'
 import { toast } from 'react-toastify'
-import {} from 'jwt-decode'
+import jwtDecode from 'jwt-decode' // Import jwt-decode
 
 const Login = () => {
   const navigate = useNavigate()
