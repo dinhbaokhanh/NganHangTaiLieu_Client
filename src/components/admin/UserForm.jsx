@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { FaCloudUploadAlt } from 'react-icons/fa'
+import { FaCloudUploadAlt, FaTimes } from 'react-icons/fa' // Thêm FaTimes từ react-icons
 
 const UserForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
   const [name, setName] = useState(initialData.name || '')
@@ -31,7 +31,7 @@ const UserForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-500 cursor-pointer hover:text-red-600 transition duration-200"
         >
-          ✕
+          <FaTimes /> {/* Thay dấu ✕ bằng FaTimes */}
         </button>
         <h2 className="text-2xl font-bold text-red-600 mb-6">
           {mode === 'add' ? 'Thêm người dùng' : 'Cập nhật người dùng'}
