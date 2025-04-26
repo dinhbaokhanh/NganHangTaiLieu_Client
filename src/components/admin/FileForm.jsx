@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
 import { FaCloudUploadAlt } from 'react-icons/fa'
+import { docTypes, universityMajors } from '../../constants/category.js'
 
 const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
-  const [name, setName] = useState(initialData.name || '')
+  const [title, setTitle] = useState(initialData.title || '')
   const [major, setMajor] = useState(initialData.major || '')
   const [author, setAuthor] = useState(initialData.author || '')
-  const [year, setYear] = useState(initialData.year || '')
+  const [publishedYear, setPublishedYear] = useState(
+    initialData.publishedYear || ''
+  )
   const [description, setDescription] = useState(initialData.description || '')
   const [file, setFile] = useState(initialData.file || null)
   const [type, setType] = useState(initialData.type || '')
@@ -19,10 +22,10 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
     e.preventDefault()
 
     const formData = new FormData()
-    formData.append('name', name)
+    formData.append('title', title)
     formData.append('major', major)
     formData.append('author', author)
-    formData.append('year', year)
+    formData.append('publishedYear', publishedYear)
     formData.append('description', description)
     formData.append('type', type)
     if (file) formData.append('file', file)
@@ -51,8 +54,8 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
               </label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 className="w-full px-4 py-2 border rounded-md"
                 placeholder="Nhập tên tài liệu"
               />
@@ -66,9 +69,12 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
                 onChange={(e) => setType(e.target.value)}
                 className="w-full px-4 py-2 border rounded-md"
               >
-                <option value="">Chọn loại tài liệu</option>
-                <option value="Giáo trình">Giáo trình</option>
-                <option value="Ngân hàng câu hỏi">Ngân hàng câu hỏi</option>
+                <option value="">Chọn ngành</option>
+                {docTypes.map((major) => (
+                  <option key={major.value} value={major.value}>
+                    {major.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -99,9 +105,11 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
                 className="w-full px-4 py-2 border rounded-md"
               >
                 <option value="">Chọn ngành</option>
-                <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-                <option value="Kinh tế">Kinh tế</option>
-                <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
+                {universityMajors.map((major) => (
+                  <option key={major.value} value={major.value}>
+                    {major.label}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex-1">
@@ -110,8 +118,8 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
               </label>
               <input
                 type="number"
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
+                value={publishedYear}
+                onChange={(e) => setPublishedYear(e.target.value)}
                 className="w-full px-4 py-2 border rounded-md"
                 placeholder="Nhập năm xuất bản"
               />
