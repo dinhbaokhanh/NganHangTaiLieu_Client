@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   FaPlus,
   FaChevronLeft,
@@ -7,38 +7,16 @@ import {
   FaTrash,
 } from 'react-icons/fa'
 import FileForm from '../../components/admin/FileForm'
-import { useAsyncMutation } from '../../hooks/hook.js'
+import { useAsyncMutation, useErrors } from '../../hooks/hook.js'
 import { universityMajors, docTypes } from '../../constants/category.js'
 import {
   useUpdateDocumentMutation,
+  useGetAllDocumentQuery,
   useUploadDocumentMutation,
 } from '../../redux/api/api'
 
 const Files = () => {
-  const [documents, setDocuments] = useState([
-    {
-      id: 1,
-      title: 'Giáo trình Lập trình',
-      category: 'Giáo trình',
-      major: 'Công nghệ thông tin',
-      author: 'Nguyễn Văn A',
-      publishedYear: 2023,
-      description: 'Tài liệu học lập trình căn bản',
-      fileUrl: 'https://example.com/file1.pdf',
-      saved: false,
-    },
-    {
-      id: 2,
-      title: 'Kinh tế học cơ bản',
-      category: 'Giáo trình',
-      major: 'Kinh tế',
-      author: 'Trần Thị B',
-      publishedYear: 2022,
-      description: 'Nhập môn Kinh tế học',
-      fileUrl: 'https://example.com/file2.pdf',
-      saved: false,
-    },
-  ])
+  const [documents, setDocuments] = useState([])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingDocument, setEditingDocument] = useState(null)
@@ -49,9 +27,20 @@ const Files = () => {
   const [selectedYear, setSelectedYear] = useState('')
   const [selectedType, setSelectedType] = useState('')
 
-  const [uploadDocument, isLoading] = useAsyncMutation(
+  const [uploadDocument, isUploading] = useAsyncMutation(
     useUploadDocumentMutation
   )
+
+  const { data, isLoading, isError, error } = useGetAllDocumentQuery()
+
+  useErrors([{ isError, error }])
+
+  useEffect(() => {
+    if (data?.documents) {
+      setDocuments(data.documents)
+    }
+  }, [data])
+
   const [editDocument, isEditing] = useAsyncMutation(useUpdateDocumentMutation)
 
   const handleAddDocument = async (newDocument) => {
@@ -86,11 +75,38 @@ const Files = () => {
     const matchesYear = selectedYear
       ? doc.publishedYear === parseInt(selectedYear)
       : true
-    const matchesType = selectedType ? doc.category === selectedType : true
+    const matchesType = selectedType ? doc.type === selectedType : true
     return (
       matchesName && matchesMajor && matchesAuthor && matchesYear && matchesType
     )
   })
+
+  //pagination
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 8
+  const totalPages = Math.ceil(documents.length / itemsPerPage)
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+    }
+  }
+
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const currentDocuments = documents.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  )
+
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <p className="text-center text-lg text-gray-600">
+          Đang tải tài liệu...
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 bg-gray-100 h-full">
@@ -177,7 +193,7 @@ const Files = () => {
             {filteredDocuments.map((doc) => (
               <tr key={doc.id} className="hover:bg-gray-50">
                 <td className="border px-4 py-2">{doc.title}</td>
-                <td className="border px-4 py-2">{doc.category}</td>
+                <td className="border px-4 py-2">{doc.type}</td>
                 <td className="border px-4 py-2">{doc.major}</td>
                 <td className="border px-4 py-2">{doc.author}</td>
                 <td className="border px-4 py-2">{doc.publishedYear}</td>
@@ -212,21 +228,53 @@ const Files = () => {
 
         {/* Phân trang */}
         <div className="flex justify-between items-center mt-6">
-          <button className="flex items-center justify-center gap-2 w-24 px-4 py-2 bg-gray-200 text-gray-600 rounded-md cursor-pointer hover:bg-red-600 hover:text-white transition">
+          {/* Nút Previous */}
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`flex items-center justify-center gap-2 w-24 px-4 py-2 rounded-md transition
+            ${
+              currentPage === 1
+                ? 'bg-gray-300 text-gray-400 cursor-not-allowed'
+                : 'bg-gray-200 text-gray-600 hover:bg-red-600 hover:text-white'
+            }
+          `}
+          >
             <FaChevronLeft />
             Trước
           </button>
+
+          {/* Các nút số trang */}
           <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((page) => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
                 key={page}
-                className="px-4 py-2 bg-gray-200 text-gray-600 rounded-md hover:bg-red-600 hover:text-white transition"
+                onClick={() => handlePageChange(page)}
+                className={`px-4 py-2 rounded-md transition
+                ${
+                  currentPage === page
+                    ? 'bg-red-600 text-white'
+                    : 'bg-gray-200 text-gray-600 hover:bg-red-600 hover:text-white'
+                }
+              `}
               >
                 {page}
               </button>
             ))}
           </div>
-          <button className="flex items-center justify-center gap-2 w-24 px-4 py-2 bg-gray-200 text-gray-600 rounded-md cursor-pointer hover:bg-red-600 hover:text-white transition">
+
+          {/* Nút Next */}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`flex items-center justify-center gap-2 w-24 px-4 py-2 rounded-md transition
+            ${
+              currentPage === totalPages
+                ? 'bg-gray-300 text-gray-400 cursor-not-allowed'
+                : 'bg-gray-200 text-gray-600 hover:bg-red-600 hover:text-white'
+            }
+          `}
+          >
             Sau
             <FaChevronRight />
           </button>

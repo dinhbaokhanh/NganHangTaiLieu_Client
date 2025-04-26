@@ -1,18 +1,48 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { server } from '../../constants/config.js'
 
+// Tạo baseQuery gốc
+const baseQuery = fetchBaseQuery({
+  baseUrl: `${server}/api/`,
+  credentials: 'include', // QUAN TRỌNG: để cookie gửi kèm
+  prepareHeaders: (headers) => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`)
+    }
+    return headers
+  },
+})
+
+// Tạo baseQuery mới có khả năng tự refresh token
+const baseQueryWithReauth = async (args, api, extraOptions) => {
+  let result = await baseQuery(args, api, extraOptions)
+
+  if (result?.error?.status === 401) {
+    // Token hết hạn, gọi API refresh
+    const refreshResult = await baseQuery(
+      { url: '/user/refresh', method: 'POST' },
+      api,
+      extraOptions
+    )
+
+    if (refreshResult?.data?.accessToken) {
+      // Cập nhật token mới vào localStorage
+      localStorage.setItem('token', refreshResult.data.accessToken)
+
+      // Retry lại request cũ với token mới
+      result = await baseQuery(args, api, extraOptions)
+    } else {
+      console.error('Refresh token failed')
+    }
+  }
+
+  return result
+}
+
 const api = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${server}/api/`,
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem('token')
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`)
-      }
-      return headers
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Document', 'User'],
 
   endpoints: (builder) => ({
@@ -21,7 +51,6 @@ const api = createApi({
         url: '/user/login',
         method: 'POST',
         body: formData,
-        credentials: 'include',
       }),
     }),
 
@@ -46,7 +75,13 @@ const api = createApi({
         url: '/document/upload',
         method: 'POST',
         body: formData,
-        credentials: 'include',
+      }),
+    }),
+
+    getAllDocument: builder.query({
+      query: () => ({
+        url: '/document/',
+        method: 'GET',
       }),
     }),
 
@@ -55,7 +90,6 @@ const api = createApi({
         url: `/document/update/${id}`,
         method: 'PUT',
         body: updatedData,
-        credentials: 'include',
       }),
     }),
   }),
@@ -68,5 +102,6 @@ export const {
   useLoginUserMutation,
   useResetPasswordMutation,
   useUploadDocumentMutation,
+  useGetAllDocumentQuery,
   useUpdateDocumentMutation,
 } = api
