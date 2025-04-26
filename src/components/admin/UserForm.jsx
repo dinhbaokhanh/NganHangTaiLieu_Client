@@ -3,10 +3,8 @@ import { FaCloudUploadAlt } from 'react-icons/fa'
 
 const UserForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
   const [name, setName] = useState(initialData.name || '')
-  const [studentId, setStudentId] = useState(initialData.studentId || '')
-  const [className, setClassName] = useState(initialData.class || '')
-  const [major, setMajor] = useState(initialData.major || '')
   const [email, setEmail] = useState(initialData.email || '')
+  const [password, setPassword] = useState('') // Thêm state cho mật khẩu
   const [avatar, setAvatar] = useState(initialData.avatar || null)
 
   const handleAvatarChange = (e) => {
@@ -22,7 +20,7 @@ const UserForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const formData = { name, studentId, class: className, major, email, avatar }
+    const formData = { name, email, password, avatar } // Gửi thêm mật khẩu
     onSubmit(formData) // Gửi dữ liệu lên parent component
   }
 
@@ -39,9 +37,9 @@ const UserForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
           {mode === 'add' ? 'Thêm người dùng' : 'Cập nhật người dùng'}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Tên người dùng và Mã sinh viên */}
-          <div className="flex gap-4">
-            <div className="flex-1">
+          {/* Tên người dùng và Email */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <label className="block text-gray-700 font-semibold mb-2">
                 Tên người dùng
               </label>
@@ -53,54 +51,7 @@ const UserForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
                 placeholder="Nhập tên người dùng"
               />
             </div>
-            <div className="flex-1">
-              <label className="block text-gray-700 font-semibold mb-2">
-                Mã sinh viên
-              </label>
-              <input
-                type="text"
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
-                className="w-full px-4 py-2 border rounded-md"
-                placeholder="Nhập mã sinh viên"
-              />
-            </div>
-          </div>
-
-          {/* Lớp và Ngành */}
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block text-gray-700 font-semibold mb-2">
-                Lớp
-              </label>
-              <input
-                type="text"
-                value={className}
-                onChange={(e) => setClassName(e.target.value)}
-                className="w-full px-4 py-2 border rounded-md"
-                placeholder="Nhập lớp"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="block text-gray-700 font-semibold mb-2">
-                Ngành
-              </label>
-              <select
-                value={major}
-                onChange={(e) => setMajor(e.target.value)}
-                className="w-full px-4 py-2 border rounded-md"
-              >
-                <option value="">Chọn ngành</option>
-                <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-                <option value="Kinh tế">Kinh tế</option>
-                <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Email và Ảnh đại diện */}
-          <div className="flex gap-4">
-            <div className="flex-1">
+            <div>
               <label className="block text-gray-700 font-semibold mb-2">
                 Email
               </label>
@@ -112,7 +63,23 @@ const UserForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
                 placeholder="Nhập email"
               />
             </div>
-            <div className="flex-1">
+          </div>
+
+          {/* Mật khẩu và Ảnh đại diện */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Mật khẩu
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 border rounded-md"
+                placeholder="Nhập mật khẩu"
+              />
+            </div>
+            <div>
               <label className="block text-gray-700 font-semibold mb-2">
                 Ảnh đại diện
               </label>

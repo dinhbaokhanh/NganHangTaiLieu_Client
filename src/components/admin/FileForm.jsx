@@ -7,20 +7,8 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
   const [author, setAuthor] = useState(initialData.author || '')
   const [year, setYear] = useState(initialData.year || '')
   const [description, setDescription] = useState(initialData.description || '')
-  const [thumbnail, setThumbnail] = useState(initialData.thumbnail || null)
   const [file, setFile] = useState(initialData.file || null)
   const [type, setType] = useState(initialData.type || '')
-
-  const handleThumbnailChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = () => {
-        setThumbnail(reader.result)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
 
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0]
@@ -29,7 +17,7 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const formData = { name, major, author, year, description, thumbnail, file, type }
+    const formData = { name, major, author, year, description, file, type }
     onSubmit(formData) // Gửi dữ liệu lên parent component
   }
 
@@ -135,68 +123,33 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
             />
           </div>
 
-          {/* Upload ảnh bìa và tài liệu */}
-          <div className="flex gap-4">
-            {/* Ảnh bìa */}
-            <div className="flex-1">
-              <label className="block text-gray-700 font-semibold mb-2">
-                Ảnh bìa
-              </label>
-              <div
-                className="border-dashed border-2 border-gray-300 rounded-md p-6 text-center cursor-pointer"
-                onClick={() => document.getElementById('thumbnailInput').click()}
-              >
-                {thumbnail ? (
-                  <img
-                    src={thumbnail}
-                    alt="Thumbnail Preview"
-                    className="mx-auto w-32 h-32 object-cover rounded-md border"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center">
-                    <FaCloudUploadAlt className="text-gray-500 text-4xl mb-2" />
-                    <p className="text-gray-500">Click để tải lên hoặc kéo thả</p>
-                    <p className="text-gray-400 text-sm">SVG, PNG, JPG,...</p>
-                  </div>
-                )}
-                <input
-                  id="thumbnailInput"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleThumbnailChange}
-                  className="hidden"
-                />
-              </div>
-            </div>
-
-            {/* Tài liệu */}
-            <div className="flex-1">
-              <label className="block text-gray-700 font-semibold mb-2">
-                Tài liệu
-              </label>
-              <div
-                className="border-dashed border-2 border-gray-300 rounded-md p-6 text-center cursor-pointer"
-                onClick={() => document.getElementById('fileInput').click()}
-              >
-                {file ? (
-                  <p className="text-gray-600">
-                    Tệp đã chọn: <strong>{file.name}</strong>
-                  </p>
-                ) : (
-                  <div className="flex flex-col items-center">
-                    <FaCloudUploadAlt className="text-gray-500 text-4xl mb-2" />
-                    <p className="text-gray-500">Click để tải lên hoặc kéo thả</p>
-                    <p className="text-gray-400 text-sm">PDF, DOC, DOCX,...</p>
-                  </div>
-                )}
-                <input
-                  id="fileInput"
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </div>
+          {/* Upload tài liệu */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-2">
+              Tài liệu
+            </label>
+            <div
+              className="border-dashed border-2 border-gray-300 rounded-md p-6 text-center cursor-pointer"
+              onClick={() => document.getElementById('fileInput').click()}
+            >
+              {file ? (
+                <p className="text-gray-600">
+                  Tệp đã chọn: <strong>{file.name}</strong>
+                </p>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <FaCloudUploadAlt className="text-gray-500 text-4xl mb-2" />
+                  <p className="text-gray-500">Click để tải lên hoặc kéo thả</p>
+                  <p className="text-gray-400 text-sm">PDF, DOC, DOCX,...</p>
+                </div>
+              )}
+              <input
+                id="fileInput"
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={handleFileChange}
+                className="hidden"
+              />
             </div>
           </div>
 
