@@ -1,40 +1,40 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { FaEnvelope } from 'react-icons/fa'
-import { toast } from 'react-toastify'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaEnvelope } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
-import { useAsyncMutation } from '../../hooks/hook.js'
-import { useForgotPasswordMutation } from '../../redux/api/api.js'
+import { useAsyncMutation } from '../../hooks/hook.js';
+import { useForgotPasswordMutation } from '../../redux/api/api.js';
 
 const Forgot = () => {
-  const [email, setEmail] = useState('')
-  const [error, setError] = useState('')
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
 
   const [forgotPassword, isLoading] = useAsyncMutation(
     useForgotPasswordMutation
-  )
+  );
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!email) {
-      setError('Email không được để trống')
-      return
+      setError('Email không được để trống');
+      return;
     }
 
     try {
-      const res = await forgotPassword('Đang gửi yêu cầu...', { email })
+      const res = await forgotPassword('Đang gửi yêu cầu...', { email });
 
       if (res.success) {
-        toast.success('Đã gửi email khôi phục mật khẩu!')
-        toast.success('Vui lòng kiểm tra email')
+        toast.success('Đã gửi email khôi phục mật khẩu!');
+        toast.success('Vui lòng kiểm tra email');
       } else {
-        setError(res?.error?.data?.message || 'Gửi yêu cầu thất bại')
+        setError(res?.error?.data?.message || 'Gửi yêu cầu thất bại');
       }
     } catch (err) {
-      setError('Có lỗi xảy ra, vui lòng thử lại sau.')
+      setError('Có lỗi xảy ra, vui lòng thử lại sau.');
     }
-  }
+  };
 
   return (
     <>
@@ -47,17 +47,17 @@ const Forgot = () => {
           <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="email"
-            placeholder="Vui lòng nhập email của bạn"
+            placeholder={error || 'Vui lòng nhập email của bạn'}
             value={email}
             onChange={(e) => {
-              setEmail(e.target.value)
-              setError('')
+              setEmail(e.target.value);
+              setError(''); // Xóa lỗi khi người dùng nhập lại
             }}
-            className="w-full pl-10 px-3 py-2 border border-black bg-white text-black rounded-md"
+            className={`w-full pl-10 px-3 py-2 border ${
+              error ? 'border-red-500 placeholder-red-500' : 'border-black'
+            } bg-white text-black rounded-md`}
           />
         </div>
-
-        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
         <button
           type="submit"
@@ -68,7 +68,7 @@ const Forgot = () => {
         </button>
       </form>
     </>
-  )
-}
+  );
+};
 
-export default Forgot
+export default Forgot;
