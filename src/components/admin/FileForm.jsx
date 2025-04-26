@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { FaCloudUploadAlt } from 'react-icons/fa'
+import { docTypes, universityMajors } from '../../constants/category.js'
 
 const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
   const [title, setTitle] = useState(initialData.title || '')
@@ -68,9 +69,12 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
                 onChange={(e) => setType(e.target.value)}
                 className="w-full px-4 py-2 border rounded-md"
               >
-                <option value="">Chọn loại tài liệu</option>
-                <option value="Giáo trình">Giáo trình</option>
-                <option value="Ngân hàng câu hỏi">Ngân hàng câu hỏi</option>
+                <option value="">Chọn ngành</option>
+                {docTypes.map((major) => (
+                  <option key={major.value} value={major.value}>
+                    {major.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -101,9 +105,11 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
                 className="w-full px-4 py-2 border rounded-md"
               >
                 <option value="">Chọn ngành</option>
-                <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-                <option value="Kinh tế">Kinh tế</option>
-                <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
+                {universityMajors.map((major) => (
+                  <option key={major.value} value={major.value}>
+                    {major.label}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex-1">
