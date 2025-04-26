@@ -1,17 +1,18 @@
-import { useNavigate, useLocation } from 'react-router-dom';
-import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
-import { useState } from 'react';
-import { useLoginUserMutation } from '../../redux/api/api.js';
-import { toast } from 'react-toastify';
+import { useNavigate, useLocation } from 'react-router-dom'
+import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa'
+import { useState } from 'react'
+import { useLoginUserMutation } from '../../redux/api/api.js'
+import { toast } from 'react-toastify'
+import {} from 'jwt-decode'
 
 const Login = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const redirect = new URLSearchParams(location.search).get('redirect') || '/'; // Lấy giá trị redirect từ query hoặc mặc định là "/"
-  const [showPassword, setShowPassword] = useState(false); // Trạng thái hiển thị mật khẩu
-  const [formData, setFormData] = useState({ username: '', password: '' }); // Dữ liệu form đăng nhập
-  const [errors, setErrors] = useState({}); // Lưu lỗi của các trường
-  const [loginUser, { isLoading }] = useLoginUserMutation(); // Hook gọi API đăng nhập
+  const navigate = useNavigate()
+  const location = useLocation()
+  const redirect = new URLSearchParams(location.search).get('redirect') || '/' // Lấy giá trị redirect từ query hoặc mặc định là "/"
+  const [showPassword, setShowPassword] = useState(false) // Trạng thái hiển thị mật khẩu
+  const [formData, setFormData] = useState({ username: '', password: '' }) // Dữ liệu form đăng nhập
+  const [errors, setErrors] = useState({}) // Lưu lỗi của các trường
+  const [loginUser, { isLoading }] = useLoginUserMutation() // Hook gọi API đăng nhập
 
   // Kiểm tra dữ liệu form
   const validateForm = () => {
@@ -42,38 +43,31 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!validateForm()) {
-      return
-    }
+    if (!validateForm()) return
 
     try {
       const response = await loginUser(formData).unwrap()
+
+      const accessToken = response.accessToken
+      if (!accessToken) {
+        throw new Error('No access token received!')
+      }
+
+      localStorage.setItem('token', accessToken)
+
+      const decoded = jwtDecode(accessToken)
+      const isAdmin = decoded?.role === 'admin'
+
       toast.success('Đăng nhập thành công!')
-      localStorage.setItem('token', response.token)
-      navigate(redirect);
-      // Check for admin role in the response
-      if (response.user && response.user.role === 'admin') {
+
+      if (isAdmin) {
         navigate('/admin/dashboard')
       } else {
-        // Try a separate verification endpoint
-        try {
-          const adminVerification = await fetch('/api/verify-admin', {
-            credentials: 'include', // This sends cookies automatically
-          })
-          const result = await adminVerification.json()
-
-          if (result.isAdmin) {
-            navigate('/admin/dashboard')
-          } else {
-            navigate('/')
-          }
-        } catch (verifyError) {
-          // If verification fails, go to home page
-          navigate('/')
-        }
+        navigate(redirect || '/')
       }
-    } catch (error) {
-      toast.error(error.data?.message || 'Đăng nhập thất bại!')
+    } catch (err) {
+      console.error(err) // Log lỗi ra devtool cho dễ debug
+      toast.error(err?.data?.message || err?.message || 'Đăng nhập thất bại!')
     }
   }
 

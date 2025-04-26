@@ -1,15 +1,45 @@
 import React, { useState } from 'react'
-import { FaEllipsisV, FaPlus, FaChevronLeft, FaChevronRight, FaEdit, FaTrash } from 'react-icons/fa'
+import {
+  FaPlus,
+  FaChevronLeft,
+  FaChevronRight,
+  FaEdit,
+  FaTrash,
+} from 'react-icons/fa'
 import FileForm from '../../components/admin/FileForm'
+import { useAsyncMutation } from '../../hooks/hook.js'
+import { universityMajors, docTypes } from '../../constants/category.js'
+import {
+  useUpdateDocumentMutation,
+  useUploadDocumentMutation,
+} from '../../redux/api/api'
 
 const Files = () => {
   const [documents, setDocuments] = useState([
-    { id: 1, name: 'Giáo trình Lập trình', major: 'Công nghệ thông tin', author: 'Nguyễn Văn A', year: 2023, type: 'Giáo trình' },
-    { id: 2, name: 'Kinh tế học cơ bản', major: 'Kinh tế', author: 'Trần Thị B', year: 2022, type: 'Giáo trình' },
-    { id: 3, name: 'Quản trị doanh nghiệp', major: 'Quản trị kinh doanh', author: 'Lê Văn C', year: 2021, type: 'Ngân hàng câu hỏi' },
-    { id: 4, name: 'Giải thuật nâng cao', major: 'Công nghệ thông tin', author: 'Phạm Thị D', year: 2020, type: 'Giáo trình' },
-    { id: 5, name: 'Phân tích tài chính', major: 'Kinh tế', author: 'Hoàng Văn E', year: 2019, type: 'Ngân hàng câu hỏi' },
+    {
+      id: 1,
+      title: 'Giáo trình Lập trình',
+      category: 'Giáo trình',
+      major: 'Công nghệ thông tin',
+      author: 'Nguyễn Văn A',
+      publishedYear: 2023,
+      description: 'Tài liệu học lập trình căn bản',
+      fileUrl: 'https://example.com/file1.pdf',
+      saved: false,
+    },
+    {
+      id: 2,
+      title: 'Kinh tế học cơ bản',
+      category: 'Giáo trình',
+      major: 'Kinh tế',
+      author: 'Trần Thị B',
+      publishedYear: 2022,
+      description: 'Nhập môn Kinh tế học',
+      fileUrl: 'https://example.com/file2.pdf',
+      saved: false,
+    },
   ])
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingDocument, setEditingDocument] = useState(null)
 
@@ -19,28 +49,47 @@ const Files = () => {
   const [selectedYear, setSelectedYear] = useState('')
   const [selectedType, setSelectedType] = useState('')
 
-  const handleAddDocument = (newDocument) => {
-    setDocuments([...documents, { id: Date.now(), ...newDocument }])
-    setIsModalOpen(false)
+  const [uploadDocument, isLoading] = useAsyncMutation(
+    useUploadDocumentMutation
+  )
+  const [editDocument, isEditing] = useAsyncMutation(useUpdateDocumentMutation)
+
+  const handleAddDocument = async (newDocument) => {
+    const res = await uploadDocument('Đang thêm tài liệu...', newDocument)
+    if (res.success) {
+      setDocuments((prev) => [...prev, res.data])
+      setIsModalOpen(false)
+    }
   }
 
-  const handleEditDocument = (updatedDocument) => {
-    setDocuments(
-      documents.map((doc) =>
-        doc.id === editingDocument.id ? { ...doc, ...updatedDocument } : doc
+  const handleEditDocument = async (updatedDocument) => {
+    const res = await editDocument('Đang cập nhật tài liệu...', {
+      id: editingDocument.id,
+      ...updatedDocument,
+    })
+
+    if (res.success) {
+      setDocuments((prev) =>
+        prev.map((doc) =>
+          doc.id === editingDocument.id ? { ...doc, ...res.data } : doc
+        )
       )
-    )
-    setEditingDocument(null)
-    setIsModalOpen(false)
+      setEditingDocument(null)
+      setIsModalOpen(false)
+    }
   }
 
   const filteredDocuments = documents.filter((doc) => {
-    const matchesName = doc.name.toLowerCase().includes(search.toLowerCase())
+    const matchesName = doc.title?.toLowerCase().includes(search.toLowerCase())
     const matchesMajor = selectedMajor ? doc.major === selectedMajor : true
     const matchesAuthor = selectedAuthor ? doc.author === selectedAuthor : true
-    const matchesYear = selectedYear ? doc.year === parseInt(selectedYear) : true
-    const matchesType = selectedType ? doc.type === selectedType : true
-    return matchesName && matchesMajor && matchesAuthor && matchesYear && matchesType
+    const matchesYear = selectedYear
+      ? doc.publishedYear === parseInt(selectedYear)
+      : true
+    const matchesType = selectedType ? doc.category === selectedType : true
+    return (
+      matchesName && matchesMajor && matchesAuthor && matchesYear && matchesType
+    )
   })
 
   return (
@@ -48,7 +97,9 @@ const Files = () => {
       <div className="bg-white p-6 rounded-lg shadow-md">
         {/* Tiêu đề và nút thêm tài liệu */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-red-600">Danh sách tài liệu</h2>
+          <h2 className="text-2xl font-bold text-red-600">
+            Danh sách tài liệu
+          </h2>
           <button
             onClick={() => {
               setEditingDocument(null)
@@ -76,8 +127,11 @@ const Files = () => {
             onChange={(e) => setSelectedType(e.target.value)}
           >
             <option value="">Chọn loại tài liệu</option>
-            <option value="Giáo trình">Giáo trình</option>
-            <option value="Ngân hàng câu hỏi">Ngân hàng câu hỏi</option>
+            {docTypes.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
           </select>
           <select
             className="px-4 py-2 border rounded-md"
@@ -85,22 +139,13 @@ const Files = () => {
             onChange={(e) => setSelectedMajor(e.target.value)}
           >
             <option value="">Chọn ngành</option>
-            <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-            <option value="Kinh tế">Kinh tế</option>
-            <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
+            {universityMajors.map((major) => (
+              <option key={major.value} value={major.value}>
+                {major.label}
+              </option>
+            ))}
           </select>
-          <select
-            className="px-4 py-2 border rounded-md"
-            value={selectedAuthor}
-            onChange={(e) => setSelectedAuthor(e.target.value)}
-          >
-            <option value="">Chọn tác giả</option>
-            <option value="Nguyễn Văn A">Nguyễn Văn A</option>
-            <option value="Trần Thị B">Trần Thị B</option>
-            <option value="Lê Văn C">Lê Văn C</option>
-            <option value="Phạm Thị D">Phạm Thị D</option>
-            <option value="Hoàng Văn E">Hoàng Văn E</option>
-          </select>
+
           <select
             className="px-4 py-2 border rounded-md"
             value={selectedYear}
@@ -119,38 +164,44 @@ const Files = () => {
         <table className="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-4 py-2 text-left">Tên tài liệu</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Loại tài liệu</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Ngành</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Tác giả</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Năm xuất bản</th>
-              <th className="border border-gray-300 px-4 py-2 text-center">Hành động</th>
+              <th className="border px-4 py-2">Tiêu đề</th>
+              <th className="border px-4 py-2">Thể loại</th>
+              <th className="border px-4 py-2">Ngành</th>
+              <th className="border px-4 py-2">Tác giả</th>
+              <th className="border px-4 py-2">Năm</th>
+              <th className="border px-4 py-2">Tải về</th>
+              <th className="border px-4 py-2 text-center">Hành động</th>
             </tr>
           </thead>
           <tbody>
             {filteredDocuments.map((doc) => (
               <tr key={doc.id} className="hover:bg-gray-50">
-                <td className="border border-gray-300 px-4 py-2">{doc.name}</td>
-                <td className="border border-gray-300 px-4 py-2">{doc.type}</td>
-                <td className="border border-gray-300 px-4 py-2">{doc.major}</td>
-                <td className="border border-gray-300 px-4 py-2">{doc.author}</td>
-                <td className="border border-gray-300 px-4 py-2">{doc.year}</td>
-                <td className="border border-gray-300 px-4 py-2 text-center">
-                  {/* Icon chỉnh sửa */}
+                <td className="border px-4 py-2">{doc.title}</td>
+                <td className="border px-4 py-2">{doc.category}</td>
+                <td className="border px-4 py-2">{doc.major}</td>
+                <td className="border px-4 py-2">{doc.author}</td>
+                <td className="border px-4 py-2">{doc.publishedYear}</td>
+                <td className="border px-4 py-2">
+                  <a
+                    href={doc.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    Xem file
+                  </a>
+                </td>
+                <td className="border px-4 py-2 text-center">
                   <button
                     onClick={() => {
                       setEditingDocument(doc)
                       setIsModalOpen(true)
                     }}
-                    className="text-gray-600 cursor-pointer hover:text-blue-600 mr-4"
+                    className="text-gray-600 hover:text-blue-600 mr-4"
                   >
                     <FaEdit />
                   </button>
-
-                  {/* Icon xóa */}
-                  <button
-                    className="text-gray-600 cursor-pointer hover:text-red-600"
-                  >
+                  <button className="text-gray-600 hover:text-red-600">
                     <FaTrash />
                   </button>
                 </td>
@@ -161,9 +212,7 @@ const Files = () => {
 
         {/* Phân trang */}
         <div className="flex justify-between items-center mt-6">
-          <button
-            className="flex items-center justify-center gap-2 w-24 px-4 py-2 bg-gray-200 text-gray-600 rounded-md cursor-pointer hover:bg-red-600 hover:text-white transition"
-          >
+          <button className="flex items-center justify-center gap-2 w-24 px-4 py-2 bg-gray-200 text-gray-600 rounded-md cursor-pointer hover:bg-red-600 hover:text-white transition">
             <FaChevronLeft />
             Trước
           </button>
@@ -177,9 +226,7 @@ const Files = () => {
               </button>
             ))}
           </div>
-          <button
-            className="flex items-center justify-center gap-2 w-24 px-4 py-2 bg-gray-200 text-gray-600 rounded-md cursor-pointer hover:bg-red-600 hover:text-white transition"
-          >
+          <button className="flex items-center justify-center gap-2 w-24 px-4 py-2 bg-gray-200 text-gray-600 rounded-md cursor-pointer hover:bg-red-600 hover:text-white transition">
             Sau
             <FaChevronRight />
           </button>
