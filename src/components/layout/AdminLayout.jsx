@@ -1,8 +1,22 @@
 import React from 'react'
-import { Outlet, NavLink } from 'react-router-dom'
+import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { FaUsers, FaThLarge, FaFolder, FaSignOutAlt } from 'react-icons/fa'
+import { toast } from 'react-toastify'
+import { useDispatch } from 'react-redux' // Thêm useDispatch từ Redux
+import { logout } from '../../redux/reducers/auth' // Import hành động logout
 
 const Sidebar = () => {
+  const navigate = useNavigate()
+  const dispatch = useDispatch() // Khởi tạo dispatch
+
+  const handleLogout = () => {
+    dispatch(logout()) // Gọi hành động logout từ Redux
+    localStorage.removeItem('token') // Xóa token khỏi localStorage
+    localStorage.removeItem('role') // Xóa role khỏi localStorage
+    toast.success('Đăng xuất thành công!')
+    navigate('/login') // Chuyển hướng về trang đăng nhập
+  }
+
   return (
     <div className="h-screen w-64 bg-gray-800 text-white flex flex-col">
       <div className="flex items-center p-4 bg-red-600">
@@ -25,7 +39,10 @@ const Sidebar = () => {
       </nav>
 
       <div className="p-4 bg-gray-700">
-        <button className="flex items-center w-full text-left text-gray-300 cursor-pointer hover:text-white">
+        <button
+          className="flex items-center w-full text-left text-gray-300 cursor-pointer hover:text-white"
+          onClick={handleLogout} // Gọi hàm handleLogout
+        >
           <FaSignOutAlt className="mr-3" />
           <span>Logout</span>
         </button>
@@ -53,11 +70,25 @@ const SidebarItem = ({ icon, text, link }) => (
 )
 
 const Header = () => {
+  const navigate = useNavigate()
+  const dispatch = useDispatch() // Khởi tạo dispatch
+
+  const handleLogout = () => {
+    dispatch(logout()) // Gọi hành động logout từ Redux
+    localStorage.removeItem('token') // Xóa token khỏi localStorage
+    localStorage.removeItem('role') // Xóa role khỏi localStorage
+    toast.success('Đăng xuất thành công!')
+    navigate('/login') // Chuyển hướng về trang đăng nhập
+  }
+
   return (
     <header className="bg-white shadow-md p-4 flex justify-end items-center">
       <div className="flex items-center space-x-4">
         <span className="text-black">Welcome, Admin</span>
-        <button className="bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition">
+        <button
+          className="bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition"
+          onClick={handleLogout} // Gọi hàm handleLogout
+        >
           Logout
         </button>
       </div>

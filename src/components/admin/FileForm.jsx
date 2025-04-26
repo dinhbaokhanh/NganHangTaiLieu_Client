@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { FaCloudUploadAlt } from 'react-icons/fa'
+import { FaCloudUploadAlt, FaTimes } from 'react-icons/fa' // Thêm FaTimes từ react-icons
 import { docTypes, universityMajors } from '../../constants/category.js'
 
 const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
@@ -38,9 +38,9 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
       <div className="bg-white w-full max-w-3xl p-6 rounded-lg shadow-lg relative border-2 border-gray-700">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-red-600"
+          className="absolute top-3 right-3 text-gray-500 cursor-pointer hover:text-red-600"
         >
-          ✕
+          <FaTimes /> {/* Thay dấu ✕ bằng FaTimes */}
         </button>
         <h2 className="text-2xl font-bold text-red-600 mb-6">
           {mode === 'add' ? 'Thêm tài liệu' : 'Cập nhật tài liệu'}
@@ -69,7 +69,7 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
                 onChange={(e) => setType(e.target.value)}
                 className="w-full px-4 py-2 border rounded-md"
               >
-                <option value="">Chọn ngành</option>
+                <option value="">Chọn thể loại</option>
                 {docTypes.map((major) => (
                   <option key={major.value} value={major.value}>
                     {major.label}
@@ -174,13 +174,13 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 transition"
+              className="px-4 py-2 bg-gray-200 text-gray-600 rounded-md cursor-pointer hover:bg-gray-300 transition"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-white hover:text-red-600 border border-red-600 transition"
+              className="px-4 py-2 bg-red-600 text-white rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition"
             >
               {mode === 'add' ? 'Thêm' : 'Cập nhật'}
             </button>
