@@ -50,6 +50,14 @@ const api = createApi({
       }),
     }),
 
+    getAllDocument: builder.query({
+      query: () => ({
+        url: '/document/',
+        method: 'GET',
+        credentials: 'include',
+      }),
+    }),
+
     updateDocument: builder.mutation({
       query: ({ id, ...updatedData }) => ({
         url: `/document/update/${id}`,
@@ -68,5 +76,6 @@ export const {
   useLoginUserMutation,
   useResetPasswordMutation,
   useUploadDocumentMutation,
+  useGetAllDocumentQuery,
   useUpdateDocumentMutation,
 } = api
