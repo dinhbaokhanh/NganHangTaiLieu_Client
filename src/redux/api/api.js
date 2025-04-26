@@ -3,7 +3,16 @@ import { server } from '../../constants/config.js'
 
 const api = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: `${server}/api/` }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${server}/api/`,
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem('token')
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`)
+      }
+      return headers
+    },
+  }),
   tagTypes: ['Document', 'User'],
 
   endpoints: (builder) => ({
