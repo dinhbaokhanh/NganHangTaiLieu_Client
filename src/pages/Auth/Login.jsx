@@ -15,67 +15,67 @@ const Login = () => {
 
   // Kiểm tra dữ liệu form
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
 
     if (!formData.username) {
-      newErrors.username = 'Tên đăng nhập không được để trống'
+      newErrors.username = 'Tên đăng nhập không được để trống';
     }
 
     if (!formData.password) {
-      newErrors.password = 'Mật khẩu không được để trống'
+      newErrors.password = 'Mật khẩu không được để trống';
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0 // Trả về true nếu không có lỗi
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Trả về true nếu không có lỗi
+  };
 
   // Xử lý thay đổi dữ liệu form
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
     if (errors[name]) {
-      setErrors({ ...errors, [name]: '' }) // Xóa lỗi khi người dùng nhập lại
+      setErrors({ ...errors, [name]: '' }); // Xóa lỗi khi người dùng nhập lại
     }
-  }
+  };
 
   // Xử lý khi submit form
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validateForm()) {
-      return
+      return;
     }
 
     try {
-      const response = await loginUser(formData).unwrap()
-      toast.success('Đăng nhập thành công!')
-      localStorage.setItem('token', response.token)
+      const response = await loginUser(formData).unwrap();
+      toast.success('Đăng nhập thành công!');
+      localStorage.setItem('token', response.token);
       navigate(redirect);
       // Check for admin role in the response
       if (response.user && response.user.role === 'admin') {
-        navigate('/admin/dashboard')
+        navigate('/admin/dashboard');
       } else {
         // Try a separate verification endpoint
         try {
           const adminVerification = await fetch('/api/verify-admin', {
             credentials: 'include', // This sends cookies automatically
-          })
-          const result = await adminVerification.json()
+          });
+          const result = await adminVerification.json();
 
           if (result.isAdmin) {
-            navigate('/admin/dashboard')
+            navigate('/admin/dashboard');
           } else {
-            navigate('/')
+            navigate('/');
           }
         } catch (verifyError) {
           // If verification fails, go to home page
-          navigate('/')
+          navigate('/');
         }
       }
     } catch (error) {
-      toast.error(error.data?.message || 'Đăng nhập thất bại!')
+      toast.error(error.data?.message || 'Đăng nhập thất bại!');
     }
-  }
+  };
 
   return (
     <>
@@ -89,16 +89,13 @@ const Login = () => {
           <input
             type="text"
             name="username"
-            placeholder="Tên đăng nhập"
+            placeholder={errors.username || 'Tên đăng nhập'}
             value={formData.username}
             onChange={handleChange}
             className={`w-full pl-10 px-3 py-2 border ${
-              errors.username ? 'border-red-500' : 'border-black'
+              errors.username ? 'border-red-500 placeholder-red-500' : 'border-black'
             } bg-white text-black rounded-md`}
           />
-          {errors.username && (
-            <p className="text-red-500 text-xs mt-1">{errors.username}</p>
-          )}
         </div>
         {/* Input mật khẩu */}
         <div className="mb-3 sm:mb-4 relative">
@@ -106,11 +103,11 @@ const Login = () => {
           <input
             type={showPassword ? 'text' : 'password'}
             name="password"
-            placeholder="Mật khẩu"
+            placeholder={errors.password || 'Mật khẩu'}
             value={formData.password}
             onChange={handleChange}
             className={`w-full pl-10 px-3 py-2 border ${
-              errors.password ? 'border-red-500' : 'border-black'
+              errors.password ? 'border-red-500 placeholder-red-500' : 'border-black'
             } bg-white text-black rounded-md`}
           />
           <button
@@ -120,9 +117,6 @@ const Login = () => {
           >
             {showPassword ? <FaEye /> : <FaEyeSlash />}
           </button>
-          {errors.password && (
-            <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-          )}
         </div>
         {/* Liên kết đến đăng ký và quên mật khẩu */}
         <div className="flex justify-between text-sm mb-4">
@@ -151,7 +145,7 @@ const Login = () => {
         </button>
       </form>
     </>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
