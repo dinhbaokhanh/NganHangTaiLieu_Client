@@ -23,6 +23,22 @@ const PrivateRoute = ({ children }) => {
   return token ? children : <Navigate to="/login" replace /> // Nếu chưa đăng nhập, chuyển hướng đến Login
 }
 
+// Component bảo vệ route admin
+const AdminRoute = ({ children }) => {
+  const token = localStorage.getItem('token'); // Lấy token từ localStorage
+  const role = localStorage.getItem('role'); // Lấy vai trò từ localStorage (hoặc từ token)
+
+  if (!token) {
+    return <Navigate to="/login" replace />; // Nếu chưa đăng nhập, chuyển hướng đến Login
+  }
+
+  if (role !== 'admin') {
+    return <Navigate to="/" replace />; // Nếu không phải admin, chuyển hướng đến Home
+  }
+
+  return children; // Nếu là admin, cho phép truy cập
+};
+
 // Component bảo vệ route chỉ dành cho khách (người chưa đăng nhập)
 const GuestRoute = ({ children }) => {
   const token = localStorage.getItem('token') // Lấy token từ localStorage
@@ -97,25 +113,25 @@ const App = () => {
             <Route
               path="/admin/dashboard"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <Dashboard />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/users"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <Users />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/files"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <Files />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
           </Route>

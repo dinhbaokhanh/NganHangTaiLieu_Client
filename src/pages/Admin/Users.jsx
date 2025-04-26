@@ -116,12 +116,6 @@ const Users = () => {
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </select>
-          <select className="px-4 py-2 border rounded-md">
-            <option>Chọn ngành</option>
-            <option>Công nghệ thông tin</option>
-            <option>Kinh tế</option>
-            <option>Quản trị kinh doanh</option>
-          </select>
         </div>
 
         {/* User Table */}
