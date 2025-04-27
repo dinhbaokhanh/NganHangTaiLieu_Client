@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { logout } from '../../redux/reducers/auth'
 import LogoIcon from '../../assets/logo.png'
+import { toast } from 'react-toastify'
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -26,9 +27,11 @@ const Header = () => {
   }, [])
 
   const handleLogout = () => {
-    dispatch(logout()) // Cập nhật Redux
-    localStorage.removeItem('token') // Xóa token khỏi localStorage
-    navigate('/login') // Chuyển hướng về trang đăng nhập
+    dispatch(logout())
+    localStorage.removeItem('token'); // Xóa token khỏi localStorage
+    localStorage.removeItem('role');  // Xóa role khỏi localStorage
+    toast.success('Đăng xuất thành công!');
+    navigate('/login'); // Chuyển hướng về trang đăng nhập
   }
 
   return (

@@ -56,6 +56,7 @@ const Login = () => {
       localStorage.setItem('token', accessToken)
 
       const decoded = jwtDecode(accessToken)
+      localStorage.setItem('role', decoded?.role) 
       const isAdmin = decoded?.role === 'admin'
 
       toast.success('Đăng nhập thành công!')
