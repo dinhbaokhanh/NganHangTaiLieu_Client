@@ -53,7 +53,7 @@ const Files = () => {
 
   const handleEditDocument = async (updatedDocument) => {
     const res = await editDocument('Đang cập nhật tài liệu...', {
-      id: editingDocument.id,
+      id: editingDocument._id,
       ...updatedDocument,
     })
 
@@ -73,7 +73,11 @@ const Files = () => {
     const matchesMajor = selectedMajor ? doc.major === selectedMajor : true
     const matchesAuthor = selectedAuthor ? doc.author === selectedAuthor : true
     const matchesYear = selectedYear
-      ? doc.publishedYear === parseInt(selectedYear)
+      ? selectedYear === 'after-2020'
+        ? doc.publishedYear > 2020
+        : selectedYear === 'before-2020'
+        ? doc.publishedYear <= 2020
+        : true
       : true
     const matchesType = selectedType ? doc.type === selectedType : true
     return (
@@ -168,11 +172,8 @@ const Files = () => {
             onChange={(e) => setSelectedYear(e.target.value)}
           >
             <option value="">Chọn năm xuất bản</option>
-            <option value="2023">2023</option>
-            <option value="2022">2022</option>
-            <option value="2021">2021</option>
-            <option value="2020">2020</option>
-            <option value="2019">2019</option>
+            <option value="after-2020">Sau 2020</option>
+            <option value="before-2020">Trước 2020</option>
           </select>
         </div>
 
