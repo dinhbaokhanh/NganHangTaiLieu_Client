@@ -66,7 +66,6 @@ const api = createApi({
     }),
 
     // --- DOCUMENT ---
-    // --- DOCUMENT ---
     uploadDocument: builder.mutation({
       query: (formData) => ({
         url: '/document/upload',
@@ -87,6 +86,44 @@ const api = createApi({
         body: updatedData,
       }),
     }),
+
+    // Sửa lại API addUser với endpoint mới
+    addUser: builder.mutation({
+      query: (formData) => ({
+        url: '/user/add', // Endpoint mới
+        method: 'POST',
+        body: formData,
+      }),
+    }),
+
+    // Bổ sung API getAllUsers
+    getAllUsers: builder.query({
+      query: () => ({
+        url: '/user/',
+        method: 'GET',
+      }),
+      providesTags: ['User'], // Thêm providesTags để liên kết với tag 'User'
+    }),
+
+    // Sửa lại API updateUserStatus
+    updateUserStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `/user/users/${id}/status`, // Sửa lại URL để khớp với cấu hình trong app.js
+        method: 'PATCH',
+        body: { status },
+      }),
+      invalidatesTags: ['User'],
+    }),
+
+    // Thêm API deleteUser
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `/user/${id}`, // Endpoint DELETE /:id
+        method: 'DELETE', // Phương thức HTTP DELETE
+      }),
+      invalidatesTags: ['User'], // Làm mới dữ liệu liên quan đến User
+    }),
+
     replaceDocument: builder.mutation({
       query: ({ id, file }) => {
         const formData = new FormData()
@@ -154,6 +191,10 @@ export const {
   useUploadDocumentMutation,
   useGetAllDocumentQuery,
   useUpdateDocumentMutation,
+  useAddUserMutation, // Export hook để gọi API addUser
+  useGetAllUsersQuery, // Export hook để gọi API getAllUsers
+  useUpdateUserStatusMutation, // Export hook để gọi API updateUserStatus
+  useDeleteUserMutation, // Export hook để gọi API deleteUser
   useReplaceDocumentMutation,
   useDeleteDocumentMutation,
 
