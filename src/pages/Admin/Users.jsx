@@ -8,11 +8,14 @@ import {
 } from 'react-icons/fa';
 import UserForm from '../../components/admin/UserForm';
 import UpdateUserStatusForm from '../../components/admin/UpdateUserStatusForm'; // Import component mới
+import RemoveForm from '../../components/admin/RemoveForm.jsx'; // Import RemoveForm
 import { useAsyncMutation, useErrors } from '../../hooks/hook.js';
 import {
   useAddUserMutation,
   useGetAllUsersQuery,
-} from '../../redux/api/api'; // Loại bỏ `useUpdateUserStatusMutation`
+  useDeleteUserMutation, // Import API xóa người dùng
+  useUpdateUserStatusMutation, // Import API cập nhật trạng thái người dùng
+} from '../../redux/api/api';
 
 const Users = () => {
   const [users, setUsers] = useState([]); // Danh sách người dùng
@@ -20,16 +23,24 @@ const Users = () => {
   const [selectedStatus, setSelectedStatus] = useState(''); // Bộ lọc trạng thái
   const [isModalOpen, setIsModalOpen] = useState(false); // Trạng thái mở modal thêm người dùng
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false); // Trạng thái mở modal cập nhật trạng thái
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false); // Trạng thái mở modal xóa người dùng
   const [editingUser, setEditingUser] = useState(null); // Người dùng đang chỉnh sửa trạng thái
+  const [selectedUser, setSelectedUser] = useState(null); // Người dùng được chọn để xóa
 
   // Gọi API lấy danh sách người dùng
   const { data, isLoading, isError, error } = useGetAllUsersQuery();
+
+  // Gọi API xóa người dùng
+  const [deleteUser] = useDeleteUserMutation();
+
+  // Gọi API cập nhật trạng thái người dùng
+  const [updateUserStatus] = useUpdateUserStatusMutation();
 
   // Xử lý lỗi từ API
   useErrors([{ isError, error }]);
 
   // Gọi API thêm người dùng (sử dụng useAsyncMutation)
-  const [addUser, isAdding] = useAsyncMutation(useAddUserMutation);
+  const [addUser] = useAsyncMutation(useAddUserMutation);
 
   // Cập nhật danh sách người dùng khi có dữ liệu từ API
   useEffect(() => {
@@ -69,6 +80,36 @@ const Users = () => {
     if (res.success) {
       setUsers((prevUsers) => [...prevUsers, res.data]);
       setIsModalOpen(false);
+    }
+  };
+
+  // Xử lý xóa người dùng
+  const handleDeleteUser = async () => {
+    if (selectedUser) {
+      try {
+        await deleteUser(selectedUser.id).unwrap();
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== selectedUser.id));
+        setIsRemoveModalOpen(false);
+        setSelectedUser(null);
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      }
+    }
+  };
+
+  // Xử lý cập nhật trạng thái người dùng
+  const handleUpdateUserStatus = async (id, newStatus) => {
+    try {
+      await updateUserStatus({ id, status: newStatus }).unwrap();
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === id ? { ...user, status: newStatus } : user
+        )
+      );
+      setIsStatusModalOpen(false);
+      setEditingUser(null);
+    } catch (error) {
+      console.error('Error updating user status:', error);
     }
   };
 
@@ -114,7 +155,7 @@ const Users = () => {
           >
             <option value="">Chọn trạng thái</option>
             <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
+            <option value="Banned">Banned</option>
           </select>
         </div>
 
@@ -134,22 +175,33 @@ const Users = () => {
                 <td className="border border-gray-300 px-4 py-2">{user.username}</td>
                 <td className="border border-gray-300 px-4 py-2">{user.email}</td>
                 <td className="border border-gray-300 px-4 py-2">
-                  <span className="px-2 py-1 text-sm text-green-600 bg-green-100 rounded-full">
+                  <span 
+                    className={`px-2 py-1 text-sm rounded-full ${
+                      user.status === 'Banned' 
+                        ? 'text-red-600 bg-red-100' 
+                        : 'text-green-600 bg-green-100'
+                    }`}
+                  >
                     {user.status}
                   </span>
                 </td>
                 <td className="border border-gray-300 px-4 py-2 text-center">
                   <button
                     onClick={() => {
-                      console.log('Selected User:', user); // Kiểm tra giá trị user
-                      setEditingUser(user); // Gán đúng giá trị user vào editingUser
+                      setEditingUser(user);
                       setIsStatusModalOpen(true);
                     }}
                     className="text-gray-600 cursor-pointer hover:text-blue-600 mr-4"
                   >
                     <FaEdit />
                   </button>
-                  <button className="text-gray-600 cursor-pointer hover:text-red-600">
+                  <button
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setIsRemoveModalOpen(true);
+                    }}
+                    className="text-gray-600 cursor-pointer hover:text-red-600"
+                  >
                     <FaTrash />
                   </button>
                 </td>
@@ -225,6 +277,18 @@ const Users = () => {
         <UpdateUserStatusForm
           user={editingUser}
           onClose={() => setIsStatusModalOpen(false)}
+          onSubmit={(data) => handleUpdateUserStatus(data.id, data.status)}
+        />
+      )}
+
+      {/* Remove User Modal */}
+      {isRemoveModalOpen && selectedUser && (
+        <RemoveForm
+          title="Xác nhận xóa người dùng"
+          description={`Bạn có chắc chắn muốn xóa người dùng "${selectedUser.username}"?`}
+          warningMessage="Khi xóa người dùng này, tất cả dữ liệu liên quan cũng sẽ bị xóa vĩnh viễn."
+          onConfirm={handleDeleteUser}
+          onCancel={() => setIsRemoveModalOpen(false)}
         />
       )}
     </div>
