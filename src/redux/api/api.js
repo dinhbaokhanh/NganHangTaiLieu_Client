@@ -43,7 +43,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Document', 'User'],
+  tagTypes: ['Document', 'User'], // Định nghĩa tag 'User'
 
   endpoints: (builder) => ({
     loginUser: builder.mutation({
@@ -92,6 +92,34 @@ const api = createApi({
         body: updatedData,
       }),
     }),
+
+    // Sửa lại API addUser với endpoint mới
+    addUser: builder.mutation({
+      query: (formData) => ({
+        url: '/user/add', // Endpoint mới
+        method: 'POST',
+        body: formData,
+      }),
+    }),
+
+    // Bổ sung API getAllUsers
+    getAllUsers: builder.query({
+      query: () => ({
+        url: '/user/',
+        method: 'GET',
+      }),
+      providesTags: ['User'], // Thêm providesTags để liên kết với tag 'User'
+    }),
+
+    // Bổ sung API updateUserStatus
+    updateUserStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `/user/${id}/status`, // Endpoint cập nhật trạng thái
+        method: 'PUT',
+        body: { status },
+      }),
+      invalidatesTags: ['User'], // Làm mới dữ liệu liên quan đến User
+    }),
   }),
 })
 
@@ -104,4 +132,7 @@ export const {
   useUploadDocumentMutation,
   useGetAllDocumentQuery,
   useUpdateDocumentMutation,
+  useAddUserMutation, // Export hook để gọi API addUser
+  useGetAllUsersQuery, // Export hook để gọi API getAllUsers
+  useUpdateUserStatusMutation, // Export hook để gọi API updateUserStatus
 } = api
