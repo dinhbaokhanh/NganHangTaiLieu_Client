@@ -1,10 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { server } from '../../constants/config.js'
 
-// Tạo baseQuery gốc
+// Base query gốc
 const baseQuery = fetchBaseQuery({
   baseUrl: `${server}/api/`,
-  credentials: 'include', // QUAN TRỌNG: để cookie gửi kèm
+  credentials: 'include',
   prepareHeaders: (headers) => {
     const token = localStorage.getItem('token')
     if (token) {
@@ -14,12 +14,11 @@ const baseQuery = fetchBaseQuery({
   },
 })
 
-// Tạo baseQuery mới có khả năng tự refresh token
+// Base query với khả năng tự refresh token
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions)
 
   if (result?.error?.status === 401) {
-    // Token hết hạn, gọi API refresh
     const refreshResult = await baseQuery(
       { url: '/user/refresh', method: 'POST' },
       api,
@@ -27,10 +26,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     )
 
     if (refreshResult?.data?.accessToken) {
-      // Cập nhật token mới vào localStorage
       localStorage.setItem('token', refreshResult.data.accessToken)
-
-      // Retry lại request cũ với token mới
       result = await baseQuery(args, api, extraOptions)
     } else {
       console.error('Refresh token failed')
@@ -43,9 +39,10 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Document', 'User'],
+  tagTypes: ['Document', 'User', 'Subject'],
 
   endpoints: (builder) => ({
+    // --- USER ---
     loginUser: builder.mutation({
       query: (formData) => ({
         url: '/user/login',
@@ -53,7 +50,6 @@ const api = createApi({
         body: formData,
       }),
     }),
-
     forgotPassword: builder.mutation({
       query: ({ email }) => ({
         url: '/user/forgot-password',
@@ -61,7 +57,6 @@ const api = createApi({
         body: { email },
       }),
     }),
-
     resetPassword: builder.mutation({
       query: ({ id, token, password, confirmPassword }) => ({
         url: `/user/reset-password/${id}/${token}`,
@@ -70,6 +65,8 @@ const api = createApi({
       }),
     }),
 
+    // --- DOCUMENT ---
+    // --- DOCUMENT ---
     uploadDocument: builder.mutation({
       query: (formData) => ({
         url: '/document/upload',
@@ -77,19 +74,69 @@ const api = createApi({
         body: formData,
       }),
     }),
-
     getAllDocument: builder.query({
       query: () => ({
         url: '/document/',
         method: 'GET',
       }),
     }),
-
     updateDocument: builder.mutation({
       query: ({ id, ...updatedData }) => ({
-        url: `/document/update/${id}`,
+        url: `/document/${id}`, // PUT /document/:id
         method: 'PUT',
         body: updatedData,
+      }),
+    }),
+    replaceDocument: builder.mutation({
+      query: ({ id, file }) => {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        return {
+          url: `/document/replace/${id}`, // PUT /document/replace/:id
+          method: 'PUT',
+          body: formData,
+        }
+      },
+    }),
+    deleteDocument: builder.mutation({
+      query: (id) => ({
+        url: `/document/${id}`, // DELETE /document/:id
+        method: 'DELETE',
+      }),
+    }),
+
+    // --- SUBJECT ---
+    createSubject: builder.mutation({
+      query: (subjectData) => ({
+        url: '/subject/create',
+        method: 'POST',
+        body: subjectData,
+      }),
+    }),
+    getAllSubjects: builder.query({
+      query: () => ({
+        url: '/subject',
+        method: 'GET',
+      }),
+    }),
+    getSubjectById: builder.query({
+      query: (id) => ({
+        url: `/subject/${id}`,
+        method: 'GET',
+      }),
+    }),
+    updateSubjectById: builder.mutation({
+      query: ({ id, ...updatedData }) => ({
+        url: `/subject/${id}`,
+        method: 'PUT',
+        body: updatedData,
+      }),
+    }),
+    deleteSubjectById: builder.mutation({
+      query: (id) => ({
+        url: `/subject/${id}`,
+        method: 'DELETE',
       }),
     }),
   }),
@@ -98,10 +145,22 @@ const api = createApi({
 export default api
 
 export const {
-  useForgotPasswordMutation,
+  // User
   useLoginUserMutation,
+  useForgotPasswordMutation,
   useResetPasswordMutation,
+
+  // Document
   useUploadDocumentMutation,
   useGetAllDocumentQuery,
   useUpdateDocumentMutation,
+  useReplaceDocumentMutation,
+  useDeleteDocumentMutation,
+
+  // Subject
+  useCreateSubjectMutation,
+  useGetAllSubjectsQuery,
+  useGetSubjectByIdQuery,
+  useUpdateSubjectByIdMutation,
+  useDeleteSubjectByIdMutation,
 } = api

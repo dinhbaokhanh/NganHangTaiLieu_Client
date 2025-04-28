@@ -5,6 +5,7 @@ import AppLayout from './components/layout/AppLayout'
 import AuthLayout from './components/layout/AuthLayout'
 import AdminLayout from './components/layout/AdminLayout'
 import Dashboard from './pages/Admin/Dashboard'
+import Subjects from './pages/Admin/Subjects'
 
 const Home = lazy(() => import('./pages/Home'))
 const FileDetails = lazy(() => import('./pages/FileDetails'))
@@ -25,19 +26,19 @@ const PrivateRoute = ({ children }) => {
 
 // Component bảo vệ route admin
 const AdminRoute = ({ children }) => {
-  const token = localStorage.getItem('token'); // Lấy token từ localStorage
-  const role = localStorage.getItem('role'); // Lấy vai trò từ localStorage (hoặc từ token)
+  const token = localStorage.getItem('token') // Lấy token từ localStorage
+  const role = localStorage.getItem('role') // Lấy vai trò từ localStorage (hoặc từ token)
 
   if (!token) {
-    return <Navigate to="/login" replace />; // Nếu chưa đăng nhập, chuyển hướng đến Login
+    return <Navigate to="/login" replace /> // Nếu chưa đăng nhập, chuyển hướng đến Login
   }
 
   if (role !== 'admin') {
-    return <Navigate to="/" replace />; // Nếu không phải admin, chuyển hướng đến Home
+    return <Navigate to="/" replace /> // Nếu không phải admin, chuyển hướng đến Home
   }
 
-  return children; // Nếu là admin, cho phép truy cập
-};
+  return children // Nếu là admin, cho phép truy cập
+}
 
 // Component bảo vệ route chỉ dành cho khách (người chưa đăng nhập)
 const GuestRoute = ({ children }) => {
@@ -131,6 +132,14 @@ const App = () => {
               element={
                 <AdminRoute>
                   <Files />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/subjects"
+              element={
+                <AdminRoute>
+                  <Subjects />
                 </AdminRoute>
               }
             />

@@ -1,6 +1,12 @@
 import React from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { FaUsers, FaThLarge, FaFolder, FaSignOutAlt } from 'react-icons/fa'
+import {
+  FaUsers,
+  FaThLarge,
+  FaFolder,
+  FaSignOutAlt,
+  FaBook,
+} from 'react-icons/fa'
 import { toast } from 'react-toastify'
 import { useDispatch } from 'react-redux' // Thêm useDispatch từ Redux
 import { logout } from '../../redux/reducers/auth' // Import hành động logout
@@ -35,6 +41,11 @@ const Sidebar = () => {
           />
           <SidebarItem icon={<FaUsers />} text="Users" link="/admin/users" />
           <SidebarItem icon={<FaFolder />} text="Files" link="/admin/files" />
+          <SidebarItem
+            icon={<FaBook />}
+            text="Subjects"
+            link="/admin/subjects"
+          />
         </ul>
       </nav>
 
