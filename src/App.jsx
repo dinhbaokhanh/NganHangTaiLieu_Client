@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useEffect } from 'react'
 import './index.css'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import AppLayout from './components/layout/AppLayout'
@@ -6,6 +6,10 @@ import AuthLayout from './components/layout/AuthLayout'
 import AdminLayout from './components/layout/AdminLayout'
 import Dashboard from './pages/Admin/Dashboard'
 import Subjects from './pages/Admin/Subjects'
+import { useDispatch, useSelector } from 'react-redux'
+import { jwtDecode } from 'jwt-decode'
+import { checkTokenExpiration, refreshTokenIfNeeded } from './utils/checkToken'
+import { loadUserFromStorage, setInitialized } from './redux/reducers/auth'
 
 const Home = lazy(() => import('./pages/Home'))
 const FileDetails = lazy(() => import('./pages/FileDetails'))
@@ -18,50 +22,90 @@ const Reset = lazy(() => import('./pages/Auth/ResetPassword'))
 const Users = lazy(() => import('./pages/Admin/Users'))
 const Files = lazy(() => import('./pages/Admin/Files'))
 
-// Component bảo vệ route yêu cầu đăng nhập
 const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem('token') // Lấy token từ localStorage
-  return token ? children : <Navigate to="/login" replace /> // Nếu chưa đăng nhập, chuyển hướng đến Login
+  const { token, isAuthenticated, isInitialized } = useSelector(
+    (state) => state.auth
+  )
+  if (!isInitialized) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500"></div>
+      </div>
+    )
+  }
+  return token ? children : <Navigate to="/login" replace />
 }
 
 // Component bảo vệ route admin
 const AdminRoute = ({ children }) => {
-  const token = localStorage.getItem('token') // Lấy token từ localStorage
-  const role = localStorage.getItem('role') // Lấy vai trò từ localStorage (hoặc từ token)
+  const { token, userInfo, isAuthenticated, isInitialized } = useSelector(
+    (state) => state.auth
+  )
 
-  if (!token) {
-    return <Navigate to="/login" replace /> // Nếu chưa đăng nhập, chuyển hướng đến Login
+  if (!isInitialized) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500"></div>
+      </div>
+    )
   }
 
-  if (role !== 'admin') {
-    return <Navigate to="/" replace /> // Nếu không phải admin, chuyển hướng đến Home
+  if (!token || userInfo?.role !== 'admin') {
+    return <Navigate to="/" replace />
   }
 
-  return children // Nếu là admin, cho phép truy cập
+  return children
 }
 
 // Component bảo vệ route chỉ dành cho khách (người chưa đăng nhập)
 const GuestRoute = ({ children }) => {
-  const token = localStorage.getItem('token') // Lấy token từ localStorage
+  const { token, isInitialized } = useSelector((state) => state.auth)
 
-  if (token) {
-    return <Navigate to="/" replace /> // Nếu đã đăng nhập, chuyển hướng đến Home
+  if (!isInitialized) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500"></div>
+      </div>
+    )
   }
 
-  return children // Nếu chưa đăng nhập, cho phép truy cập
+  if (token) {
+    return <Navigate to="/" replace />
+  }
+
+  return children
 }
 
 const App = () => {
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      try {
+        const isExpired = checkTokenExpiration(token)
+        if (!isExpired) {
+          const decoded = jwtDecode(token)
+          const userInfo = { id: decoded._id, role: decoded.role }
+          dispatch(loadUserFromStorage({ token, userInfo }))
+        } else {
+          refreshTokenIfNeeded(dispatch)
+        }
+      } catch (error) {
+        console.error('Error processing token:', error)
+        localStorage.removeItem('token')
+      }
+    }
+    dispatch(setInitialized()) // Sau khi đã kiểm tra xong, set lại `isInitialized`
+  }, [dispatch])
+
   return (
     <BrowserRouter>
       <Suspense fallback={<div>Loading....</div>}>
         <Routes>
-          {/* Layout của app */}
           <Route element={<AppLayout />}>
-            <Route path="/" element={<Home />} />{' '}
-            {/* Trang Home không yêu cầu đăng nhập */}
-            <Route path="/file" element={<FileDetails />} />{' '}
-            {/* Trang FileDetails không yêu cầu đăng nhập */}
+            <Route path="/" element={<Home />} />
+            <Route path="/file" element={<FileDetails />} />
             <Route
               path="/profile"
               element={
@@ -80,7 +124,6 @@ const App = () => {
             />
           </Route>
 
-          {/* Layout cho Auth */}
           <Route element={<AuthLayout />}>
             <Route
               path="/login"
@@ -109,40 +152,23 @@ const App = () => {
             <Route path="/reset-password/:id/:token" element={<Reset />} />
           </Route>
 
-          {/* Layout cho Admin */}
-          <Route element={<AdminLayout />}>
-            <Route
-              path="/admin/dashboard"
-              element={
-                <AdminRoute>
-                  <Dashboard />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/users"
-              element={
-                <AdminRoute>
-                  <Users />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/files"
-              element={
-                <AdminRoute>
-                  <Files />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/subjects"
-              element={
-                <AdminRoute>
-                  <Subjects />
-                </AdminRoute>
-              }
-            />
+          {/* Add direct route to admin dashboard for testing */}
+          <Route
+            path="/admin"
+            element={<Navigate to="/admin/dashboard" replace />}
+          />
+
+          <Route
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/users" element={<Users />} />
+            <Route path="/admin/files" element={<Files />} />
+            <Route path="/admin/subjects" element={<Subjects />} />
           </Route>
         </Routes>
       </Suspense>
