@@ -9,21 +9,12 @@ import {
 import FileForm from '../../components/admin/FileForm'
 import { useAsyncMutation, useErrors } from '../../hooks/hook.js'
 import { universityMajors, docTypes } from '../../constants/category.js'
-import {
-  useUpdateDocumentMutation,
-  useReplaceDocumentMutation,
-  useGetAllDocumentQuery,
-  useUploadDocumentMutation,
-} from '../../redux/api/api'
 
 const Files = () => {
   const [documents, setDocuments] = useState([])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingDocument, setEditingDocument] = useState(null)
-  const [replaceDocument, isReplacing] = useAsyncMutation(
-    useReplaceDocumentMutation
-  )
 
   const [search, setSearch] = useState('')
   const [selectedMajor, setSelectedMajor] = useState('')
@@ -31,74 +22,11 @@ const Files = () => {
   const [selectedYear, setSelectedYear] = useState('')
   const [selectedType, setSelectedType] = useState('')
 
-  const [uploadDocument, isUploading] = useAsyncMutation(
-    useUploadDocumentMutation
-  )
-  const { data, isLoading, isError, error } = useGetAllDocumentQuery()
+  const handleAddDocument = async (newDocument) => {}
 
-  useErrors([{ isError, error }])
+  const handleEditDocument = async (updatedDocument) => {}
 
-  useEffect(() => {
-    if (data?.documents) {
-      setDocuments(data.documents)
-    }
-  }, [data])
-
-  const [editDocument, isEditing] = useAsyncMutation(useUpdateDocumentMutation)
-
-  const handleAddDocument = async (newDocument) => {
-    const res = await uploadDocument('Đang thêm tài liệu...', newDocument)
-    if (res.success) {
-      setDocuments((prev) => [...prev, res.data])
-      setIsModalOpen(false)
-    }
-  }
-
-  const handleEditDocument = async (updatedDocument) => {
-    const docToUpdate = {
-      id: editingDocument?._id,
-      ...updatedDocument,
-    }
-
-    const res = await editDocument('Đang cập nhật tài liệu...', docToUpdate)
-
-    if (res.success) {
-      setDocuments((prev) =>
-        prev.map((doc) =>
-          doc.id === editingDocument.id ? { ...doc, ...res.data } : doc
-        )
-      )
-      setIsModalOpen(false)
-      setEditingDocument(null)
-    }
-  }
-
-  const handleReplaceDocument = async (newDocument) => {
-    if (!editingDocument) return // Nếu không có tài liệu đang chỉnh sửa, không làm gì
-
-    const updatedDocument = {
-      id: editingDocument._id, // ID của tài liệu đang được chỉnh sửa
-      ...newDocument, // Dữ liệu mới thay thế
-    }
-
-    const res = await replaceDocument(
-      'Đang thay thế tài liệu...',
-      updatedDocument
-    )
-    if (res.success) {
-      // Cập nhật lại danh sách tài liệu sau khi thay thế thành công
-      setDocuments((prev) =>
-        prev.map((doc) =>
-          doc.id === editingDocument.id ? { ...doc, ...res.data } : doc
-        )
-      )
-      setIsModalOpen(false)
-      setEditingDocument(null)
-    } else {
-      // Xử lý khi có lỗi
-      alert('Đã có lỗi xảy ra khi thay thế tài liệu')
-    }
-  }
+  const handleReplaceDocument = async (newDocument) => {}
 
   const filteredDocuments = documents.filter((doc) => {
     const matchesName = doc.title?.toLowerCase().includes(search.toLowerCase())
@@ -133,16 +61,6 @@ const Files = () => {
     startIndex,
     startIndex + itemsPerPage
   )
-
-  if (isLoading) {
-    return (
-      <div className="p-6">
-        <p className="text-center text-lg text-gray-600">
-          Đang tải tài liệu...
-        </p>
-      </div>
-    )
-  }
 
   return (
     <div className="p-6 bg-gray-100 h-full">
