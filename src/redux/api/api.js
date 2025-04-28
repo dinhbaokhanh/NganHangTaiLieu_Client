@@ -43,7 +43,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Document', 'User'],
+  tagTypes: ['Document', 'User', 'Subject'],
 
   endpoints: (builder) => ({
     loginUser: builder.mutation({
@@ -92,6 +92,56 @@ const api = createApi({
         body: updatedData,
       }),
     }),
+
+    replaceDocument: builder.mutation({
+      query: ({ id, file }) => {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        return {
+          url: `/document/replace/${id}`,
+          method: 'PUT',
+          body: formData,
+        }
+      },
+    }),
+
+    createSubject: builder.mutation({
+      query: (subjectData) => ({
+        url: '/subject/create',
+        method: 'POST',
+        body: subjectData,
+      }),
+    }),
+
+    getAllSubjects: builder.query({
+      query: () => ({
+        url: '/subject',
+        method: 'GET',
+      }),
+    }),
+
+    getSubjectById: builder.query({
+      query: (id) => ({
+        url: `/subject/${id}`,
+        method: 'GET',
+      }),
+    }),
+
+    updateSubjectById: builder.mutation({
+      query: ({ id, ...updatedData }) => ({
+        url: `/subject/${id}`,
+        method: 'PUT',
+        body: updatedData,
+      }),
+    }),
+
+    deleteSubjectById: builder.mutation({
+      query: (id) => ({
+        url: `/subject/${id}`,
+        method: 'DELETE',
+      }),
+    }),
   }),
 })
 
@@ -101,7 +151,15 @@ export const {
   useForgotPasswordMutation,
   useLoginUserMutation,
   useResetPasswordMutation,
+
   useUploadDocumentMutation,
   useGetAllDocumentQuery,
   useUpdateDocumentMutation,
+  useReplaceDocumentMutation,
+
+  useCreateSubjectMutation,
+  useGetAllSubjectsQuery,
+  useGetSubjectByIdQuery,
+  useUpdateSubjectByIdMutation,
+  useDeleteSubjectByIdMutation,
 } = api

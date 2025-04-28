@@ -11,6 +11,7 @@ import { useAsyncMutation, useErrors } from '../../hooks/hook.js'
 import { universityMajors, docTypes } from '../../constants/category.js'
 import {
   useUpdateDocumentMutation,
+  useReplaceDocumentMutation,
   useGetAllDocumentQuery,
   useUploadDocumentMutation,
 } from '../../redux/api/api'
@@ -20,6 +21,9 @@ const Files = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingDocument, setEditingDocument] = useState(null)
+  const [replaceDocument, isReplacing] = useAsyncMutation(
+    useReplaceDocumentMutation
+  )
 
   const [search, setSearch] = useState('')
   const [selectedMajor, setSelectedMajor] = useState('')
@@ -30,7 +34,6 @@ const Files = () => {
   const [uploadDocument, isUploading] = useAsyncMutation(
     useUploadDocumentMutation
   )
-
   const { data, isLoading, isError, error } = useGetAllDocumentQuery()
 
   useErrors([{ isError, error }])
@@ -52,10 +55,12 @@ const Files = () => {
   }
 
   const handleEditDocument = async (updatedDocument) => {
-    const res = await editDocument('Đang cập nhật tài liệu...', {
-      id: editingDocument._id,
+    const docToUpdate = {
+      id: editingDocument?._id,
       ...updatedDocument,
-    })
+    }
+
+    const res = await editDocument('Đang cập nhật tài liệu...', docToUpdate)
 
     if (res.success) {
       setDocuments((prev) =>
@@ -63,8 +68,35 @@ const Files = () => {
           doc.id === editingDocument.id ? { ...doc, ...res.data } : doc
         )
       )
-      setEditingDocument(null)
       setIsModalOpen(false)
+      setEditingDocument(null)
+    }
+  }
+
+  const handleReplaceDocument = async (newDocument) => {
+    if (!editingDocument) return // Nếu không có tài liệu đang chỉnh sửa, không làm gì
+
+    const updatedDocument = {
+      id: editingDocument._id, // ID của tài liệu đang được chỉnh sửa
+      ...newDocument, // Dữ liệu mới thay thế
+    }
+
+    const res = await replaceDocument(
+      'Đang thay thế tài liệu...',
+      updatedDocument
+    )
+    if (res.success) {
+      // Cập nhật lại danh sách tài liệu sau khi thay thế thành công
+      setDocuments((prev) =>
+        prev.map((doc) =>
+          doc.id === editingDocument.id ? { ...doc, ...res.data } : doc
+        )
+      )
+      setIsModalOpen(false)
+      setEditingDocument(null)
+    } else {
+      // Xử lý khi có lỗi
+      alert('Đã có lỗi xảy ra khi thay thế tài liệu')
     }
   }
 
@@ -88,7 +120,7 @@ const Files = () => {
   //pagination
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 8
-  const totalPages = Math.ceil(documents.length / itemsPerPage)
+  const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage)
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -191,7 +223,7 @@ const Files = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredDocuments.map((doc) => (
+            {currentDocuments.map((doc) => (
               <tr key={doc.id} className="hover:bg-gray-50">
                 <td className="border px-4 py-2">{doc.title}</td>
                 <td className="border px-4 py-2">{doc.type}</td>
@@ -233,7 +265,7 @@ const Files = () => {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`flex items-center justify-center gap-2 w-24 px-4 py-2 rounded-md transition
+            className={`flex items-center justify-center cursor-pointer gap-2 w-24 px-4 py-2 rounded-md transition
             ${
               currentPage === 1
                 ? 'bg-gray-300 text-gray-400 cursor-not-allowed'
@@ -251,7 +283,7 @@ const Files = () => {
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-4 py-2 rounded-md transition
+                className={`px-4 py-2 rounded-md transition cursor-pointer
                 ${
                   currentPage === page
                     ? 'bg-red-600 text-white'
@@ -268,7 +300,7 @@ const Files = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`flex items-center justify-center gap-2 w-24 px-4 py-2 rounded-md transition
+            className={`flex items-center justify-center gap-2 w-24 px-4 py-2 rounded-md transition cursor-pointer
             ${
               currentPage === totalPages
                 ? 'bg-gray-300 text-gray-400 cursor-not-allowed'
@@ -287,7 +319,12 @@ const Files = () => {
         <FileForm
           mode={editingDocument ? 'edit' : 'add'}
           initialData={editingDocument || {}}
-          onSubmit={editingDocument ? handleEditDocument : handleAddDocument}
+          onSubmit={
+            editingDocument
+              ? (formData) => handleEditDocument(formData)
+              : handleAddDocument
+          }
+          onReplace={editingDocument ? handleReplaceDocument : null}
           onClose={() => setIsModalOpen(false)}
         />
       )}

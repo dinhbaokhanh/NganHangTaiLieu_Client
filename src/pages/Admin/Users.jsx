@@ -9,53 +9,7 @@ import {
 import UserForm from '../../components/admin/UserForm'
 
 const Users = () => {
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: 'Nguyễn Văn A',
-      studentId: 'B180001',
-      class: 'K62-CNTT',
-      major: 'Công nghệ thông tin',
-      email: 'nguyenvana@example.com',
-      status: 'Active',
-    },
-    {
-      id: 2,
-      name: 'Trần Thị B',
-      studentId: 'B180002',
-      class: 'K62-KT',
-      major: 'Kinh tế',
-      email: 'tranthib@example.com',
-      status: 'Active',
-    },
-    {
-      id: 3,
-      name: 'Lê Văn C',
-      studentId: 'B180003',
-      class: 'K62-CNTT',
-      major: 'Công nghệ thông tin',
-      email: 'levanc@example.com',
-      status: 'Active',
-    },
-    {
-      id: 4,
-      name: 'Phạm Thị D',
-      studentId: 'B180004',
-      class: 'K62-QTKD',
-      major: 'Quản trị kinh doanh',
-      email: 'phamthid@example.com',
-      status: 'Active',
-    },
-    {
-      id: 5,
-      name: 'Hoàng Văn E',
-      studentId: 'B180005',
-      class: 'K62-CNTT',
-      major: 'Công nghệ thông tin',
-      email: 'hoangvane@example.com',
-      status: 'Active',
-    },
-  ])
+  const [users, setUsers] = useState([])
 
   const [search, setSearch] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)

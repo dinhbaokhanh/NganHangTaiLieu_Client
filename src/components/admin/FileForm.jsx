@@ -1,8 +1,14 @@
 import React, { useState } from 'react'
-import { FaCloudUploadAlt, FaTimes } from 'react-icons/fa' // Thêm FaTimes từ react-icons
+import { FaCloudUploadAlt, FaTimes } from 'react-icons/fa'
 import { docTypes, universityMajors } from '../../constants/category.js'
 
-const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
+const FileForm = ({
+  mode = 'add',
+  initialData = {},
+  onSubmit,
+  onClose,
+  onReplace,
+}) => {
   const [title, setTitle] = useState(initialData.title || '')
   const [major, setMajor] = useState(initialData.major || '')
   const [author, setAuthor] = useState(initialData.author || '')
@@ -40,13 +46,12 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-500 cursor-pointer hover:text-red-600"
         >
-          <FaTimes /> {/* Thay dấu ✕ bằng FaTimes */}
+          <FaTimes />
         </button>
         <h2 className="text-2xl font-bold text-red-600 mb-6">
           {mode === 'add' ? 'Thêm tài liệu' : 'Cập nhật tài liệu'}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Tên tài liệu + Loại tài liệu */}
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -69,17 +74,16 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
                 onChange={(e) => setType(e.target.value)}
                 className="w-full px-4 py-2 border rounded-md"
               >
-                <option value="">Chọn thể loại</option>
-                {docTypes.map((major) => (
-                  <option key={major.value} value={major.value}>
-                    {major.label}
+                <option value="">Chọn thể loại</option>
+                {docTypes.map((docType) => (
+                  <option key={docType.value} value={docType.value}>
+                    {docType.label}
                   </option>
                 ))}
               </select>
             </div>
           </div>
 
-          {/* Tác giả */}
           <div>
             <label className="block text-gray-700 font-semibold mb-2">
               Tác giả
@@ -93,7 +97,6 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
             />
           </div>
 
-          {/* Ngành + Năm xuất bản */}
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="block text-gray-700 font-semibold mb-2">
@@ -126,7 +129,6 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
             </div>
           </div>
 
-          {/* Mô tả */}
           <div>
             <label className="block text-gray-700 font-semibold mb-2">
               Mô tả
@@ -140,10 +142,9 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
             />
           </div>
 
-          {/* Upload file */}
           <div>
             <label className="block text-gray-700 font-semibold mb-2">
-              Tài liệu
+              Tải lên tài liệu
             </label>
             <div
               className="border-dashed border-2 border-gray-300 rounded-md p-6 text-center cursor-pointer"
@@ -184,6 +185,15 @@ const FileForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
             >
               {mode === 'add' ? 'Thêm' : 'Cập nhật'}
             </button>
+            {mode === 'edit' && (
+              <button
+                type="button"
+                onClick={() => onReplace(file)}
+                className="px-4 py-2 bg-yellow-500 text-white rounded-md cursor-pointer hover:bg-yellow-400 transition"
+              >
+                Thay thế tài liệu
+              </button>
+            )}
           </div>
         </form>
       </div>
