@@ -8,20 +8,24 @@ import {
   FaBook,
 } from 'react-icons/fa'
 import { toast } from 'react-toastify'
-import { useDispatch } from 'react-redux' // Thêm useDispatch từ Redux
+import { useDispatch, useSelector } from 'react-redux' // Thêm useDispatch từ Redux
 import { logout } from '../../redux/reducers/auth' // Import hành động logout
 
 const Sidebar = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch() // Khởi tạo dispatch
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
 
   const handleLogout = () => {
-    dispatch(logout()) // Gọi hành động logout từ Redux
-    localStorage.removeItem('token') // Xóa token khỏi localStorage
-    localStorage.removeItem('role') // Xóa role khỏi localStorage
+    dispatch(logout())
     toast.success('Đăng xuất thành công!')
-    navigate('/login') // Chuyển hướng về trang đăng nhập
   }
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   return (
     <div className="h-screen w-64 bg-gray-800 text-white flex flex-col">

@@ -2,11 +2,12 @@ import { createSlice } from '@reduxjs/toolkit'
 import api from '../api/api.js'
 
 const authSlice = createSlice({
-  name: 'user',
+  name: 'auth', // 🛠 Sửa từ 'user' thành 'auth'
   initialState: {
-    userInfo: null, // Lưu thông tin người dùng sau khi đăng ký/thành công
-    token: null, // Lưu token sau khi đăng nhập
-    isAuthenticated: false, // Trạng thái xác thực
+    userInfo: null,
+    token: null,
+    isAuthenticated: false,
+    isInitialized: false,
     isLoading: false,
     message: null,
   },
@@ -17,28 +18,39 @@ const authSlice = createSlice({
     logout: (state) => {
       state.userInfo = null
       state.token = null
-      state.isAuthenticated = false // Đánh dấu là chưa đăng nhập
+      state.isAuthenticated = false
+      localStorage.removeItem('token')
+    },
+    loginSuccess: (state, action) => {
+      state.token = action.payload.token
+      state.userInfo = action.payload.userInfo
+      state.isAuthenticated = true
+    },
+    loadUserFromStorage: (state, action) => {
+      state.token = action.payload.token
+      state.userInfo = action.payload.userInfo
+      state.isAuthenticated = true
+    },
+    setInitialized: (state) => {
+      state.isInitialized = true
     },
   },
 
   extraReducers: (builder) => {
     builder
-      // Register
-      .addMatcher(api.endpoints.registerUser.matchPending, (state) => {
+      .addMatcher(api.endpoints.loginUser.matchPending, (state) => {
         state.isLoading = true
       })
-      .addMatcher(
-        api.endpoints.registerUser.matchFulfilled,
-        (state, action) => {
-          state.userInfo = action.payload
-          state.isLoading = false
-        }
-      )
-      .addMatcher(api.endpoints.registerUser.matchRejected, (state) => {
+      .addMatcher(api.endpoints.loginUser.matchFulfilled, (state, action) => {
+        const { id, role } = action.payload.user
+        state.userInfo = { id, role }
+        state.token = action.payload.token
+        state.isAuthenticated = true
         state.isLoading = false
       })
-
-      // Forgot Password
+      .addMatcher(api.endpoints.loginUser.matchRejected, (state) => {
+        state.isLoading = false
+      })
       .addMatcher(api.endpoints.forgotPassword.matchPending, (state) => {
         state.isLoading = true
       })
@@ -52,8 +64,6 @@ const authSlice = createSlice({
       .addMatcher(api.endpoints.forgotPassword.matchRejected, (state) => {
         state.isLoading = false
       })
-
-      // Reset Password
       .addMatcher(api.endpoints.resetPassword.matchPending, (state) => {
         state.isLoading = true
       })
@@ -68,30 +78,16 @@ const authSlice = createSlice({
       .addMatcher(api.endpoints.resetPassword.matchRejected, (state) => {
         state.isLoading = false
       })
-
-      // Khi đang gửi request đăng nhập (pending)
-      .addMatcher(api.endpoints.loginUser.matchPending, (state) => {
-        state.isLoading = true // Bật trạng thái loading
-      })
-
-      // Khi request đăng nhập thành công (fulfilled)
-      .addMatcher(
-        api.endpoints.loginUser.matchFulfilled,
-        (state, action) => {
-          state.userInfo = action.payload.user // Lưu thông tin người dùng trả về từ server
-          state.token = action.payload.token // Lưu token trả về từ server
-          state.isAuthenticated = true // Đánh dấu là đã đăng nhập
-          state.isLoading = false // Tắt trạng thái loading
-        }
-      )
-
-      // Khi request đăng nhập thất bại (rejected)
-      .addMatcher(api.endpoints.loginUser.matchRejected, (state) => {
-        state.isLoading = false // Tắt trạng thái loading
-      })
   },
 })
 
-export const { clearMessage, logout } = authSlice.actions
-export const selectIsAuthenticated = (state) => state.user.isAuthenticated
+export const {
+  clearMessage,
+  logout,
+  loginSuccess,
+  loadUserFromStorage,
+  setInitialized,
+} = authSlice.actions
+export const selectIsAuthenticated = (state) => state.auth.isAuthenticated
+export const selectIsInitialized = (state) => state.auth.isInitialized
 export default authSlice.reducer

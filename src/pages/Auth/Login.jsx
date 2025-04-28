@@ -4,74 +4,86 @@ import { useState } from 'react'
 import { useLoginUserMutation } from '../../redux/api/api.js'
 import { toast } from 'react-toastify'
 import { jwtDecode } from 'jwt-decode'
+import { useDispatch } from 'react-redux'
+import { loginSuccess } from '../../redux/reducers/auth.js'
+import { useAsyncMutationWithUnwrap } from '../../hooks/hook.js'
 
 const Login = () => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const location = useLocation()
   const redirect = new URLSearchParams(location.search).get('redirect') || '/' // Lấy giá trị redirect từ query hoặc mặc định là "/"
   const [showPassword, setShowPassword] = useState(false) // Trạng thái hiển thị mật khẩu
   const [formData, setFormData] = useState({ username: '', password: '' }) // Dữ liệu form đăng nhập
   const [errors, setErrors] = useState({}) // Lưu lỗi của các trường
-  const [loginUser, { isLoading }] = useLoginUserMutation() // Hook gọi API đăng nhập
+  const [loginUser, isLoading, data] =
+    useAsyncMutationWithUnwrap(useLoginUserMutation)
 
   // Kiểm tra dữ liệu form
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors = {}
 
     if (!formData.username) {
-      newErrors.username = 'Tên đăng nhập không được để trống';
+      newErrors.username = 'Tên đăng nhập không được để trống'
     }
 
     if (!formData.password) {
-      newErrors.password = 'Mật khẩu không được để trống';
+      newErrors.password = 'Mật khẩu không được để trống'
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Trả về true nếu không có lỗi
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0 // Trả về true nếu không có lỗi
+  }
 
   // Xử lý thay đổi dữ liệu form
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
     if (errors[name]) {
-      setErrors({ ...errors, [name]: '' }); // Xóa lỗi khi người dùng nhập lại
+      setErrors({ ...errors, [name]: '' }) // Xóa lỗi khi người dùng nhập lại
     }
-  };
+  }
 
   // Xử lý khi submit form
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!validateForm()) return
 
     try {
-      const response = await loginUser(formData).unwrap()
+      const { success, data: responseData } = await loginUser(
+        'Đang đăng nhập...',
+        formData
+      )
 
-      const accessToken = response.accessToken
+      if (!success) return
+
+      const accessToken = responseData.accessToken
       if (!accessToken) {
         throw new Error('No access token received!')
       }
 
+      const decoded = jwtDecode(accessToken)
+      const userInfo = {
+        id: decoded._id,
+        role: decoded.role,
+      }
       localStorage.setItem('token', accessToken)
 
-      const decoded = jwtDecode(accessToken)
-      localStorage.setItem('role', decoded?.role) 
-      const isAdmin = decoded?.role === 'admin'
+      dispatch(loginSuccess({ token: accessToken, userInfo }))
 
-      toast.success('Đăng nhập thành công!')
-
-      if (isAdmin) {
-        navigate('/admin/dashboard')
-      } else {
-        navigate(redirect || '/')
-      }
+      setTimeout(() => {
+        if (userInfo.role === 'admin') {
+          navigate('/admin/dashboard')
+        } else {
+          navigate(redirect || '/')
+        }
+      }, 0.1)
     } catch (err) {
-      console.error(err) // Log lỗi ra devtool cho dễ debug
-      toast.error(err?.data?.message || err?.message || 'Đăng nhập thất bại!')
-
+      console.error(err)
+      toast.error(err?.data?.message)
     }
-  };
+  }
 
   return (
     <>
@@ -89,7 +101,9 @@ const Login = () => {
             value={formData.username}
             onChange={handleChange}
             className={`w-full pl-10 px-3 py-2 border ${
-              errors.username ? 'border-red-500 placeholder-red-500' : 'border-black'
+              errors.username
+                ? 'border-red-500 placeholder-red-500'
+                : 'border-black'
             } bg-white text-black rounded-md`}
           />
         </div>
@@ -103,7 +117,9 @@ const Login = () => {
             value={formData.password}
             onChange={handleChange}
             className={`w-full pl-10 px-3 py-2 border ${
-              errors.password ? 'border-red-500 placeholder-red-500' : 'border-black'
+              errors.password
+                ? 'border-red-500 placeholder-red-500'
+                : 'border-black'
             } bg-white text-black rounded-md`}
           />
           <button
@@ -141,7 +157,7 @@ const Login = () => {
         </button>
       </form>
     </>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

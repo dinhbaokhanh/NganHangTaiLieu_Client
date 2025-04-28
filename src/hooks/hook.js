@@ -12,7 +12,6 @@ const useErrors = (errors = []) => {
 }
 
 const useAsyncMutation = (mutationHook) => {
-
   const [isLoading, setIsLoading] = useState(false)
   const [data, setData] = useState(null)
 
@@ -55,10 +54,48 @@ const useAsyncMutation = (mutationHook) => {
     } finally {
       setIsLoading(false)
     }
-  };
-
+  }
 
   return [executeMutation, isLoading, data]
 }
 
-export { useErrors, useAsyncMutation };
+const useAsyncMutationWithUnwrap = (mutationHook) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [data, setData] = useState(null)
+
+  const [mutate] = mutationHook()
+
+  const executeMutation = async (toastMessage, ...args) => {
+    setIsLoading(true)
+    const toastId = toast.loading(toastMessage || 'Đang xử lý...')
+
+    try {
+      const res = await mutate(...args).unwrap()
+
+      toast.update(toastId, {
+        render: res?.message || 'Thành công!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+      })
+
+      setData(res)
+      return { success: true, data: res }
+    } catch (error) {
+      console.error(error)
+      toast.update(toastId, {
+        render: error?.data?.message || error?.message || 'Lỗi hệ thống!',
+        type: 'error',
+        isLoading: false,
+        autoClose: 3000,
+      })
+      return { success: false, error }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return [executeMutation, isLoading, data]
+}
+
+export { useErrors, useAsyncMutation, useAsyncMutationWithUnwrap }

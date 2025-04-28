@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Bell, Search, User, Key, LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../../redux/reducers/auth'
 import LogoIcon from '../../assets/logo.png'
 import { toast } from 'react-toastify'
@@ -11,8 +11,9 @@ const Header = () => {
   const dropdownRef = useRef(null)
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
 
-  const token = localStorage.getItem('token') // Kiểm tra trạng thái đăng nhập
+  const token = useSelector((state) => state.auth?.token) // Kiểm tra trạng thái đăng nhập
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -28,11 +29,15 @@ const Header = () => {
 
   const handleLogout = () => {
     dispatch(logout())
-    localStorage.removeItem('token'); // Xóa token khỏi localStorage
-    localStorage.removeItem('role');  // Xóa role khỏi localStorage
-    toast.success('Đăng xuất thành công!');
-    navigate('/login'); // Chuyển hướng về trang đăng nhập
+    toast.success('Đăng xuất thành công!')
+    navigate('/login')
   }
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   return (
     <div className="bg-white px-6 py-3 shadow-md flex justify-between items-center relative">

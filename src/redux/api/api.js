@@ -66,7 +66,6 @@ const api = createApi({
     }),
 
     // --- DOCUMENT ---
-    // --- DOCUMENT ---
     uploadDocument: builder.mutation({
       query: (formData) => ({
         url: '/document/upload',
