@@ -61,14 +61,6 @@ const AdminRoute = ({ children }) => {
 const GuestRoute = ({ children }) => {
   const { token, isInitialized } = useSelector((state) => state.auth)
 
-  if (!isInitialized) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500"></div>
-      </div>
-    )
-  }
-
   if (token) {
     return <Navigate to="/" replace />
   }
@@ -81,22 +73,26 @@ const App = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
-    if (token) {
-      try {
-        const isExpired = checkTokenExpiration(token)
-        if (!isExpired) {
-          const decoded = jwtDecode(token)
-          const userInfo = { id: decoded._id, role: decoded.role }
-          dispatch(loadUserFromStorage({ token, userInfo }))
-        } else {
-          refreshTokenIfNeeded(dispatch)
+    const initialize = async () => {
+      if (token) {
+        try {
+          const isExpired = checkTokenExpiration(token)
+          if (!isExpired) {
+            const decoded = jwtDecode(token)
+            const userInfo = { id: decoded._id, role: decoded.role }
+            dispatch(loadUserFromStorage({ token, userInfo }))
+          } else {
+            await refreshTokenIfNeeded(dispatch)
+          }
+        } catch (error) {
+          console.error('Error processing token:', error)
+          localStorage.removeItem('token')
         }
-      } catch (error) {
-        console.error('Error processing token:', error)
-        localStorage.removeItem('token')
       }
+      dispatch(setInitialized())
     }
-    dispatch(setInitialized()) // Sau khi đã kiểm tra xong, set lại `isInitialized`
+
+    initialize()
   }, [dispatch])
 
   return (
