@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import {
   FaUsers,
@@ -19,13 +19,8 @@ const Sidebar = () => {
   const handleLogout = () => {
     dispatch(logout())
     toast.success('Đăng xuất thành công!')
+    navigate('/login', { replace: true })
   }
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login', { replace: true })
-    }
-  }, [isAuthenticated, navigate])
 
   return (
     <div className="h-screen w-64 bg-gray-800 text-white flex flex-col">

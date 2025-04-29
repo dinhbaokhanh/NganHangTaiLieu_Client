@@ -30,14 +30,8 @@ const Header = () => {
   const handleLogout = () => {
     dispatch(logout())
     toast.success('Đăng xuất thành công!')
-    navigate('/login')
+    navigate('/login', { replace: true })
   }
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login', { replace: true })
-    }
-  }, [isAuthenticated, navigate])
 
   return (
     <div className="bg-white px-6 py-3 shadow-md flex justify-between items-center relative">
