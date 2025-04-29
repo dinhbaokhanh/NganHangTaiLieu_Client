@@ -1,31 +1,51 @@
-import React, { useState } from 'react'
-import { FaCloudUploadAlt, FaTimes } from 'react-icons/fa' // Thêm FaTimes từ react-icons
+import React, { useState } from 'react';
+import { FaCloudUploadAlt, FaTimes } from 'react-icons/fa'; // Thêm FaTimes từ react-icons
 
 const UserForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
-  const [name, setName] = useState(initialData.name || '')
-  const [email, setEmail] = useState(initialData.email || '')
-  const [password, setPassword] = useState('') // Thêm state cho mật khẩu
-  const [avatar, setAvatar] = useState(initialData.avatar || null)
+  const [name, setName] = useState(initialData.name || '');
+  const [email, setEmail] = useState(initialData.email || '');
+  const [password, setPassword] = useState(''); // Thêm state cho mật khẩu
+  const [avatar, setAvatar] = useState(initialData.avatar || null); // Lưu file avatar
+  const [avatarPreview, setAvatarPreview] = useState(initialData.avatar || ''); // Lưu URL preview
 
+  // Xử lý khi người dùng chọn ảnh đại diện
   const handleAvatarChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader()
-      reader.onload = () => {
-        setAvatar(reader.result)
+      // Kiểm tra định dạng file (chỉ cho phép ảnh)
+      if (!file.type.startsWith('image/')) {
+        alert('Vui lòng chọn một file ảnh hợp lệ!');
+        return;
       }
-      reader.readAsDataURL(file)
-    }
-  }
 
+      // Lưu file vào state
+      setAvatar(file);
+
+      // Tạo URL preview cho ảnh
+      const reader = new FileReader();
+      reader.onload = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Xử lý khi submit form
   const handleSubmit = (e) => {
-    e.preventDefault()
-    const formData = { name, email, password, avatar } // Gửi thêm mật khẩu
-    onSubmit(formData) // Gửi dữ liệu lên parent component
-  }
+    e.preventDefault();
+
+    // Tạo formData để gửi dữ liệu
+    const formData = new FormData();
+    formData.append('username', name); // Đổi 'name' thành 'username'
+    formData.append('email', email);
+    formData.append('password', password);
+    if (avatar) formData.append('avatar', avatar);
+
+    onSubmit(formData); // Gửi dữ liệu lên parent component
+  };
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center z-50">
+    <div className="fixed inset-0 flex justify-center items-center z-50 bg-black/30"> 
       <div className="bg-white w-full max-w-3xl p-6 rounded-lg shadow-lg relative border-2 border-gray-700">
         <button
           onClick={onClose}
@@ -87,11 +107,11 @@ const UserForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
                 className="border-dashed border-2 border-gray-300 rounded-md p-6 text-center cursor-pointer"
                 onClick={() => document.getElementById('avatarInput').click()}
               >
-                {avatar ? (
+                {avatarPreview ? (
                   <img
-                    src={avatar}
+                    src={avatarPreview}
                     alt="Avatar Preview"
-                    className="mx-auto w-16 h-16 object-cover rounded-md border"
+                    className="mx-auto w-16 h-16 object-cover rounded-full border"
                   />
                 ) : (
                   <div className="flex flex-col items-center">
@@ -129,7 +149,7 @@ const UserForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default UserForm
+export default UserForm;
