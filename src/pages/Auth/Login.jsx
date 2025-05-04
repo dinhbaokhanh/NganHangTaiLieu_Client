@@ -12,7 +12,8 @@ const Login = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const location = useLocation()
-  const redirect = new URLSearchParams(location.search).get('redirect') || '/' // Lấy giá trị redirect từ query hoặc mặc định là "/"
+  const redirect =
+    new URLSearchParams(location.search).get('redirect') || '/main' // Lấy giá trị redirect từ query hoặc mặc định là "/"
   const [showPassword, setShowPassword] = useState(false) // Trạng thái hiển thị mật khẩu
   const [formData, setFormData] = useState({ username: '', password: '' }) // Dữ liệu form đăng nhập
   const [errors, setErrors] = useState({}) // Lưu lỗi của các trường
@@ -76,7 +77,7 @@ const Login = () => {
         if (userInfo.role === 'admin') {
           navigate('/admin/dashboard')
         } else {
-          navigate(redirect || '/')
+          navigate(redirect || '/main')
         }
       }, 0.1)
     } catch (err) {
