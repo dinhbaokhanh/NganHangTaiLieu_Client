@@ -3,9 +3,9 @@ import { FaTimes } from 'react-icons/fa'
 import { universityMajors } from '../../constants/category'
 
 const SubjectForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
-  const [name, setName] = useState(initialData.name || '')
-  const [code, setCode] = useState(initialData.code || '')
-  const [major, setMajor] = useState(initialData.major || '')
+  const [name, setName] = useState(initialData?.name || '')
+  const [code, setCode] = useState(initialData?.code || '')
+  const [major, setMajor] = useState(initialData?.major || '')
 
   const handleSubmit = (e) => {
     e.preventDefault()

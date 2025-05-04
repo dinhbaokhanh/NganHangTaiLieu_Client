@@ -99,7 +99,7 @@ const Files = () => {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 8
+  const itemsPerPage = 5
   const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage)
 
   const handlePageChange = (page) => {

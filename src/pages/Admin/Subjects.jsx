@@ -16,6 +16,7 @@ import {
   useDeleteSubjectByIdMutation,
 } from '../../redux/api/api.js'
 import { useAsyncMutation, useErrors } from '../../hooks/hook.js'
+import { toast } from 'react-toastify'
 
 const Subjects = () => {
   const [search, setSearch] = useState('')
