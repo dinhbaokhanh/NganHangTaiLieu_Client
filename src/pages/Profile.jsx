@@ -1,38 +1,41 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { FaUser, FaEnvelope } from "react-icons/fa";
-import { useGetUserProfileQuery } from "../redux/api/api";
-import { useSelector } from "react-redux"; 
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { FaUser, FaEnvelope } from 'react-icons/fa'
+import { useGetUserProfileQuery } from '../redux/api/api'
+import { useSelector } from 'react-redux'
 
 const Profile = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   // Lấy ID người dùng từ Redux store
-  const { userInfo } = useSelector((state) => state.auth);
-  const userId = userInfo?.id;
+  const { userInfo } = useSelector((state) => state.auth)
+  const userId = userInfo?.id
 
   // Gọi API lấy thông tin người dùng
-  const { data, isLoading, isError, error } = useGetUserProfileQuery(userId);
+  const { data, isLoading, isError, error } = useGetUserProfileQuery(userId)
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-100px)]">
-        <p className="text-center text-lg text-gray-600">Đang tải thông tin...</p>
+        <p className="text-center text-lg text-gray-600">
+          Đang tải thông tin...
+        </p>
       </div>
-    );
+    )
   }
 
   if (isError) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-100px)]">
         <p className="text-center text-lg text-red-600">
-          Đã xảy ra lỗi khi tải thông tin: {error?.data?.message || "Không xác định"}
+          Đã xảy ra lỗi khi tải thông tin:{' '}
+          {error?.data?.message || 'Không xác định'}
         </p>
       </div>
-    );
+    )
   }
 
-  const user = data?.user;
+  const user = data?.user
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-100px)] px-4 bg-gray-50">
@@ -88,7 +91,7 @@ const Profile = () => {
             </label>
             <button
               type="button"
-              onClick={() => navigate("/change")}
+              onClick={() => navigate('/change')}
               className="text-red-600 font-medium hover:cursor-pointer hover:underline"
             >
               Bấm vào đây để đổi mật khẩu
@@ -97,7 +100,7 @@ const Profile = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Profile;
+export default Profile
