@@ -1,9 +1,49 @@
 import { useEffect, useState } from 'react'
+import * as pdfjsLib from 'pdfjs-dist'
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.js?url'
 import defaultFileImg from '../../assets/doc_image_default.png'
+
+// 👇 Cấu hình worker đúng cách cho Vite
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
 const DocumentCard = ({ doc }) => {
   const [thumbnail, setThumbnail] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const loadThumbnail = async () => {
+      if (!doc.fileUrl || !doc.fileUrl.endsWith('.pdf')) return
+
+      setIsLoading(true)
+      try {
+        const loadingTask = pdfjsLib.getDocument(doc.fileUrl)
+        const pdf = await loadingTask.promise
+        const page = await pdf.getPage(1)
+
+        const viewport = page.getViewport({ scale: 1.5 })
+        const canvas = document.createElement('canvas')
+        const context = canvas.getContext('2d')
+        canvas.height = viewport.height
+        canvas.width = viewport.width
+
+        await page.render({ canvasContext: context, viewport }).promise
+
+        const imgData = canvas.toDataURL()
+        setThumbnail(imgData)
+      } catch (error) {
+        console.error('Error loading PDF thumbnail:', error.message || error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadThumbnail()
+  }, [doc.fileUrl])
+
+  const imageSrc =
+    thumbnail ||
+    (!doc.fileUrl?.endsWith('.pdf') && doc.fileUrl) ||
+    defaultFileImg
 
   return (
     <div className="relative border rounded-lg p-2 shadow-md">
@@ -13,7 +53,7 @@ const DocumentCard = ({ doc }) => {
         </div>
       ) : (
         <img
-          src={thumbnail || defaultFileImg}
+          src={imageSrc}
           alt={doc.title}
           className="w-full h-40 object-cover rounded-md"
         />

@@ -115,8 +115,8 @@ const App = () => {
       <Suspense fallback={<div>Loading....</div>}>
         <Routes>
           <Route element={<AppLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/main" element={<Main />} />
+            <Route path="/main" element={<Home />} />
+            <Route path="/" element={<Main />} />
             <Route path="/file" element={<FileDetails />} />
             <Route
               path="/profile"
