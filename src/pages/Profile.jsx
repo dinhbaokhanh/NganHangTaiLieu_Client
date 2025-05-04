@@ -1,24 +1,38 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUser, FaEnvelope } from "react-icons/fa";
+import { useGetUserProfileQuery } from "../redux/api/api";
+import { useSelector } from "react-redux"; 
 
 const Profile = () => {
   const navigate = useNavigate();
 
-  const [name, setName] = useState("KICM");
-  const [email, setEmail] = useState("KICM@gmail.com");
-  const [avatar, setAvatar] = useState("");
+  // Lấy ID người dùng từ Redux store
+  const { userInfo } = useSelector((state) => state.auth);
+  const userId = userInfo?.id;
 
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setAvatar(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  // Gọi API lấy thông tin người dùng
+  const { data, isLoading, isError, error } = useGetUserProfileQuery(userId);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-100px)]">
+        <p className="text-center text-lg text-gray-600">Đang tải thông tin...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-100px)]">
+        <p className="text-center text-lg text-red-600">
+          Đã xảy ra lỗi khi tải thông tin: {error?.data?.message || "Không xác định"}
+        </p>
+      </div>
+    );
+  }
+
+  const user = data?.user;
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-100px)] px-4 bg-gray-50">
@@ -32,63 +46,42 @@ const Profile = () => {
           <p className="text-left font-semibold text-gray-700 w-full mb-2">
             Ảnh đại diện
           </p>
-          <div
-            className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden mb-4 cursor-pointer"
-            onClick={() => document.getElementById("avatarInput").click()} // Trigger file input click
-          >
-            <img
-              src={avatar}
-              alt="Avatar"
-              className="w-full h-full object-cover"
-            />
+          <div className="w-28 h-28 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden mb-4 border-2 border-gray-200">
+            {user?.avatar?.url ? (
+              <img
+                src={user.avatar.url}
+                alt="Avatar"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <FaUser className="text-gray-400 h-14 w-14" />
+            )}
           </div>
-          <input
-            id="avatarInput"
-            type="file"
-            accept="image/*"
-            onChange={handleAvatarChange}
-            className="hidden" // Hide the input
-          />
         </div>
 
-        {/* Form */}
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            console.log("Lưu:", { name, email });
-          }}
-        >
-          {/* Input Tên người dùng */}
-          <div className="flex flex-col relative">
+        {/* Thông tin cá nhân */}
+        <div className="space-y-4">
+          {/* Tên người dùng */}
+          <div className="flex flex-col">
             <label className="font-semibold text-gray-700 mb-1">
               Tên người dùng
             </label>
-            <div className="relative">
-              <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md"
-              />
+            <div className="flex items-center p-3 bg-gray-50 rounded-md border border-gray-200">
+              <FaUser className="text-gray-400 h-5 w-5 mr-3" />
+              <p className="text-gray-800 font-medium">{user?.username}</p>
             </div>
           </div>
 
-          {/* Input Email */}
-          <div className="flex flex-col relative">
+          {/* Email */}
+          <div className="flex flex-col">
             <label className="font-semibold text-gray-700 mb-1">Email</label>
-            <div className="relative">
-              <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md"
-              />
+            <div className="flex items-center p-3 bg-gray-50 rounded-md border border-gray-200">
+              <FaEnvelope className="text-gray-400 h-5 w-5 mr-3" />
+              <p className="text-gray-800 font-medium">{user?.email}</p>
             </div>
           </div>
 
+          {/* Đổi mật khẩu */}
           <div className="flex items-center">
             <label className="font-semibold text-gray-700 mr-2">
               Đổi mật khẩu:
@@ -101,15 +94,7 @@ const Profile = () => {
               Bấm vào đây để đổi mật khẩu
             </button>
           </div>
-
-          {/* Button */}
-          <button
-            type="submit"
-            className="w-full bg-red-600 text-white py-3 rounded-md font-semibold hover:cursor-pointer hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200"
-          >
-            Lưu
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );
