@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { jwtDecode } from 'jwt-decode'
 import { checkTokenExpiration, refreshTokenIfNeeded } from './utils/checkToken'
 import { loadUserFromStorage, setInitialized } from './redux/reducers/auth'
+import Main from './pages/Main'
 
 const Home = lazy(() => import('./pages/Home'))
 const FileDetails = lazy(() => import('./pages/FileDetails'))
@@ -73,6 +74,7 @@ const App = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
+
     const initialize = async () => {
       if (token) {
         try {
@@ -93,6 +95,19 @@ const App = () => {
     }
 
     initialize()
+
+    // === Thêm interval để kiểm tra token định kỳ
+    const intervalId = setInterval(() => {
+      const currentToken = localStorage.getItem('token')
+      if (currentToken) {
+        const isExpired = checkTokenExpiration(currentToken)
+        if (isExpired) {
+          refreshTokenIfNeeded(dispatch)
+        }
+      }
+    }, 5 * 60 * 1000) // kiểm tra mỗi 5 phút
+
+    return () => clearInterval(intervalId) // clear interval khi unmount
   }, [dispatch])
 
   return (
@@ -101,6 +116,7 @@ const App = () => {
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/main" element={<Main />} />
             <Route path="/file" element={<FileDetails />} />
             <Route
               path="/profile"
