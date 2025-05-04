@@ -97,7 +97,7 @@ const Main = () => {
           </p>
 
           <Link
-            to="/"
+            to="/main"
             className="inline-block bg-red-800 text-white py-3 px-8 rounded-lg text-xl hover:bg-red-900 transition"
             style={{
               backgroundColor: 'rgb(146, 0, 0)',
