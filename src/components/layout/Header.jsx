@@ -5,13 +5,19 @@ import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../../redux/reducers/auth'
 import LogoIcon from '../../assets/logo.png'
 import { toast } from 'react-toastify'
+import { useGetUserProfileQuery } from '../../redux/api/api'
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
+  const { userInfo } = useSelector((state) => state.auth)
+  const userId = userInfo?.id
+
+  // Gọi API lấy thông tin người dùng
+  const { data, isLoading, isError, error } = useGetUserProfileQuery(userId)
+  const user = data?.user
 
   const token = useSelector((state) => state.auth?.token) // Kiểm tra trạng thái đăng nhập
 
@@ -69,11 +75,13 @@ const Header = () => {
             <span className="text-gray-400">|</span>
 
             <div className="relative" ref={dropdownRef}>
-              <div
-                className="w-10 h-10 bg-gray-300 rounded-full cursor-pointer hover:opacity-80 transition duration-200"
-                onClick={() => setIsOpen(!isOpen)}
-              ></div>{' '}
-              {/* Đóng thẻ <div> đúng cách */}
+              <div onClick={() => setIsOpen(!isOpen)}>
+                <img
+                  src={user?.avatar?.url}
+                  alt="Avatar"
+                  className="w-10 h-10 bg-gray-300 rounded-full cursor-pointer hover:opacity-80 transition duration-200"
+                />
+              </div>{' '}
               {isOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg overflow-hidden z-50">
                   <button
