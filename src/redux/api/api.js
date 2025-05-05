@@ -224,6 +224,67 @@ const api = createApi({
         method: 'DELETE',
       }),
     }),
+
+    // --- REVIEWS ---
+    addReview: builder.mutation({
+      query: (reviewData) => ({
+        url: '/document/reviews',
+        method: 'POST',
+        body: reviewData,
+      }),
+      invalidatesTags: (result, error, { documentId }) => [
+        { type: 'Review', id: documentId },
+      ],
+    }),
+    getReviewsByDocument: builder.query({
+      query: (documentId) => ({
+        url: `/document/reviews/${documentId}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, documentId) => [
+        { type: 'Review', id: documentId },
+      ],
+    }),
+    updateReview: builder.mutation({
+      query: (reviewData) => ({
+        url: '/document/reviews',
+        method: 'PUT',
+        body: reviewData,
+      }),
+      invalidatesTags: (result, error, { documentId }) => [
+        { type: 'Review', id: documentId },
+      ],
+    }),
+    deleteReview: builder.mutation({
+      query: (reviewData) => ({
+        url: '/document/reviews',
+        method: 'DELETE',
+        body: reviewData,
+      }),
+      invalidatesTags: (result, error, { documentId }) => [
+        { type: 'Review', id: documentId },
+      ],
+    }),
+
+    // --- REVIEW REPLIES ---
+    addReply: builder.mutation({
+      query: ({ reviewId, body }) => ({
+        url: `/document/reviews/${reviewId}/reply`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Reviews'],
+    }),
+
+    deleteReply: builder.mutation({
+      query: ({ reviewId, replyId, documentId }) => ({
+        url: `/document/reviews/${reviewId}/reply/${replyId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, { documentId }) => [
+        { type: 'Review', id: documentId },
+      ],
+    }),
   }),
 })
 
@@ -260,4 +321,14 @@ export const {
   useGetSubjectByIdQuery,
   useUpdateSubjectByIdMutation,
   useDeleteSubjectByIdMutation,
+
+  // Review hooks
+  useAddReviewMutation,
+  useGetReviewsByDocumentQuery,
+  useUpdateReviewMutation,
+  useDeleteReviewMutation,
+
+  // Reply hooks
+  useAddReplyMutation,
+  useDeleteReplyMutation,
 } = api
