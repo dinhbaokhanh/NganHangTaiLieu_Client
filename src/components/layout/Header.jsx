@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../../redux/reducers/auth'
 import LogoIcon from '../../assets/logo.png'
 import { toast } from 'react-toastify'
-import { useGetUserProfileQuery } from '../../redux/api/api'
+import api, { useGetUserProfileQuery } from '../../redux/api/api.js'
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -37,6 +37,7 @@ const Header = () => {
     dispatch(logout())
     toast.success('Đăng xuất thành công!')
     navigate('/login', { replace: true })
+    setTimeout(() => window.location.reload(), 100) // đảm bảo xóa mọi state redux/tạm
   }
 
   return (

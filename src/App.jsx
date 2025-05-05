@@ -74,9 +74,10 @@ const App = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
+    const loggedOut = localStorage.getItem('loggedOut') === 'true'
 
     const initialize = async () => {
-      if (token) {
+      if (token && !loggedOut) {
         try {
           const isExpired = checkTokenExpiration(token)
           if (!isExpired) {
@@ -90,16 +91,19 @@ const App = () => {
           console.error('Error processing token:', error)
           localStorage.removeItem('token')
         }
+      } else {
+        localStorage.removeItem('token') // đảm bảo sạch token nếu loggedOut
       }
       dispatch(setInitialized())
     }
 
     initialize()
 
-    // === Thêm interval để kiểm tra token định kỳ
     const intervalId = setInterval(() => {
       const currentToken = localStorage.getItem('token')
-      if (currentToken) {
+      const loggedOut = localStorage.getItem('loggedOut') === 'true'
+
+      if (currentToken && !loggedOut) {
         const isExpired = checkTokenExpiration(currentToken)
         if (isExpired) {
           refreshTokenIfNeeded(dispatch)
@@ -107,7 +111,7 @@ const App = () => {
       }
     }, 5 * 60 * 1000) // kiểm tra mỗi 5 phút
 
-    return () => clearInterval(intervalId) // clear interval khi unmount
+    return () => clearInterval(intervalId)
   }, [dispatch])
 
   return (

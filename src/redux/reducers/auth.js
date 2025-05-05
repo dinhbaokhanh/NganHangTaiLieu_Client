@@ -20,8 +20,10 @@ const authSlice = createSlice({
       state.token = null
       state.isAuthenticated = false
       localStorage.removeItem('token')
+      localStorage.setItem('loggedOut', 'true')
     },
     loginSuccess: (state, action) => {
+      localStorage.removeItem('loggedOut')
       state.token = action.payload.token
       state.userInfo = action.payload.userInfo
       state.isAuthenticated = true
@@ -42,6 +44,7 @@ const authSlice = createSlice({
         state.isLoading = true
       })
       .addMatcher(api.endpoints.loginUser.matchFulfilled, (state, action) => {
+        localStorage.removeItem('loggedOut')
         const { id, role } = action.payload.user
         state.userInfo = { id, role }
         state.token = action.payload.token

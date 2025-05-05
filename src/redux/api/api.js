@@ -18,7 +18,11 @@ const baseQuery = fetchBaseQuery({
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions)
 
-  if (result?.error?.status === 401) {
+  // Nếu bị 401 và chưa "logout"
+  if (
+    result?.error?.status === 401 &&
+    localStorage.getItem('loggedOut') !== 'true'
+  ) {
     const refreshResult = await baseQuery(
       { url: '/user/refresh', method: 'POST' },
       api,
@@ -48,6 +52,13 @@ const api = createApi({
         url: '/user/login',
         method: 'POST',
         body: formData,
+      }),
+    }),
+    logoutUser: builder.mutation({
+      query: () => ({
+        url: '/user/logout',
+        method: 'POST',
+        credentials: 'include', // để gửi cookie
       }),
     }),
     forgotPassword: builder.mutation({

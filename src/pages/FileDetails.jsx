@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom' // Import useNavigate để điều hướng
+import { useNavigate, useParams } from 'react-router-dom'
 import { FaEye, FaDownload, FaBookmark, FaFlag } from 'react-icons/fa'
-import SuggestModal from '../components/shared/SuggestModal' // Import SuggestModal
+import SuggestModal from '../components/shared/SuggestModal'
 import { useGetDocumentByIdQuery } from '../redux/api/api.js'
 import Comments from '../components/shared/Comments'
 import { useErrors } from '../hooks/hook.js'
@@ -33,12 +33,17 @@ const FileDetails = () => {
 
       setIsLoadingThumb(true)
       try {
+        // Check if window is defined (client-side only)
+        if (typeof window === 'undefined') return
+
         const loadingTask = pdfjsLib.getDocument(document.fileUrl)
         const pdf = await loadingTask.promise
         const page = await pdf.getPage(1)
 
         const viewport = page.getViewport({ scale: 1.5 })
-        const canvas = document.createElement('canvas')
+
+        // Use window.document instead of just document
+        const canvas = window.document.createElement('canvas')
         const context = canvas.getContext('2d')
         canvas.height = viewport.height
         canvas.width = viewport.width
@@ -145,9 +150,8 @@ const FileDetails = () => {
 
             <div className="flex gap-4 mt-12">
               {[
-                { icon: FaEye, label: 'Xem trước', action: 'view' },
+                { icon: FaEye, label: 'Xem', action: 'view' },
                 { icon: FaBookmark, label: 'Lưu', action: 'save' },
-                { icon: FaDownload, label: 'Tải về', action: 'download' },
               ].map(({ icon: Icon, label, action }, index) => (
                 <div key={index} className="group relative">
                   <button
