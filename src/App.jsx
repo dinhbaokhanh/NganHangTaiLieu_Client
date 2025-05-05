@@ -10,8 +10,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { jwtDecode } from 'jwt-decode'
 import { checkTokenExpiration, refreshTokenIfNeeded } from './utils/checkToken'
 import { loadUserFromStorage, setInitialized } from './redux/reducers/auth'
-import Main from './pages/Main'
 
+const Main = lazy(() => import('./pages/Main'))
 const Home = lazy(() => import('./pages/Home'))
 const FileDetails = lazy(() => import('./pages/FileDetails'))
 const Profile = lazy(() => import('./pages/Profile'))
@@ -117,7 +117,7 @@ const App = () => {
           <Route element={<AppLayout />}>
             <Route path="/main" element={<Home />} />
             <Route path="/" element={<Main />} />
-            <Route path="/file" element={<FileDetails />} />
+            <Route path="/file/:id" element={<FileDetails />} />
             <Route
               path="/profile"
               element={

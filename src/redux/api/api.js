@@ -1,183 +1,190 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { server } from "../../constants/config.js";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { server } from '../../constants/config.js'
 
 // Base query gốc
 const baseQuery = fetchBaseQuery({
   baseUrl: `${server}/api/`,
-  credentials: "include",
+  credentials: 'include',
   prepareHeaders: (headers) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token')
     if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
+      headers.set('Authorization', `Bearer ${token}`)
     }
-    return headers;
+    return headers
   },
-});
+})
 
 // Base query với khả năng tự refresh token
 const baseQueryWithReauth = async (args, api, extraOptions) => {
-  let result = await baseQuery(args, api, extraOptions);
+  let result = await baseQuery(args, api, extraOptions)
 
   if (result?.error?.status === 401) {
     const refreshResult = await baseQuery(
-      { url: "/user/refresh", method: "POST" },
+      { url: '/user/refresh', method: 'POST' },
       api,
       extraOptions
-    );
+    )
 
     if (refreshResult?.data?.accessToken) {
-      localStorage.setItem("token", refreshResult.data.accessToken);
-      result = await baseQuery(args, api, extraOptions);
+      localStorage.setItem('token', refreshResult.data.accessToken)
+      result = await baseQuery(args, api, extraOptions)
     } else {
-      console.error("Refresh token failed");
+      console.error('Refresh token failed')
     }
   }
 
-  return result;
-};
+  return result
+}
 
 const api = createApi({
-  reducerPath: "api",
+  reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["Document", "User", "Subject"],
+  tagTypes: ['Document', 'User', 'Subject'],
 
   endpoints: (builder) => ({
     // --- USER ---
     loginUser: builder.mutation({
       query: (formData) => ({
-        url: "/user/login",
-        method: "POST",
+        url: '/user/login',
+        method: 'POST',
         body: formData,
       }),
     }),
     forgotPassword: builder.mutation({
       query: ({ email }) => ({
-        url: "/user/forgot-password",
-        method: "POST",
+        url: '/user/forgot-password',
+        method: 'POST',
         body: { email },
       }),
     }),
     resetPassword: builder.mutation({
       query: ({ id, token, password, confirmPassword }) => ({
         url: `/user/reset-password/${id}/${token}`,
-        method: "POST",
+        method: 'POST',
         body: { password, confirmPassword },
       }),
     }),
     getAllUsers: builder.query({
       query: () => ({
-        url: "/user/",
-        method: "GET",
+        url: '/user/',
+        method: 'GET',
       }),
-      providesTags: ["User"],
+      providesTags: ['User'],
     }),
     addUser: builder.mutation({
       query: (formData) => ({
-        url: "/user/add",
-        method: "POST",
+        url: '/user/add',
+        method: 'POST',
         body: formData,
       }),
     }),
     updateUserStatus: builder.mutation({
       query: ({ id, status }) => ({
         url: `/user/users/${id}/status`,
-        method: "PATCH",
+        method: 'PATCH',
         body: { status },
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
     deleteUser: builder.mutation({
       query: (id) => ({
         url: `/user/${id}`,
-        method: "DELETE",
+        method: 'DELETE',
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
 
     getUserProfile: builder.query({
       query: (id) => ({
         url: `/user/profile/${id}`,
-        method: "GET",
+        method: 'GET',
       }),
     }),
 
     // --- DOCUMENT ---
     uploadDocument: builder.mutation({
       query: (formData) => ({
-        url: "/document/upload",
-        method: "POST",
+        url: '/document/upload',
+        method: 'POST',
         body: formData,
       }),
     }),
     getAllDocument: builder.query({
       query: () => ({
-        url: "/document/",
-        method: "GET",
+        url: '/document/',
+        method: 'GET',
       }),
     }),
+    getDocumentById: builder.query({
+      query: (id) => ({
+        url: `/document/${id}`,
+        method: 'GET',
+      }),
+    }),
+
     updateDocument: builder.mutation({
       query: ({ id, ...updatedData }) => ({
         url: `/document/${id}`, // PUT /document/:id
-        method: "PUT",
+        method: 'PUT',
         body: updatedData,
       }),
     }),
     replaceDocument: builder.mutation({
       query: ({ id, file }) => {
-        const formData = new FormData();
-        formData.append("file", file);
+        const formData = new FormData()
+        formData.append('file', file)
 
         return {
           url: `/document/replace/${id}`, // PUT /document/replace/:id
-          method: "PUT",
+          method: 'PUT',
           body: formData,
-        };
+        }
       },
     }),
     deleteDocument: builder.mutation({
       query: (id) => ({
         url: `/document/${id}`, // DELETE /document/:id
-        method: "DELETE",
+        method: 'DELETE',
       }),
     }),
 
     // --- SUBJECT ---
     createSubject: builder.mutation({
       query: (subjectData) => ({
-        url: "/subject/create",
-        method: "POST",
+        url: '/subject/create',
+        method: 'POST',
         body: subjectData,
       }),
     }),
     getAllSubjects: builder.query({
       query: () => ({
-        url: "/subject",
-        method: "GET",
+        url: '/subject',
+        method: 'GET',
       }),
     }),
     getSubjectById: builder.query({
       query: (id) => ({
         url: `/subject/${id}`,
-        method: "GET",
+        method: 'GET',
       }),
     }),
     updateSubjectById: builder.mutation({
       query: ({ id, ...updatedData }) => ({
         url: `/subject/${id}`,
-        method: "PUT",
+        method: 'PUT',
         body: updatedData,
       }),
     }),
     deleteSubjectById: builder.mutation({
       query: (id) => ({
         url: `/subject/${id}`,
-        method: "DELETE",
+        method: 'DELETE',
       }),
     }),
   }),
-});
+})
 
-export default api;
+export default api
 
 export const {
   // User
@@ -193,6 +200,7 @@ export const {
   // Document
   useUploadDocumentMutation,
   useGetAllDocumentQuery,
+  useGetDocumentByIdQuery,
   useUpdateDocumentMutation,
   useReplaceDocumentMutation,
   useDeleteDocumentMutation,
@@ -203,4 +211,4 @@ export const {
   useGetSubjectByIdQuery,
   useUpdateSubjectByIdMutation,
   useDeleteSubjectByIdMutation,
-} = api;
+} = api

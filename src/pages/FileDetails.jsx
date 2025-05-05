@@ -1,58 +1,125 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate để điều hướng
-import { FaEye, FaDownload, FaBookmark, FaFlag } from 'react-icons/fa';
-import SuggestModal from '../components/shared/SuggestModal'; // Import SuggestModal
-import documents from '../data/sampleDocuments';
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom' // Import useNavigate để điều hướng
+import { FaEye, FaDownload, FaBookmark, FaFlag } from 'react-icons/fa'
+import SuggestModal from '../components/shared/SuggestModal' // Import SuggestModal
+import { useGetDocumentByIdQuery } from '../redux/api/api.js'
+import Comments from '../components/shared/Comments'
+import { useErrors } from '../hooks/hook.js'
+
+import * as pdfjsLib from 'pdfjs-dist'
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.js?url'
+import defaultFileImg from '../assets/doc_image_default.png'
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
 const FileDetails = () => {
-  const [showModal, setShowModal] = useState(false); // Trạng thái hiển thị modal
-  const token = localStorage.getItem('token'); // Kiểm tra trạng thái đăng nhập
-  const navigate = useNavigate(); // Hook điều hướng
+  const { id } = useParams()
+  const token = localStorage.getItem('token')
+  const navigate = useNavigate()
 
-  const file = documents[6];
-  const {
-    category,
-    title,
-    major,
-    description,
-    thumbnail,
-    author,
-    publishedYear,
-  } = file;
+  const { data, isError, error } = useGetDocumentByIdQuery(id)
+  useErrors([{ isError, error }])
+
+  const [showModal, setShowModal] = useState(false)
+  const [thumbnail, setThumbnail] = useState(null)
+  const [isLoadingThumb, setIsLoadingThumb] = useState(false)
+
+  const document = data?.document
+
+  useEffect(() => {
+    const generateThumbnail = async () => {
+      if (!document?.fileUrl?.endsWith('.pdf')) return
+
+      setIsLoadingThumb(true)
+      try {
+        const loadingTask = pdfjsLib.getDocument(document.fileUrl)
+        const pdf = await loadingTask.promise
+        const page = await pdf.getPage(1)
+
+        const viewport = page.getViewport({ scale: 1.5 })
+        const canvas = document.createElement('canvas')
+        const context = canvas.getContext('2d')
+        canvas.height = viewport.height
+        canvas.width = viewport.width
+
+        await page.render({ canvasContext: context, viewport }).promise
+        const imgData = canvas.toDataURL()
+        setThumbnail(imgData)
+      } catch (err) {
+        console.error('Error generating thumbnail:', err.message || err)
+      } finally {
+        setIsLoadingThumb(false)
+      }
+    }
+
+    if (document?.fileUrl) generateThumbnail()
+  }, [document])
+
+  const handleAction = (actionType) => {
+    if (!token) {
+      setShowModal(true)
+      return
+    }
+
+    switch (actionType) {
+      case 'view':
+        window.open(document?.fileUrl, '_blank')
+        break
+      case 'save':
+        console.log('Đã lưu tài liệu')
+        break
+      case 'download':
+        window.open(document?.fileUrl, '_blank')
+        break
+      case 'report':
+        console.log('Report/Phản hồi tài liệu')
+        break
+      default:
+        break
+    }
+  }
+
+  if (!document) return null
+
+  const { title, description, publishedYear, author, type, fileUrl, subject } =
+    document
 
   const categoryPrefix =
-    category === 'theory'
+    type === 'Giáo trình'
       ? 'Giáo trình: '
-      : category === 'practice'
+      : type === 'Ngân hàng'
       ? 'Ngân hàng: '
-      : category === 'exam'
+      : type === 'Đề thi'
       ? 'Đề thi: '
-      : '';
+      : ''
 
-  // Xử lý khi bấm vào các nút
-  const handleAction = () => {
-    if (!token) {
-      setShowModal(true); // Hiển thị modal nếu chưa đăng nhập
-      return;
-    }
-    console.log('Người dùng đã đăng nhập, thực hiện hành động.');
-  };
+  const imageSrc =
+    thumbnail || (!fileUrl?.endsWith('.pdf') && fileUrl) || defaultFileImg
 
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-5xl mx-auto py-6">
-        <button className="flex items-center text-red-600 font-semibold mb-4 hover:cursor-pointer hover:underline">
+        <button
+          className="flex items-center text-red-600 font-semibold mb-4 hover:cursor-pointer hover:underline"
+          onClick={() => navigate(-1)}
+        >
           ← Quay về trang trước
         </button>
 
         <div className="bg-white p-6 rounded-lg shadow-md flex gap-6">
           <div className="flex-1">
-            <img
-              src={thumbnail}
-              alt={title}
-              className="w-[400px] h-[550px] object-cover rounded-lg border mb-12"
-            />
+            {isLoadingThumb ? (
+              <div className="w-[400px] h-[550px] flex items-center justify-center bg-gray-200 rounded-lg">
+                Đang tải ảnh...
+              </div>
+            ) : (
+              <img
+                src={imageSrc}
+                alt={title}
+                className="w-[400px] h-[550px] object-cover rounded-lg border mb-12"
+              />
+            )}
           </div>
 
           <div className="flex-1">
@@ -61,33 +128,30 @@ const FileDetails = () => {
               {title}
             </h2>
             <p className="text-lg font-semibold text-gray-600">
-              Ngành: {major}
+              Ngành: {subject?.major}
             </p>
-
-            {category === 'theory' && (
-              <>
-                <p className="text-lg font-semibold text-gray-600">
-                  Năm xuất bản: {publishedYear}
-                </p>
-                <p className="text-lg font-semibold text-gray-600">
-                  Tác giả: {author}
-                </p>
-              </>
-            )}
-
+            <p className="text-lg font-semibold text-gray-600">
+              Môn học: {subject?.name}
+            </p>
+            <p className="text-lg font-semibold text-gray-600">
+              Năm xuất bản: {publishedYear}
+            </p>
+            <p className="text-lg font-semibold text-gray-600">
+              Tác giả: {author}
+            </p>
             <p className="text-lg font-semibold text-gray-600">
               Mô tả: {description}
             </p>
 
             <div className="flex gap-4 mt-12">
               {[
-                { icon: FaEye, label: 'Xem trước' },
-                { icon: FaBookmark, label: 'Lưu' },
-                { icon: FaDownload, label: 'Tải về' },
-              ].map(({ icon: Icon, label }, index) => (
+                { icon: FaEye, label: 'Xem trước', action: 'view' },
+                { icon: FaBookmark, label: 'Lưu', action: 'save' },
+                { icon: FaDownload, label: 'Tải về', action: 'download' },
+              ].map(({ icon: Icon, label, action }, index) => (
                 <div key={index} className="group relative">
                   <button
-                    onClick={handleAction} // Gọi hàm xử lý
+                    onClick={() => handleAction(action)}
                     className="p-3 w-12 h-12 bg-red-600 text-white rounded-md flex items-center justify-center hover:cursor-pointer hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200"
                   >
                     <Icon size={20} />
@@ -99,7 +163,7 @@ const FileDetails = () => {
               ))}
 
               <button
-                onClick={handleAction} // Gọi hàm xử lý
+                onClick={() => handleAction('report')}
                 className="flex items-center gap-2 p-3 px-4 border border-red-600 text-red-600 rounded-md cursor-pointer hover:bg-gray-100 transition duration-200"
               >
                 <FaFlag size={20} />
@@ -110,32 +174,20 @@ const FileDetails = () => {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md mt-6">
-          <h3 className="text-lg font-semibold text-red-600">Bình luận</h3>
-          <div className="flex items-center gap-4 mt-4">
-            <div className="w-10 h-10 bg-gray-300 rounded-full cursor-pointer hover:opacity-80 transition duration-200" />
-            <input
-              type="text"
-              placeholder="Bình luận..."
-              className="flex-1 p-2 border rounded-lg"
-            />
-            <button className="p-2 bg-red-600 text-white rounded hover:cursor-pointer hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200">
-              ➤
-            </button>
-          </div>
+          <Comments />
         </div>
       </div>
 
-      {/* Modal */}
       <SuggestModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         title="Bạn cần đăng nhập"
         description="Đăng nhập để sử dụng chức năng này hoặc đăng ký nếu bạn chưa có tài khoản."
-        onLogin={() => navigate('/login')} // Điều hướng đến trang đăng nhập
-        onRegister={() => navigate('/register')} // Điều hướng đến trang đăng ký
+        onLogin={() => navigate('/login')}
+        onRegister={() => navigate('/register')}
       />
     </div>
-  );
-};
+  )
+}
 
-export default FileDetails;
+export default FileDetails
