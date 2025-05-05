@@ -12,7 +12,7 @@ export const checkTokenExpiration = (token) => {
 }
 
 export const refreshTokenIfNeeded = async (dispatch, getState) => {
-  const token = getState().auth?.token || localStorage.getItem('token')
+  const token = getState().auth?.token
 
   if (!token) {
     dispatch(logout())

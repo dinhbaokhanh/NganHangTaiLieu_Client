@@ -20,6 +20,7 @@ const Sidebar = () => {
     dispatch(logout())
     toast.success('Đăng xuất thành công!')
     navigate('/login', { replace: true })
+    setTimeout(() => window.location.reload(), 100) // đảm bảo xóa mọi state redux/tạm
   }
 
   return (
@@ -84,11 +85,10 @@ const Header = () => {
   const dispatch = useDispatch() // Khởi tạo dispatch
 
   const handleLogout = () => {
-    dispatch(logout()) // Gọi hành động logout từ Redux
-    localStorage.removeItem('token') // Xóa token khỏi localStorage
-    localStorage.removeItem('role') // Xóa role khỏi localStorage
+    dispatch(logout())
     toast.success('Đăng xuất thành công!')
-    navigate('/login') // Chuyển hướng về trang đăng nhập
+    navigate('/login', { replace: true })
+    setTimeout(() => window.location.reload(), 100) // đảm bảo xóa mọi state redux/tạm
   }
 
   return (
