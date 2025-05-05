@@ -14,7 +14,6 @@ const FileDetails = () => {
     author,
     publishedYear,
   } = file
-  console.log(file)
 
   return (
     <div className="min-h-screen bg-gray-100">

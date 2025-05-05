@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom' // 👈 Import useNavigate
+import { useNavigate } from 'react-router-dom'
 import * as pdfjsLib from 'pdfjs-dist'
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.js?url'
 import defaultFileImg from '../../assets/doc_image_default.png'
@@ -9,7 +9,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 const DocumentCard = ({ doc }) => {
   const [thumbnail, setThumbnail] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
-  const navigate = useNavigate() // 👈 Khởi tạo hook điều hướng
+  const navigate = useNavigate()
 
   useEffect(() => {
     const loadThumbnail = async () => {

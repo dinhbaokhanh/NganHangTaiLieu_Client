@@ -48,7 +48,7 @@ const Header = () => {
           src={LogoIcon}
           alt="Logo"
           className="h-10 cursor-pointer"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/main')}
         />
       </div>
 

@@ -43,7 +43,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Document', 'User', 'Subject'],
+  tagTypes: ['Document', 'User', 'Subject', 'SavedDocument'],
 
   endpoints: (builder) => ({
     // --- USER ---
@@ -159,6 +159,38 @@ const api = createApi({
       }),
     }),
 
+    // --- SAVED DOCUMENTS ---
+    saveDocument: builder.mutation({
+      query: ({ userId, documentId }) => ({
+        url: '/saved-documents',
+        method: 'POST',
+        body: { userId, documentId },
+      }),
+      invalidatesTags: ['SavedDocument'],
+    }),
+    unsaveDocument: builder.mutation({
+      query: ({ userId, documentId }) => ({
+        url: '/saved-documents',
+        method: 'DELETE',
+        body: { userId, documentId },
+      }),
+      invalidatesTags: ['SavedDocument'],
+    }),
+    getSavedDocumentsByUser: builder.query({
+      query: (userId) => ({
+        url: `/saved-documents/${userId}`,
+        method: 'GET',
+      }),
+      providesTags: ['SavedDocument'],
+    }),
+    isDocumentSaved: builder.query({
+      query: ({ userId, documentId }) => ({
+        url: `/saved-documents/${userId}/${documentId}`,
+        method: 'GET',
+      }),
+      providesTags: ['SavedDocument'],
+    }),
+
     // --- SUBJECT ---
     createSubject: builder.mutation({
       query: (subjectData) => ({
@@ -215,6 +247,12 @@ export const {
   useUpdateDocumentMutation,
   useReplaceDocumentMutation,
   useDeleteDocumentMutation,
+
+  // Saved Document
+  useSaveDocumentMutation,
+  useUnsaveDocumentMutation,
+  useGetSavedDocumentsByUserQuery,
+  useIsDocumentSavedQuery,
 
   // Subject
   useCreateSubjectMutation,
