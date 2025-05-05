@@ -2,22 +2,16 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { universityMajors } from '../../constants/category'
+import { useNavigate } from 'react-router'
 
 const DocumentTabs = ({ activeTab, setActiveTab }) => {
+  const navigate = useNavigate()
+
   const tabs = [
     { id: 'theory', label: 'Tài liệu', isDropdown: true },
     { id: 'exam', label: 'Ngân hàng câu hỏi', isDropdown: true },
     { id: 'saved', label: 'Tài liệu đã lưu', isDropdown: false },
-  ]
-
-  const categories = [
-    { value: 'it', label: 'Công nghệ thông tin' },
-    { value: 'electronics', label: 'Kỹ thuật điện tử viễn thông' },
-    { value: 'cs', label: 'Khoa học máy tính' },
-    { value: 'security', label: 'An toàn thông tin' },
-    { value: 'media', label: 'Truyền thông đa phương tiện' },
-    { value: 'marketing', label: 'Marketing' },
-    { value: 'business', label: 'Quản trị kinh doanh' },
   ]
 
   const [dropdownOpen, setDropdownOpen] = useState(null)
@@ -82,7 +76,7 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
                 onMouseEnter={() => openDropdown(tab.id)}
                 onMouseLeave={closeDropdown}
               >
-                {categories.map((category) => (
+                {universityMajors.map((category) => (
                   <button
                     key={category.value}
                     onClick={() => {

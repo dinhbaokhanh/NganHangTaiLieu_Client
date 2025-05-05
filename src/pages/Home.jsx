@@ -1,26 +1,39 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import DocumentTabs from '../components/layout/DocumentTabs'
 import SuggestModal from '../components/shared/SuggestModal'
-import defaultFileImg from '../assets/doc_image_default.png'
 import { useSelector } from 'react-redux'
-import { useGetAllDocumentQuery } from '../redux/api/api.js'
+import {
+  useGetAllDocumentQuery,
+  useGetSavedDocumentsByUserQuery,
+} from '../redux/api/api.js'
 import DocumentCard from '../components/layout/DocumentCard.jsx'
 
 const Home = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const tab = searchParams.get('tab') || 'theory'
+
   const token = useSelector((state) => state.auth?.token)
+  const { userInfo } = useSelector((state) => state.auth)
+  const userId = userInfo?.id
+
   const [showModal, setShowModal] = useState(false)
 
   const { data: documentData, refetch } = useGetAllDocumentQuery()
+  const { data: savedDocData } = useGetSavedDocumentsByUserQuery(userId, {
+    skip: !userId || tab !== 'saved',
+  })
+  console.log(savedDocData)
+
   const documents = documentData?.documents || []
-  console.log(documents)
+  const savedDocuments = savedDocData?.documents || []
+  const savedDocIds = savedDocuments.map((doc) => doc._id)
 
   const filteredDocs = documents.filter((doc) => {
     if (tab === 'saved') {
-      return doc.saved
+      // Check if document ID exists in savedDocIds array
+      return savedDocIds.includes(doc._id)
     } else if (tab === 'theory') {
       return doc.type === 'Giáo trình'
     } else if (tab === 'exam') {
@@ -54,7 +67,7 @@ const Home = () => {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         title="Bạn cần đăng nhập"
-        description="Đăng nhập để xem tài liệu đã lưu hoặc đăng ký nếu bạn chưa có tài khoản."
+        description="Đăng nhập để xem tài liệu đã lưu hoặc đăng ký nếu bạn chưa có tài khoản."
         onLogin={() => navigate('/login')}
         onRegister={() => navigate('/register')}
       />

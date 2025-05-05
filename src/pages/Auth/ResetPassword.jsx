@@ -37,7 +37,6 @@ const Reset = () => {
         password: newPassword,
         confirmPassword,
       })
-      console.log(id, token)
 
       if (response?.data) {
         toast.success('Đặt lại mật khẩu thành công')

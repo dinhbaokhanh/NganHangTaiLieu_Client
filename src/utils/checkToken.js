@@ -24,7 +24,5 @@ export const refreshTokenIfNeeded = async (dispatch, getState) => {
     console.warn(
       'Token đã hết hạn. Đợi request tự động làm mới từ baseQueryWithReauth.'
     )
-  } else {
-    console.log('Token hợp lệ, tiếp tục sử dụng...')
   }
 }

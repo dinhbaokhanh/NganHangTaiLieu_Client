@@ -1,15 +1,27 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { FaEye, FaDownload, FaBookmark, FaFlag } from 'react-icons/fa'
+import {
+  FaEye,
+  FaDownload,
+  FaBookmark,
+  FaFlag,
+  FaRegBookmark,
+} from 'react-icons/fa'
 import SuggestModal from '../components/shared/SuggestModal'
-import { useGetDocumentByIdQuery } from '../redux/api/api.js'
+import {
+  useGetDocumentByIdQuery,
+  useSaveDocumentMutation,
+  useUnsaveDocumentMutation,
+  useIsDocumentSavedQuery,
+} from '../redux/api/api.js'
 import Comments from '../components/shared/Comments'
-import { useErrors } from '../hooks/hook.js'
+import { useErrors, useAsyncMutation } from '../hooks/hook.js'
 
 import * as pdfjsLib from 'pdfjs-dist'
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.js?url'
 import defaultFileImg from '../assets/doc_image_default.png'
+import { useSelector } from 'react-redux'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
@@ -19,11 +31,25 @@ const FileDetails = () => {
   const navigate = useNavigate()
 
   const { data, isError, error } = useGetDocumentByIdQuery(id)
-  useErrors([{ isError, error }])
+
+  const { userInfo } = useSelector((state) => state.auth)
+  const userId = userInfo?.id
+
+  const [saveDoc] = useAsyncMutation(useSaveDocumentMutation)
+  const [unsaveDoc] = useAsyncMutation(useUnsaveDocumentMutation)
+
+  const {
+    data: savedStatus,
+    refetch: refetchIsSaved,
+    isLoading: isCheckingSaved,
+  } = useIsDocumentSavedQuery({ userId, documentId: id }, { skip: !userId })
 
   const [showModal, setShowModal] = useState(false)
   const [thumbnail, setThumbnail] = useState(null)
   const [isLoadingThumb, setIsLoadingThumb] = useState(false)
+
+  // Call useErrors hook before any conditional returns to maintain hook order
+  useErrors([{ isError, error }])
 
   const document = data?.document
 
@@ -61,7 +87,7 @@ const FileDetails = () => {
     if (document?.fileUrl) generateThumbnail()
   }, [document])
 
-  const handleAction = (actionType) => {
+  const handleAction = async (actionType) => {
     if (!token) {
       setShowModal(true)
       return
@@ -69,17 +95,32 @@ const FileDetails = () => {
 
     switch (actionType) {
       case 'view':
-        window.open(document?.fileUrl, '_blank')
-        break
-      case 'save':
-        console.log('Đã lưu tài liệu')
-        break
       case 'download':
         window.open(document?.fileUrl, '_blank')
         break
+
+      case 'save':
+        if (isCheckingSaved) return
+
+        if (savedStatus?.isSaved) {
+          const result = await unsaveDoc('Đang bỏ lưu...', {
+            userId,
+            documentId: id,
+          })
+          if (result.success) refetchIsSaved()
+        } else {
+          const result = await saveDoc('Đang lưu tài liệu...', {
+            userId,
+            documentId: id,
+          })
+          if (result.success) refetchIsSaved()
+        }
+        break
+
       case 'report':
         console.log('Report/Phản hồi tài liệu')
         break
+
       default:
         break
     }
@@ -151,12 +192,17 @@ const FileDetails = () => {
             <div className="flex gap-4 mt-12">
               {[
                 { icon: FaEye, label: 'Xem', action: 'view' },
-                { icon: FaBookmark, label: 'Lưu', action: 'save' },
-              ].map(({ icon: Icon, label, action }, index) => (
+                { icon: FaDownload, label: 'Tải xuống', action: 'download' },
+                {
+                  icon: savedStatus?.isSaved ? FaBookmark : FaRegBookmark,
+                  label: savedStatus?.isSaved ? 'Bỏ lưu' : 'Lưu',
+                  action: 'save',
+                },
+              ].map(({ icon: Icon, label, action, className = '' }, index) => (
                 <div key={index} className="group relative">
                   <button
                     onClick={() => handleAction(action)}
-                    className="p-3 w-12 h-12 bg-red-600 text-white rounded-md flex items-center justify-center hover:cursor-pointer hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200"
+                    className={`p-3 w-12 h-12 bg-red-600 text-white rounded-md flex items-center justify-center hover:cursor-pointer hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200 ${className}`}
                   >
                     <Icon size={20} />
                   </button>
