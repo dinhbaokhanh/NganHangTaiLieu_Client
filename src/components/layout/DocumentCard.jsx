@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom' // 👈 Import useNavigate
 import * as pdfjsLib from 'pdfjs-dist'
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.js?url'
 import defaultFileImg from '../../assets/doc_image_default.png'
 
-// 👇 Cấu hình worker đúng cách cho Vite
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
 const DocumentCard = ({ doc }) => {
   const [thumbnail, setThumbnail] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate() // 👈 Khởi tạo hook điều hướng
 
   useEffect(() => {
     const loadThumbnail = async () => {
@@ -45,8 +46,17 @@ const DocumentCard = ({ doc }) => {
     (!doc.fileUrl?.endsWith('.pdf') && doc.fileUrl) ||
     defaultFileImg
 
+  const handleClick = () => {
+    if (doc._id) {
+      navigate(`/file/${doc._id}`) // 👈 Điều hướng đến trang chi tiết
+    }
+  }
+
   return (
-    <div className="relative border rounded-lg p-2 shadow-md">
+    <div
+      className="relative border rounded-lg p-2 shadow-md hover:shadow-lg cursor-pointer transition duration-200"
+      onClick={handleClick} // 👈 Gán sự kiện click
+    >
       {isLoading ? (
         <div className="w-full h-40 flex items-center justify-center">
           Loading...

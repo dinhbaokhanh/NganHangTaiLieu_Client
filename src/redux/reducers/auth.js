@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import api from '../api/api.js'
 
 const authSlice = createSlice({
-  name: 'auth', // 🛠 Sửa từ 'user' thành 'auth'
+  name: 'auth',
   initialState: {
     userInfo: null,
     token: null,
