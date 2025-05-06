@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useSelector } from 'react-redux'
 import { format } from 'date-fns'
@@ -12,8 +12,8 @@ import {
   useAddReplyMutation,
   useDeleteReplyMutation,
   useGetUserProfileQuery,
-} from '../../redux/api/api'
-import { useErrors, useAsyncMutationWithUnwrap } from '../../hooks/hook'
+} from '../../redux/api/api.js'
+import { useErrors, useAsyncMutationWithUnwrap } from '../../hooks/hook.js'
 
 // ------------------------ Helpers ------------------------
 const formatTime = (timestamp) => {
@@ -41,135 +41,98 @@ const Avatar = ({ avatar, name }) => (
   </div>
 )
 
-const ReplyForm = ({ onSubmit, onCancel, value, onChange, avatar, name }) => (
-  <div className="mt-3 flex items-start gap-2">
-    <Avatar avatar={avatar} name={name} />
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder="Viết phản hồi..."
-      className="flex-1 p-2 text-sm border rounded"
-    />
-    <button
-      onClick={onSubmit}
-      className="px-3 py-1 bg-red-700 text-white text-sm rounded hover:bg-white hover:text-red-700 border border-transparent hover:border-red-700"
-    >
-      Gửi
-    </button>
-    {onCancel && (
-      <button
-        onClick={onCancel}
-        className="text-sm text-gray-500 hover:underline"
-      >
-        Hủy
-      </button>
-    )}
-  </div>
-)
+// Build tree from flat replies
+const buildReplyTree = (flatReplies) => {
+  const map = {}
+  flatReplies.forEach((r) => {
+    map[r._id] = { ...r, replies: [] }
+  })
+  const roots = []
+  flatReplies.forEach((r) => {
+    if (r.parentReplyId) {
+      map[r.parentReplyId]?.replies.push(map[r._id])
+    } else {
+      roots.push(map[r._id])
+    }
+  })
+  return roots
+}
 
-const ReplyList = ({ replies, reviewId, userId, onReply, onDelete }) => (
-  <div className="ml-6 mt-4 space-y-4">
-    {replies.map((reply) => (
-      <div key={reply._id} className="flex gap-3">
-        <Avatar
-          avatar={reply.userId?.avatar?.url}
-          name={reply.userId?.username}
-        />
+// Recursive component to render nested replies
+const ReplyNode = ({ node, reviewId, level, handlers, state }) => {
+  const { onReplyClick, onReplySubmit, onReplyDelete } = handlers
+  const { activeReply, replyText, setReplyText, user, userId } = state
+
+  return (
+    <div className={`ml-${level * 6} mt-4`}>
+      <div className="flex gap-3">
+        <Avatar avatar={node.userId.avatar?.url} name={node.userId.username} />
         <div className="flex-1">
-          <div className="text-sm font-semibold">{reply.userId?.username}</div>
+          <div className="text-sm font-semibold">{node.userId.username}</div>
           <div className="text-xs text-gray-500">
-            {formatTime(reply.createdAt)}
+            {formatTime(node.createdAt)}
           </div>
-          <p className="mt-1">{reply.reply}</p>
+          <p className="mt-1">{node.reply}</p>
           <div className="flex gap-3 mt-1">
             <button
               className="text-xs text-red-700 hover:underline"
-              onClick={() => onReply(reviewId, reply._id)}
+              onClick={() => onReplyClick(reviewId, node._id)}
             >
-              Trả lời
+              {activeReply?.reviewId === reviewId &&
+              activeReply?.replyId === node._id
+                ? 'Hủy'
+                : 'Trả lời'}
             </button>
-            {userId === reply.userId?._id && (
+            {userId === node.userId._id && (
               <button
                 className="text-xs text-gray-500 hover:underline"
-                onClick={() => onDelete(reviewId, reply._id)}
+                onClick={() => onReplyDelete(reviewId, node._id)}
               >
                 Xóa
               </button>
             )}
           </div>
+          {activeReply?.reviewId === reviewId &&
+            activeReply?.replyId === node._id && (
+              <div className="mt-3 flex items-start gap-2">
+                <Avatar avatar={user?.avatar?.url} name={user?.username} />
+                <input
+                  type="text"
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Viết phản hồi..."
+                  className="flex-1 p-2 text-sm border rounded"
+                />
+                <button
+                  onClick={() => onReplySubmit(reviewId)}
+                  className="px-3 py-1 bg-red-700 text-white text-sm rounded hover:bg-white hover:text-red-700 border border-transparent hover:border-red-700"
+                >
+                  Gửi
+                </button>
+                <button
+                  onClick={() => onReplyClick(null, null)}
+                  className="text-sm text-gray-500 hover:underline"
+                >
+                  Hủy
+                </button>
+              </div>
+            )}
+          {node.replies.map((child) => (
+            <ReplyNode
+              key={child._id}
+              node={child}
+              reviewId={reviewId}
+              level={level + 1}
+              handlers={handlers}
+              state={state}
+            />
+          ))}
         </div>
       </div>
-    ))}
-  </div>
-)
+    </div>
+  )
+}
 
-//   review,
-//   userId,
-//   user,
-//   activeReply,
-//   replyText,
-//   setReplyText,
-//   onReplyClick,
-//   onReplySubmit,
-//   onReviewDelete,
-//   onReplyDelete,
-// }) => (
-//   <div className="pt-4">
-//     <div className="flex items-start gap-3">
-//       <Avatar
-//         avatar={review.userId?.avatar?.url}
-//         name={review.userId?.username}
-//       />
-//       <div className="flex-1">
-//         <div className="text-sm font-semibold">{review.userId?.username}</div>
-//         <div className="text-xs text-gray-500">
-//           {formatTime(review.createdAt)}
-//         </div>
-//         <p className="mt-1 text-gray-700">{review.comment}</p>
-
-//         <div className="flex gap-3 mt-1">
-//           <button
-//             className="text-sm text-red-700 hover:underline"
-//             onClick={() => onReplyClick(review._id)}
-//           >
-//             {activeReply?.reviewId === review._id ? 'Hủy' : 'Trả lời'}
-//           </button>
-//           {userId === review.userId?._id && (
-//             <button
-//               className="text-sm text-gray-500 hover:underline"
-//               onClick={() => onReviewDelete(review._id)}
-//             >
-//               Xóa
-//             </button>
-//           )}
-//         </div>
-
-//         {activeReply?.reviewId === review._id &&
-//           activeReply?.replyId === null && (
-//             <ReplyForm
-//               value={replyText}
-//               onChange={setReplyText}
-//               onSubmit={() => onReplySubmit(review._id)}
-//               onCancel={() => onReplyClick(null)}
-//               avatar={user?.avatar?.url}
-//               name={user?.username}
-//             />
-//           )}
-
-//         <ReplyList
-//           replies={review.replies || []}
-//           reviewId={review._id}
-//           userId={userId}
-//           onReply={onReplyClick}
-//           onDelete={onReplyDelete}
-//         />
-//       </div>
-//     </div>
-//   </div>
-// )
-
-// ------------------------ Main Component ------------------------
 const Comments = ({ documentId }) => {
   const [comment, setComment] = useState('')
   const [replyText, setReplyText] = useState('')
@@ -184,11 +147,19 @@ const Comments = ({ documentId }) => {
 
   const {
     data: reviewsData,
-    isLoading,
-    isError,
-    error,
-    refetch, // Thêm refetch để gọi lại dữ liệu khi cần
+    isLoading: isLoadingReviews,
+    isError: isErrorReviews,
+    error: errorReviews,
+    refetch,
   } = useGetReviewsByDocumentQuery(documentId, { skip: !documentId })
+
+  useErrors([
+    {
+      isError: isErrorReviews,
+      error: errorReviews,
+      fallback: () => toast.error('Không thể tải bình luận'),
+    },
+  ])
 
   const [addReview, isAddingReview] =
     useAsyncMutationWithUnwrap(useAddReviewMutation)
@@ -196,26 +167,22 @@ const Comments = ({ documentId }) => {
   const [addReply] = useAsyncMutationWithUnwrap(useAddReplyMutation)
   const [deleteReply] = useAsyncMutationWithUnwrap(useDeleteReplyMutation)
 
-  useErrors([
-    {
-      isError,
-      error,
-      fallback: () => toast.error('Không thể tải bình luận'),
-    },
-  ])
-
   const reviews = reviewsData?.reviews || []
 
   const handleAddComment = async () => {
-    if (!comment.trim() || !userId) return
-    await addReview({ documentId, comment, userId })
-    setComment('')
-
-    // Sau khi thêm bình luận, gọi lại dữ liệu để cập nhật ngay
-    refetch()
+    if (!comment.trim()) return
+    const result = await addReview('Đang thêm bình luận...', {
+      documentId,
+      comment,
+      userId, // Added userId to match backend expectation
+    })
+    if (result.success) {
+      setComment('')
+      refetch()
+    }
   }
 
-  const handleReplyClick = (reviewId, replyId = null, replyUsername = '') => {
+  const handleReplyClick = (reviewId, replyId = null) => {
     if (
       activeReply?.reviewId === reviewId &&
       activeReply?.replyId === replyId
@@ -224,69 +191,59 @@ const Comments = ({ documentId }) => {
       setReplyText('')
     } else {
       setActiveReply({ reviewId, replyId })
-      setReplyText(replyUsername ? `@${replyUsername} ` : '') // Thêm @username
+      setReplyText('')
     }
   }
 
   const handleReplySubmit = async (reviewId) => {
-    if (!replyText.trim() || !userId) return
-
-    if (activeReply?.replyId === null) {
-      // Reply to the review
-      await addReply('Đang thêm phản hồi...', {
-        reviewId,
-        body: {
-          documentId,
-          reply: replyText,
-          userId,
-          parentReplyId: null,
-        },
-      })
-    } else {
-      // Reply to a reply
-      await addReply('Đang thêm phản hồi...', {
-        reviewId,
-        body: {
-          documentId,
-          reply: replyText,
-          userId,
-          parentReplyId: activeReply?.replyId,
-        },
-      })
+    if (!replyText.trim()) return
+    const body = {
+      reply: replyText,
+      parentReplyId: activeReply?.replyId || null,
+      userId, // Added userId to match backend expectation
     }
-
-    setReplyText('')
-    setActiveReply(null)
-
-    // Sau khi thêm phản hồi, gọi lại dữ liệu để cập nhật ngay
-    refetch()
+    const result = await addReply('Đang thêm phản hồi...', { reviewId, body })
+    if (result.success) {
+      setReplyText('')
+      setActiveReply(null)
+      refetch()
+    }
   }
 
   const handleReviewDelete = async (reviewId) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
-      await deleteReview({ documentId, reviewId })
-
-      // Sau khi xóa bình luận, gọi lại dữ liệu để cập nhật ngay
-      refetch()
-    }
+    if (!window.confirm('Bạn có chắc chắn muốn xóa bình luận này?')) return
+    const result = await deleteReview('Đang xóa bình luận...', {
+      reviewId,
+      userId, // Added userId to match backend expectation
+    })
+    if (result.success) refetch()
   }
 
   const handleReplyDelete = async (reviewId, replyId) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa phản hồi này?')) {
-      await deleteReply({ documentId, reviewId, replyId })
-
-      // Sau khi xóa phản hồi, gọi lại dữ liệu để cập nhật ngay
-      refetch()
-    }
+    if (!window.confirm('Bạn có chắc chắn muốn xóa phản hồi này?')) return
+    const result = await deleteReply('Đang xóa phản hồi...', {
+      reviewId,
+      replyId,
+      userId, // Added userId to match backend expectation
+    })
+    if (result.success) refetch()
   }
+
+  // Prepare handlers & state for reply tree
+  const handlers = {
+    onReplyClick: handleReplyClick,
+    onReplySubmit: handleReplySubmit,
+    onReplyDelete: handleReplyDelete,
+  }
+  const state = { activeReply, replyText, setReplyText, user, userId }
 
   return (
     <div>
       <h3 className="text-lg font-semibold text-red-700 mb-4">Bình luận</h3>
 
-      {userInfo ? (
+      {user ? (
         <div className="flex items-center gap-4 mb-4">
-          <Avatar avatar={user?.avatar?.url} name={user?.username} />
+          <Avatar avatar={user.avatar?.url} name={user.username} />
           <input
             type="text"
             placeholder="Viết bình luận..."
@@ -316,118 +273,91 @@ const Comments = ({ documentId }) => {
       )}
 
       <div className="mt-6 space-y-6">
-        {isLoading ? (
+        {isLoadingReviews ? (
           <div className="text-center py-4">Đang tải bình luận...</div>
         ) : reviews.length > 0 ? (
-          reviews.map((review) => (
-            <div key={review._id} className="pt-4">
-              <div className="flex items-start gap-3">
-                <Avatar
-                  avatar={review.userId?.avatar?.url}
-                  name={review.userId?.username}
-                />
-                <div className="flex-1">
-                  <div className="text-sm font-semibold">
-                    {review.userId?.username}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {formatTime(review.createdAt)}
-                  </div>
-                  <p className="mt-1 text-gray-700">{review.comment}</p>
-
-                  <div className="flex gap-3 mt-1">
-                    <button
-                      className="text-sm text-red-700 hover:underline"
-                      onClick={() => handleReplyClick(review._id, null)}
-                    >
-                      {activeReply?.reviewId === review._id &&
-                      activeReply?.replyId === null
-                        ? 'Hủy'
-                        : 'Trả lời'}
-                    </button>
-                    {userId === review.userId?._id && (
-                      <button
-                        className="text-sm text-gray-500 hover:underline"
-                        onClick={() => handleReviewDelete(review._id)}
-                      >
-                        Xóa
-                      </button>
-                    )}
-                  </div>
-
-                  {activeReply?.reviewId === review._id &&
-                    activeReply?.replyId === null && (
-                      <ReplyForm
-                        value={replyText}
-                        onChange={setReplyText}
-                        onSubmit={() => handleReplySubmit(review._id)}
-                        onCancel={() => handleReplyClick(null)}
-                        avatar={user?.avatar?.url}
-                        name={user?.username}
-                      />
-                    )}
-
-                  {review.replies && review.replies.length > 0 && (
-                    <div className="ml-6 mt-4 space-y-4">
-                      {review.replies.map((reply) => (
-                        <div key={reply._id} className="flex gap-3">
-                          <Avatar
-                            avatar={reply.userId?.avatar?.url}
-                            name={reply.userId?.username}
-                          />
-                          <div className="flex-1">
-                            <div className="text-sm font-semibold">
-                              {reply.userId?.username}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {formatTime(reply.createdAt)}
-                            </div>
-                            <p className="mt-1">{reply.reply}</p>
-                            <div className="flex gap-3 mt-1">
-                              <button
-                                className="text-xs text-red-700 hover:underline"
-                                onClick={() =>
-                                  handleReplyClick(
-                                    review._id,
-                                    reply._id,
-                                    reply.userId?.username
-                                  )
-                                } // Truyền username của người trả lời
-                              >
-                                Trả lời
-                              </button>
-                              {userId === reply.userId?._id && (
-                                <button
-                                  className="text-xs text-gray-500 hover:underline"
-                                  onClick={() =>
-                                    handleReplyDelete(review._id, reply._id)
-                                  }
-                                >
-                                  Xóa
-                                </button>
-                              )}
-                            </div>
-
-                            {activeReply?.reviewId === review._id &&
-                              activeReply?.replyId === reply._id && (
-                                <ReplyForm
-                                  value={replyText}
-                                  onChange={setReplyText}
-                                  onSubmit={() => handleReplySubmit(review._id)}
-                                  onCancel={() => handleReplyClick(null, null)}
-                                  avatar={user?.avatar?.url}
-                                  name={user?.username}
-                                />
-                              )}
-                          </div>
-                        </div>
-                      ))}
+          reviews.map((review) => {
+            const tree = buildReplyTree(review.replies)
+            return (
+              <div key={review._id} className="pt-4">
+                <div className="flex items-start gap-3">
+                  <Avatar
+                    avatar={review.userId.avatar?.url}
+                    name={review.userId.username}
+                  />
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold">
+                      {review.userId.username}
                     </div>
-                  )}
+                    <div className="text-xs text-gray-500">
+                      {formatTime(review.createdAt)}
+                    </div>
+                    <p className="mt-1 text-gray-700">{review.comment}</p>
+
+                    <div className="flex gap-3 mt-1">
+                      <button
+                        className="text-sm text-red-700 hover:underline"
+                        onClick={() => handleReplyClick(review._id, null)}
+                      >
+                        {activeReply?.reviewId === review._id &&
+                        activeReply?.replyId === null
+                          ? 'Hủy'
+                          : 'Trả lời'}
+                      </button>
+                      {userId === review.userId._id && (
+                        <button
+                          className="text-sm text-gray-500 hover:underline"
+                          onClick={() => handleReviewDelete(review._id)}
+                        >
+                          Xóa
+                        </button>
+                      )}
+                    </div>
+
+                    {activeReply?.reviewId === review._id &&
+                      activeReply?.replyId === null && (
+                        <div className="mt-3 flex items-start gap-2">
+                          <Avatar
+                            avatar={user?.avatar?.url}
+                            name={user?.username}
+                          />
+                          <input
+                            type="text"
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder="Viết phản hồi..."
+                            className="flex-1 p-2 text-sm border rounded"
+                          />
+                          <button
+                            onClick={() => handleReplySubmit(review._id)}
+                            className="px-3 py-1 bg-red-700 text-white text-sm rounded hover:bg-white hover:text-red-700 border border-transparent hover:border-red-700"
+                          >
+                            Gửi
+                          </button>
+                          <button
+                            onClick={() => handleReplyClick(null, null)}
+                            className="text-sm text-gray-500 hover:underline"
+                          >
+                            Hủy
+                          </button>
+                        </div>
+                      )}
+
+                    {tree.map((root) => (
+                      <ReplyNode
+                        key={root._id}
+                        node={root}
+                        reviewId={review._id}
+                        level={1}
+                        handlers={handlers}
+                        state={state}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            )
+          })
         ) : (
           <div className="text-center py-4 text-gray-500">
             Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
