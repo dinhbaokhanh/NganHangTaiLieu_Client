@@ -228,62 +228,53 @@ const api = createApi({
     // --- REVIEWS ---
     addReview: builder.mutation({
       query: (reviewData) => ({
-        url: '/document/reviews',
+        url: '/reviews',
         method: 'POST',
-        body: reviewData,
+        body: reviewData, // should contain userId, documentId, comment
       }),
-      invalidatesTags: (result, error, { documentId }) => [
-        { type: 'Review', id: documentId },
-      ],
+      invalidatesTags: ['Review'],
     }),
     getReviewsByDocument: builder.query({
-      query: (documentId) => ({
-        url: `/document/reviews/${documentId}`,
-        method: 'GET',
-      }),
-      providesTags: (result, error, documentId) => [
-        { type: 'Review', id: documentId },
-      ],
+      query: (documentId) => `/reviews/${documentId}`,
+      providesTags: (result, error, documentId) =>
+        result
+          ? result.reviews.map((r) => ({ type: 'Review', id: r._id }))
+          : [{ type: 'Review', id: documentId }],
     }),
     updateReview: builder.mutation({
       query: (reviewData) => ({
-        url: '/document/reviews',
+        url: '/reviews',
         method: 'PUT',
-        body: reviewData,
+        body: reviewData, // should contain userId, documentId, comment
       }),
-      invalidatesTags: (result, error, { documentId }) => [
-        { type: 'Review', id: documentId },
-      ],
+      invalidatesTags: ['Review'],
     }),
     deleteReview: builder.mutation({
-      query: (reviewData) => ({
-        url: '/document/reviews',
+      query: ({ reviewId, userId }) => ({
+        url: '/reviews',
         method: 'DELETE',
-        body: reviewData,
+        body: { reviewId, userId },
       }),
-      invalidatesTags: (result, error, { documentId }) => [
-        { type: 'Review', id: documentId },
-      ],
+      invalidatesTags: ['Review'],
     }),
 
     // --- REVIEW REPLIES ---
     addReply: builder.mutation({
       query: ({ reviewId, body }) => ({
-        url: `/document/reviews/${reviewId}/reply`,
+        url: `/reviews/${reviewId}/reply`,
         method: 'POST',
-        body,
+        body, // body should contain reply, parentReplyId, userId
       }),
-      invalidatesTags: ['Reviews'],
+      invalidatesTags: ['Review'],
     }),
 
     deleteReply: builder.mutation({
-      query: ({ reviewId, replyId, documentId }) => ({
-        url: `/document/reviews/${reviewId}/reply/${replyId}`,
+      query: ({ reviewId, replyId, userId }) => ({
+        url: `/reviews/${reviewId}/reply/${replyId}`,
         method: 'DELETE',
+        body: { userId },
       }),
-      invalidatesTags: (result, error, { documentId }) => [
-        { type: 'Review', id: documentId },
-      ],
+      invalidatesTags: ['Review'],
     }),
   }),
 })
