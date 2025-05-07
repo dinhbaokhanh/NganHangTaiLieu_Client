@@ -48,14 +48,14 @@ const DocumentCard = ({ doc }) => {
 
   const handleClick = () => {
     if (doc._id) {
-      navigate(`/file/${doc._id}`) // 👈 Điều hướng đến trang chi tiết
+      navigate(`/file/${doc._id}`)
     }
   }
 
   return (
     <div
       className="relative border rounded-lg p-2 shadow-md hover:shadow-lg cursor-pointer transition duration-200"
-      onClick={handleClick} // 👈 Gán sự kiện click
+      onClick={handleClick}
     >
       {isLoading ? (
         <div className="w-full h-40 flex items-center justify-center">
