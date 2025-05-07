@@ -25,16 +25,16 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
     }
   }
 
-  const openDropdown = (tabId) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    setDropdownOpen(tabId)
-  }
+  // const openDropdown = (tabId) => {
+  //   if (timeoutRef.current) clearTimeout(timeoutRef.current)
+  //   setDropdownOpen(tabId)
+  // }
 
-  const closeDropdown = () => {
-    timeoutRef.current = setTimeout(() => {
-      setDropdownOpen(null)
-    }, 200)
-  }
+  // const closeDropdown = () => {
+  //   timeoutRef.current = setTimeout(() => {
+  //     setDropdownOpen(null)
+  //   }, 200)
+  // }
 
   return (
     <div className="w-full max-w-3xl mx-auto">
@@ -43,8 +43,8 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
           <div
             key={tab.id}
             className="relative flex-1 text-center"
-            onMouseEnter={() => openDropdown(tab.id)}
-            onMouseLeave={closeDropdown}
+            // onMouseEnter={() => openDropdown(tab.id)}
+            // onMouseLeave={closeDropdown}
           >
             <button
               onClick={() => changeTab(tab.id, tab.isDropdown)}
@@ -56,21 +56,21 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
                 }`}
             >
               {tab.label}{' '}
-              {tab.isDropdown && (
+              {/* {tab.isDropdown && (
                 <ChevronDown
                   size={16}
                   className={`inline ml-1 transition-transform ${
                     dropdownOpen === tab.id ? 'rotate-180' : ''
                   }`}
                 />
-              )}
+              )} */}
             </button>
             {index !== tabs.length - 1 && (
               <span className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400">
                 |
               </span>
             )}
-            {dropdownOpen === tab.id && tab.isDropdown && (
+            {/* {dropdownOpen === tab.id && tab.isDropdown && (
               <div
                 className="absolute left-0 mt-2 w-full bg-white border rounded-md shadow-md z-10"
                 onMouseEnter={() => openDropdown(tab.id)}
@@ -89,7 +89,7 @@ const DocumentTabs = ({ activeTab, setActiveTab }) => {
                   </button>
                 ))}
               </div>
-            )}
+            )} */}
           </div>
         ))}
       </div>
