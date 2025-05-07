@@ -53,7 +53,7 @@ const Main = () => {
         <div className="absolute inset-0 bg-black/50 z-0"></div>
 
         <div
-          className="flex flex-col items-center px-4 z-10 w-full"
+          className="flex flex-col items-center px-4 z-1 w-full"
           ref={searchRef}
         >
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -93,7 +93,7 @@ const Main = () => {
 
             {/* Hiển thị kết quả tìm kiếm */}
             {isSearching && keyword && (
-              <div className="absolute top-full mt-2 w-full bg-white border rounded-lg shadow-lg z-50 max-h-70 overflow-y-auto text-left text-gray-700">
+              <div className="absolute top-full mt-2 w-full bg-white border rounded-lg shadow-lg max-h-70 overflow-y-auto text-left text-gray-700">
                 {searchLoading && (
                   <div className="p-4 text-center text-gray-500">
                     Đang tải kết quả...
