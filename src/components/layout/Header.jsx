@@ -1,5 +1,3 @@
-// Updated search functionality in Header.jsx
-
 import React, { useState, useRef, useEffect } from 'react'
 import { Bell, Search, User, Key, LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -79,7 +77,7 @@ const Header = () => {
   }
 
   return (
-    <div className="bg-white px-6 py-3 shadow-md flex justify-between items-center relative">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-white px-6 py-3 shadow-md flex justify-between items-center">
       {/* Logo */}
       <div className="flex items-center gap-3">
         <img
