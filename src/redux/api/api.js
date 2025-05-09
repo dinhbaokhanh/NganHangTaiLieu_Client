@@ -158,6 +158,11 @@ const api = createApi({
         method: 'DELETE',
       }),
     }),
+    searchDocuments: builder.query({
+      query: (keyword) =>
+        `/document/search?keyword=${encodeURIComponent(keyword)}`,
+      providesTags: ['Document'],
+    }),
 
     // --- SAVED DOCUMENTS ---
     saveDocument: builder.mutation({
@@ -299,6 +304,7 @@ export const {
   useUpdateDocumentMutation,
   useReplaceDocumentMutation,
   useDeleteDocumentMutation,
+  useSearchDocumentsQuery,
 
   // Saved Document
   useSaveDocumentMutation,

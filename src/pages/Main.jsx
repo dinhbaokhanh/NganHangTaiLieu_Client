@@ -1,8 +1,48 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import bg from '../assets/login_background.jpg'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router-dom'
+import { useSearchDocumentsQuery } from '../redux/api/api'
 
 const Main = () => {
+  const [keyword, setKeyword] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+  const searchRef = useRef(null)
+  const navigate = useNavigate()
+
+  // Gọi API tìm kiếm
+  const {
+    data: searchData,
+    isLoading: searchLoading,
+    isError: searchError,
+  } = useSearchDocumentsQuery(keyword, {
+    skip: !isSearching || !keyword,
+  })
+
+  // Đóng popup tìm kiếm nếu click ra ngoài
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearching(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault()
+    if (keyword.trim() !== '') {
+      setIsSearching(true)
+    }
+  }
+
+  const handleDocumentClick = (docId) => {
+    setIsSearching(false)
+    navigate(`/documents/${docId}`)
+  }
+
   return (
     <>
       {/* PHẦN INTRO */}
@@ -12,7 +52,10 @@ const Main = () => {
       >
         <div className="absolute inset-0 bg-black/50 z-0"></div>
 
-        <div className="text-center px-4 z-10">
+        <div
+          className="flex flex-col items-center px-4 z-1 w-full"
+          ref={searchRef}
+        >
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Tài liệu học tập PTIT
           </h1>
@@ -20,9 +63,14 @@ const Main = () => {
             Tổng hợp tài liệu từ sinh viên PTIT – giúp bạn học tập hiệu quả hơn!
           </p>
 
-          <form className="flex items-center w-full max-w-xl bg-white rounded-full px-4 py-2 shadow-md">
+          <form
+            className="w-full max-w-xl flex items-center bg-white rounded-full px-4 py-2 shadow-md relative"
+            onSubmit={handleSearchSubmit}
+          >
             <input
               type="text"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
               placeholder="Tìm kiếm môn học, tài liệu hoặc sách..."
               className="flex-1 text-gray-800 bg-transparent focus:outline-none"
             />
@@ -42,9 +90,54 @@ const Main = () => {
                 />
               </svg>
             </button>
+
+            {/* Hiển thị kết quả tìm kiếm */}
+            {isSearching && keyword && (
+              <div className="absolute top-full mt-2 w-full bg-white border rounded-lg shadow-lg max-h-70 overflow-y-auto text-left text-gray-700">
+                {searchLoading && (
+                  <div className="p-4 text-center text-gray-500">
+                    Đang tải kết quả...
+                  </div>
+                )}
+                {searchError && (
+                  <div className="p-4 text-center text-red-500">
+                    Lỗi khi tải kết quả.
+                  </div>
+                )}
+                {!searchLoading && !searchError && (
+                  <>
+                    {searchData?.documents?.length === 0 ? (
+                      <div className="p-4 text-center text-sm">
+                        Không tìm thấy tài liệu nào.
+                      </div>
+                    ) : (
+                      <ul className="p-2 space-y-2">
+                        {searchData.documents.map((doc) => (
+                          <li
+                            key={doc._id}
+                            className="hover:bg-gray-100 p-2 rounded cursor-pointer"
+                            onClick={() => handleDocumentClick(doc._id)}
+                          >
+                            <div className="font-medium">{doc.title}</div>
+                            <div className="text-sm text-gray-500">
+                              {doc.author}
+                            </div>
+                            <div className="text-xs text-gray-400 truncate">
+                              {doc.description}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </form>
         </div>
       </main>
+
+      {/* Các section giới thiệu */}
       <section className="bg-white text-gray-800 py-16">
         <div className="max-w-5xl mx-auto text-center px-4">
           <h2 className="text-2xl md:text-3xl font-semibold mb-6">
@@ -99,35 +192,28 @@ const Main = () => {
           <Link
             to="/main"
             className="inline-block bg-red-800 text-white py-3 px-8 rounded-lg text-xl hover:bg-red-900 transition"
-            style={{
-              backgroundColor: 'rgb(146, 0, 0)',
-              hover: { backgroundColor: 'rgb(120, 0, 0)' },
-            }}
           >
             Khám Phá Ngay
           </Link>
         </div>
       </section>
+
       <section className="bg-gray-50 text-gray-800 py-16">
         <div className="max-w-5xl mx-auto text-center px-4">
           <h2 className="text-2xl md:text-3xl font-semibold mb-6">
-            Cộng Đồng & Đóng Góp
+            Ôn tập bằng Quiz
           </h2>
           <p className="text-gray-600 mb-10">
-            Cộng đồng PTIT luôn đồng hành, đóng góp những tài liệu chất lượng.
-            Bạn cũng có thể đóng góp để giúp đỡ những bạn sinh viên khác.
+            Củng cố kiến thức qua các bài quiz nhanh, chính xác và dễ nhớ. Học
+            tập hiệu quả hơn với cách ôn luyện chủ động.
           </p>
 
           <div className="flex justify-center gap-6">
             <Link
-              to="/community"
+              to="/quiz"
               className="inline-block bg-red-800 text-white py-3 px-8 rounded-lg text-xl hover:bg-red-900 transition"
-              style={{
-                backgroundColor: 'rgb(146, 0, 0)',
-                hover: { backgroundColor: 'rgb(120, 0, 0)' },
-              }}
             >
-              Tham Gia Cộng Đồng
+              Bắt Đầu Làm Quiz
             </Link>
           </div>
         </div>

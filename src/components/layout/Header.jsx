@@ -5,11 +5,17 @@ import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../../redux/reducers/auth'
 import LogoIcon from '../../assets/logo.png'
 import { toast } from 'react-toastify'
-import api, { useGetUserProfileQuery } from '../../redux/api/api.js'
+import {
+  useGetUserProfileQuery,
+  useSearchDocumentsQuery,
+} from '../../redux/api/api.js'
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
+  const [keyword, setKeyword] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
   const dropdownRef = useRef(null)
+  const searchRef = useRef(null)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { userInfo } = useSelector((state) => state.auth)
@@ -19,12 +25,24 @@ const Header = () => {
   const { data, isLoading, isError, error } = useGetUserProfileQuery(userId)
   const user = data?.user
 
+  // Search API call - Only execute when explicitly searching
+  const {
+    data: searchData,
+    isLoading: searchLoading,
+    isError: searchError,
+  } = useSearchDocumentsQuery(keyword, {
+    skip: !isSearching || !keyword,
+  })
+
   const token = useSelector((state) => state.auth?.token) // Kiểm tra trạng thái đăng nhập
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false)
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearching(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -40,8 +58,26 @@ const Header = () => {
     setTimeout(() => window.location.reload(), 100) // đảm bảo xóa mọi state redux/tạm
   }
 
+  const handleSearch = (e) => {
+    if (e.key === 'Enter' && keyword.trim() !== '') {
+      setIsSearching(true)
+    }
+  }
+
+  const handleSearchButtonClick = () => {
+    if (keyword.trim() !== '') {
+      setIsSearching(true)
+    }
+  }
+
+  // Function to navigate to document detail
+  const handleDocumentClick = (docId) => {
+    setIsSearching(false) // Close search results
+    navigate(`/file/${docId}`) // Navigate to document detail page
+  }
+
   return (
-    <div className="bg-white px-6 py-3 shadow-md flex justify-between items-center relative">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-white px-6 py-3 shadow-md flex justify-between items-center">
       {/* Logo */}
       <div className="flex items-center gap-3">
         <img
@@ -52,17 +88,71 @@ const Header = () => {
         />
       </div>
 
-      {/* Thanh tìm kiếm */}
-      <div className="relative w-72">
-        <Search
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-          size={18}
-        />
-        <input
-          type="text"
-          placeholder="Tìm kiếm..."
-          className="w-full pl-10 pr-4 py-2 border rounded-full"
-        />
+      {/* Thanh tìm kiếm và kết quả */}
+      <div className="relative w-72" ref={searchRef}>
+        <div className="relative">
+          <Search
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            onClick={handleSearchButtonClick}
+            size={18}
+          />
+          <input
+            type="text"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={handleSearch}
+            placeholder="Tìm kiếm..."
+            className="w-full pl-10 pr-12 py-2 border rounded-full"
+          />
+        </div>
+
+        {/* Search Results */}
+        {isSearching && keyword && (
+          <div className="absolute z-50 mt-2 w-full bg-white border rounded-lg shadow-lg max-h-96 overflow-y-auto">
+            {searchLoading && (
+              <div className="p-4 text-center text-gray-500">
+                Đang tải kết quả...
+              </div>
+            )}
+
+            {searchError && (
+              <div className="p-4 text-center text-red-500">
+                Lỗi khi tải kết quả.
+              </div>
+            )}
+
+            {!searchLoading && !searchError && (
+              <div className="p-3">
+                <h3 className="text-sm font-semibold mb-2 text-gray-700">
+                  Kết quả tìm kiếm cho "{keyword}"
+                </h3>
+
+                {!searchData?.documents ||
+                searchData?.documents?.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-2">
+                    Không tìm thấy tài liệu nào.
+                  </p>
+                ) : (
+                  <ul className="space-y-2">
+                    {searchData?.documents?.map((doc) => (
+                      <li
+                        key={doc._id}
+                        className="p-2 hover:bg-gray-50 rounded cursor-pointer"
+                        onClick={() => handleDocumentClick(doc._id)}
+                      >
+                        <h4 className="font-medium text-sm">{doc.title}</h4>
+                        <p className="text-xs text-gray-600">{doc.author}</p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {doc.description}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Menu người dùng */}
