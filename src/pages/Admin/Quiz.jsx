@@ -4,13 +4,14 @@ import {
   useCreateQuizMutation,
   useUpdateQuizMutation,
   useDeleteQuizMutation,
+  useGetAllSubjectsQuery,
 } from '../../redux/api/api.js'
 import { FaEdit, FaPlus, FaTrash, FaEye } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 
 const Quiz = () => {
   const { data, isLoading, isError, refetch } = useGetAllQuizzesQuery()
-  console.log(data)
+  const { data: subjectData } = useGetAllSubjectsQuery()
 
   const [createQuiz] = useCreateQuizMutation()
   const [updateQuiz] = useUpdateQuizMutation()
@@ -21,6 +22,7 @@ const Quiz = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    subject: '',
     questions: [],
   })
 
@@ -36,11 +38,15 @@ const Quiz = () => {
   })
 
   const quizzes = Array.isArray(data?.quizzes) ? data.quizzes : []
+  const subjects = Array.isArray(subjectData?.subjects)
+    ? subjectData.subjects
+    : []
 
   const openModal = (quiz = null) => {
     setFormData({
       title: quiz?.title || '',
       description: quiz?.description || '',
+      subject: quiz?.subject || '',
       questions: quiz?.questions || [],
     })
     setEditingId(quiz?._id || null)
@@ -48,7 +54,6 @@ const Quiz = () => {
       question: '',
       options: ['', ''],
       correctAnswerIndex: 0,
-      correctAnswer: '',
     })
     setIsModalOpen(true)
   }
@@ -56,12 +61,11 @@ const Quiz = () => {
   const closeModal = () => {
     setIsModalOpen(false)
     setEditingId(null)
-    setFormData({ title: '', description: '', questions: [] })
+    setFormData({ title: '', description: '', subject: '', questions: [] })
     setNewQuestion({
       question: '',
       options: ['', ''],
       correctAnswerIndex: 0,
-      correctAnswer: '',
     })
   }
 
@@ -73,7 +77,6 @@ const Quiz = () => {
     ) {
       const correctAnswer =
         newQuestion.options[newQuestion.correctAnswerIndex] || ''
-
       const questionToAdd = {
         question: newQuestion.question,
         options: [...newQuestion.options],
@@ -105,13 +108,12 @@ const Quiz = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      // Make sure we're sending the current state of formData
       const payload = {
         title: formData.title,
         description: formData.description,
+        subject: formData.subject,
         questions: formData.questions,
       }
-      console.log(payload)
 
       if (editingId) {
         await updateQuiz({ id: editingId, ...payload }).unwrap()
@@ -158,6 +160,7 @@ const Quiz = () => {
           : prev.correctAnswerIndex,
     }))
   }
+  console.log(quizzes)
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -180,21 +183,25 @@ const Quiz = () => {
           <table className="w-full border border-gray-300 rounded overflow-hidden">
             <thead className="bg-gray-100">
               <tr>
-                <th className="border px-4 py-2 text-left">Tiêu đề</th>
-                <th className="border px-4 py-2 text-left">Mô tả</th>
-                <th className="border px-4 py-2 text-center">Câu hỏi</th>
-                <th className="border px-4 py-2 text-center">Hành động</th>
+                <th className="border px-4 py-2">Tiêu đề</th>
+                <th className="border px-4 py-2">Mô tả</th>
+                <th className="border px-4 py-2">Môn học</th>
+                <th className="border px-4 py-2">Câu hỏi</th>
+                <th className="border px-4 py-2">Hành động</th>
               </tr>
             </thead>
             <tbody>
               {quizzes.map((quiz) => (
                 <tr key={quiz._id}>
                   <td className="border px-4 py-2">{quiz.title}</td>
-                  <td className="border px-4 py-2 text-gray-600">
+                  <td className="border px-4 py-2">
                     {quiz.description || 'Không có mô tả'}
                   </td>
+                  <td className="border px-4 py-2">
+                    {quiz?.subject?.name || 'Không rõ'}
+                  </td>
                   <td className="border px-4 py-2 text-center">
-                    {quiz.questions?.length || 0}{' '}
+                    {quiz.questions?.length || 0}
                     <button
                       onClick={() =>
                         setQuestionView({
@@ -255,6 +262,22 @@ const Quiz = () => {
                 className="w-full border px-4 py-2 rounded"
                 rows={3}
               />
+
+              <select
+                className="w-full border px-4 py-2 rounded"
+                value={formData.subject}
+                onChange={(e) =>
+                  setFormData({ ...formData, subject: e.target.value })
+                }
+                required
+              >
+                <option value="">-- Chọn môn học --</option>
+                {subjects.map((subj) => (
+                  <option key={subj._id} value={subj._id}>
+                    {subj.name}
+                  </option>
+                ))}
+              </select>
 
               {formData.questions.length > 0 && (
                 <div className="mt-6">

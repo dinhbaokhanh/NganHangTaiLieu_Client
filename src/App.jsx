@@ -11,10 +11,11 @@ import { jwtDecode } from 'jwt-decode'
 import { checkTokenExpiration, refreshTokenIfNeeded } from './utils/checkToken'
 import { loadUserFromStorage, setInitialized } from './redux/reducers/auth'
 
-const Main = lazy(() => import('./pages/Doc/Main'))
+const Main = lazy(() => import('./pages/Main'))
 const Home = lazy(() => import('./pages/Home'))
 const FileDetails = lazy(() => import('./pages/Doc/FileDetails'))
 const QuizHome = lazy(() => import('./pages/Quiz/QuizHome'))
+const QuizSubject = lazy(() => import('./pages/Quiz/QuizSubject'))
 const QuizDetails = lazy(() => import('./pages/Quiz/QuizDetails'))
 const Profile = lazy(() => import('./pages/Profile'))
 const ChangePassword = lazy(() => import('./pages/Auth/ChangePassword'))
@@ -143,7 +144,15 @@ const App = () => {
               }
             />
             <Route
-              path="/quiz/:id"
+              path="/quiz/:subjectId"
+              element={
+                <PrivateRoute>
+                  <QuizSubject />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/quiz/:subjectId/:quizId"
               element={
                 <PrivateRoute>
                   <QuizDetails />

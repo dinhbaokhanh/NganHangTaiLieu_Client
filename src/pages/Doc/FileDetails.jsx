@@ -14,6 +14,7 @@ import {
   useSaveDocumentMutation,
   useUnsaveDocumentMutation,
   useIsDocumentSavedQuery,
+  useGetQuizBySubjectQuery,
 } from '../../redux/api/api.js'
 import Comments from '../../components/shared/Comments'
 import { useErrors, useAsyncMutation } from '../../hooks/hook.js'
@@ -30,8 +31,13 @@ const FileDetails = () => {
   const navigate = useNavigate()
   const token = localStorage.getItem('token')
 
-  const { data, isError, error } = useGetDocumentByIdQuery(id)
-  const document = data?.document
+  const { data: documentData, isError, error } = useGetDocumentByIdQuery(id)
+
+  const document = documentData?.document
+
+  const subjectName = document?.subject?.name
+  const subjectId = document?.subject?._id
+  const isQuizDocument = document?.type === 'Ngân hàng câu hỏi'
 
   const { userInfo } = useSelector((state) => state.auth)
   const userId = userInfo?.id
@@ -50,6 +56,12 @@ const FileDetails = () => {
   const [isLoadingThumb, setIsLoadingThumb] = useState(false)
 
   useErrors([{ isError, error }])
+
+  const { data: quizzesData } = useGetQuizBySubjectQuery(subjectName, {
+    skip: !subjectName,
+  })
+
+  const quizId = quizzesData?.quizzes[0]?._id
 
   useEffect(() => {
     const generateThumbnail = async () => {
@@ -151,14 +163,14 @@ const FileDetails = () => {
           action: 'save',
         },
       ].map(({ icon: Icon, label, action }, i) => (
-        <div key={i} className="group  relative">
+        <div key={i} className="group relative">
           <button
             onClick={() => handleAction(action)}
             className="p-3 cursor-pointer w-12 h-12 bg-red-600 text-white rounded-md flex items-center justify-center hover:bg-white hover:text-red-600 border hover:border-red-600 transition"
           >
             <Icon size={20} />
           </button>
-          <span className="absolute  bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm font-medium text-white bg-gray-700 rounded w-max opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm font-medium text-white bg-gray-700 rounded w-max opacity-0 group-hover:opacity-100 transition-opacity">
             {label}
           </span>
         </div>
@@ -171,6 +183,15 @@ const FileDetails = () => {
         <FaFlag size={20} />
         <span>Phản hồi</span>
       </button>
+
+      {quizId && (
+        <button
+          onClick={() => navigate(`/quiz/${subjectId}`)}
+          className="flex items-center cursor-pointer gap-2 p-3 px-4 border border-green-600 text-green-600 rounded-md hover:bg-gray-100 transition"
+        >
+          📝 <span>Làm đề trắc nghiệm</span>
+        </button>
+      )}
     </div>
   )
 

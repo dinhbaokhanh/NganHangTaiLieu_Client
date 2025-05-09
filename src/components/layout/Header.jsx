@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Bell, Search, User, Key, LogOut } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../../redux/reducers/auth'
 import LogoIcon from '../../assets/logo.png'
@@ -17,15 +17,15 @@ const Header = () => {
   const dropdownRef = useRef(null)
   const searchRef = useRef(null)
   const navigate = useNavigate()
+  const location = useLocation()
   const dispatch = useDispatch()
   const { userInfo } = useSelector((state) => state.auth)
   const userId = userInfo?.id
+  const token = useSelector((state) => state.auth?.token)
 
-  // Gọi API lấy thông tin người dùng
   const { data, isLoading, isError, error } = useGetUserProfileQuery(userId)
   const user = data?.user
 
-  // Search API call - Only execute when explicitly searching
   const {
     data: searchData,
     isLoading: searchLoading,
@@ -33,8 +33,6 @@ const Header = () => {
   } = useSearchDocumentsQuery(keyword, {
     skip: !isSearching || !keyword,
   })
-
-  const token = useSelector((state) => state.auth?.token) // Kiểm tra trạng thái đăng nhập
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -55,7 +53,7 @@ const Header = () => {
     dispatch(logout())
     toast.success('Đăng xuất thành công!')
     navigate('/login', { replace: true })
-    setTimeout(() => window.location.reload(), 100) // đảm bảo xóa mọi state redux/tạm
+    setTimeout(() => window.location.reload(), 100)
   }
 
   const handleSearch = (e) => {
@@ -70,11 +68,13 @@ const Header = () => {
     }
   }
 
-  // Function to navigate to document detail
   const handleDocumentClick = (docId) => {
-    setIsSearching(false) // Close search results
-    navigate(`/file/${docId}`) // Navigate to document detail page
+    setIsSearching(false)
+    navigate(`/file/${docId}`)
   }
+
+  const isQuizPage = location.pathname === '/quiz'
+  const isMainPage = location.pathname.startsWith('/main')
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white px-6 py-3 shadow-md flex justify-between items-center">
@@ -88,7 +88,31 @@ const Header = () => {
         />
       </div>
 
-      {/* Thanh tìm kiếm và kết quả */}
+      {/* Menu chính
+      <div className="flex items-center gap-6">
+        <span
+          onClick={() => navigate('/main?tab=theory')}
+          className={`cursor-pointer font-medium transition ${
+            isMainPage
+              ? 'text-red-500 font-semibold'
+              : 'text-gray-700 hover:text-red-500'
+          }`}
+        >
+          Tài liệu
+        </span>
+        <span
+          onClick={() => navigate('/quiz')}
+          className={`cursor-pointer font-medium transition ${
+            isQuizPage
+              ? 'text-red-500 font-semibold'
+              : 'text-gray-700 hover:text-red-500'
+          }`}
+        >
+          Đề thi trắc nghiệm
+        </span>
+      </div> */}
+
+      {/* Tìm kiếm */}
       <div className="relative w-72" ref={searchRef}>
         <div className="relative">
           <Search
@@ -101,12 +125,11 @@ const Header = () => {
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={handleSearch}
-            placeholder="Tìm kiếm..."
+            placeholder="Tìm kiếm tài liệu..."
             className="w-full pl-10 pr-12 py-2 border rounded-full"
           />
         </div>
 
-        {/* Search Results */}
         {isSearching && keyword && (
           <div className="absolute z-50 mt-2 w-full bg-white border rounded-lg shadow-lg max-h-96 overflow-y-auto">
             {searchLoading && (
@@ -114,19 +137,16 @@ const Header = () => {
                 Đang tải kết quả...
               </div>
             )}
-
             {searchError && (
               <div className="p-4 text-center text-red-500">
                 Lỗi khi tải kết quả.
               </div>
             )}
-
             {!searchLoading && !searchError && (
               <div className="p-3">
                 <h3 className="text-sm font-semibold mb-2 text-gray-700">
                   Kết quả tìm kiếm cho "{keyword}"
                 </h3>
-
                 {!searchData?.documents ||
                 searchData?.documents?.length === 0 ? (
                   <p className="text-sm text-gray-500 text-center py-2">
@@ -164,7 +184,6 @@ const Header = () => {
               size={24}
             />
             <span className="text-gray-400">|</span>
-
             <div className="relative" ref={dropdownRef}>
               <div onClick={() => setIsOpen(!isOpen)}>
                 <img
@@ -172,7 +191,7 @@ const Header = () => {
                   alt="Avatar"
                   className="w-10 h-10 bg-gray-300 rounded-full cursor-pointer hover:opacity-80 transition duration-200"
                 />
-              </div>{' '}
+              </div>
               {isOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg overflow-hidden z-50">
                   <button

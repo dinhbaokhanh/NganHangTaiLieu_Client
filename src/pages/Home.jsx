@@ -8,6 +8,7 @@ import {
   useGetSavedDocumentsByUserQuery,
 } from '../redux/api/api.js'
 import DocumentCard from '../components/layout/DocumentCard.jsx'
+import QuizHome from './Quiz/QuizHome.jsx'
 
 const Home = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -24,7 +25,6 @@ const Home = () => {
   const { data: savedDocData } = useGetSavedDocumentsByUserQuery(userId, {
     skip: !userId || tab !== 'saved',
   })
-  console.log(savedDocData)
 
   const documents = documentData?.documents || []
   const savedDocuments = savedDocData?.documents || []

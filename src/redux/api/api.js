@@ -299,6 +299,11 @@ const api = createApi({
       providesTags: (result, error, id) => [{ type: 'Quiz', id }],
     }),
 
+    getQuizBySubject: builder.query({
+      query: (subjectName) =>
+        `/quiz/by-subject?subject=${encodeURIComponent(subjectName)}`,
+    }),
+
     createQuiz: builder.mutation({
       query: (quizData) => ({
         url: '/quiz/',
@@ -375,6 +380,7 @@ export const {
   // Quiz hooks
   useGetAllQuizzesQuery,
   useGetQuizByIdQuery,
+  useGetQuizBySubjectQuery,
   useCreateQuizMutation,
   useUpdateQuizMutation,
   useDeleteQuizMutation,
