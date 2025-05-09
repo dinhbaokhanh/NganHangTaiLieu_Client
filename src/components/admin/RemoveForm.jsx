@@ -1,16 +1,16 @@
-import React from 'react';
+import React from 'react'
 
-const RemoveForm = ({ 
-  title = 'Xác nhận xóa', 
-  description = 'Bạn có chắc chắn muốn thực hiện hành động này?', 
-  warningMessage = 'Hành động này không thể hoàn tác.', 
-  onConfirm, 
-  onCancel, 
-  confirmText = 'Đồng ý xóa', 
-  cancelText = 'Hủy bỏ' 
+const RemoveForm = ({
+  title = 'Xác nhận xóa',
+  description = 'Bạn có chắc chắn muốn thực hiện hành động này?',
+  warningMessage = 'Hành động này không thể hoàn tác.',
+  onConfirm,
+  onCancel,
+  confirmText = 'Đồng ý xóa',
+  cancelText = 'Hủy bỏ',
 }) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20">
       <div className="bg-white rounded-lg shadow-lg w-96">
         {/* Header */}
         <div className="px-6 py-4">
@@ -45,7 +45,7 @@ const RemoveForm = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default RemoveForm;
+export default RemoveForm

@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 import bg from '../assets/login_background.jpg'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSearchDocumentsQuery } from '../redux/api/api'
+import {
+  useGetAllDocumentQuery,
+  useSearchDocumentsQuery,
+} from '../redux/api/api'
+import DocumentCard from '../components/layout/DocumentCard'
 
 const Main = () => {
   const [keyword, setKeyword] = useState('')
@@ -17,6 +21,10 @@ const Main = () => {
   } = useSearchDocumentsQuery(keyword, {
     skip: !isSearching || !keyword,
   })
+
+  const { data: documentData, refetch } = useGetAllDocumentQuery()
+  const documents = documentData?.documents
+  console.log(documents)
 
   // Đóng popup tìm kiếm nếu click ra ngoài
   useEffect(() => {
@@ -47,7 +55,7 @@ const Main = () => {
     <>
       {/* PHẦN INTRO */}
       <main
-        className="text-white min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-cover bg-center"
+        className="text-white min-h-[65vh] flex flex-col items-center justify-center relative overflow-hidden bg-cover bg-center"
         style={{ backgroundImage: `url(${bg})` }}
       >
         <div className="absolute inset-0 bg-black/50 z-0"></div>
@@ -137,6 +145,51 @@ const Main = () => {
         </div>
       </main>
 
+      <section className="bg-white py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold text-center text-gray-800">
+              Tài Liệu Mới Nhất
+            </h2>
+            <Link
+              to="/main"
+              className="text-red-700 hover:text-red-900 transition font-medium"
+            >
+              Xem tất cả →
+            </Link>
+          </div>
+
+          {documents && documents.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {documents.slice(0, 4).map((doc) => (
+                <div
+                  key={doc._id}
+                  className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-lg transition p-4"
+                >
+                  <div className="mb-3">
+                    <h3 className="text-lg font-semibold text-gray-800 line-clamp-2">
+                      {doc.title}
+                    </h3>
+                    <p className="text-sm text-gray-500">{doc.author}</p>
+                  </div>
+                  <p className="text-sm text-gray-600 line-clamp-3">
+                    {doc.description}
+                  </p>
+                  <Link
+                    to={`/file/${doc._id}`}
+                    className="mt-4 inline-block text-red-700 hover:text-red-900 text-sm font-medium"
+                  >
+                    Xem chi tiết →
+                  </Link>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center">Không có tài liệu nào.</p>
+          )}
+        </div>
+      </section>
+
       {/* Các section giới thiệu */}
       <section className="bg-white text-gray-800 py-16">
         <div className="max-w-5xl mx-auto text-center px-4">
@@ -216,6 +269,25 @@ const Main = () => {
               Bắt Đầu Làm Quiz
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-20 border-t">
+        <div className="max-w-4xl mx-auto text-center px-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            Truy cập toàn bộ tiện ích chỉ với 1 tài khoản
+          </h2>
+          <p className="text-lg text-gray-600 mb-8">
+            Đăng ký để xem và lưu tài liệu, bình luận, tham gia làm quiz ôn tập,
+            và nhiều tính năng học tập hữu ích khác.
+          </p>
+
+          <Link
+            to="/register"
+            className="inline-block bg-red-700 hover:bg-red-800 text-white text-lg font-semibold px-8 py-3 rounded-full shadow-md transition"
+          >
+            Đăng ký tài khoản
+          </Link>
         </div>
       </section>
     </>

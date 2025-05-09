@@ -14,7 +14,7 @@ const SubjectForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center z-50 bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20">
       <div className="bg-white w-full max-w-2xl p-6 rounded-lg shadow-lg relative border-2 border-gray-700">
         <button
           onClick={onClose}

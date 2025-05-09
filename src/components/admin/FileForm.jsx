@@ -82,7 +82,7 @@ const FileForm = ({
   }
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center z-50 bg-black/30">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20">
       <div className="bg-white max-w-3xl w-full p-6 rounded-lg shadow-lg relative">
         <button
           onClick={onClose}
