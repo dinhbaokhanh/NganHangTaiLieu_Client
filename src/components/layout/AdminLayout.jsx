@@ -6,6 +6,7 @@ import {
   FaFolder,
   FaSignOutAlt,
   FaBook,
+  FaQuestion,
 } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux' // Thêm useDispatch từ Redux
@@ -24,7 +25,7 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="h-screen w-64 bg-gray-800 text-white flex flex-col">
+    <div className="fixed top-0 left-0 h-screen w-64 bg-gray-800 text-white flex flex-col z-50">
       <div className="flex items-center p-4 bg-red-600">
         <div className="w-10 h-10 bg-white text-red-600 flex items-center justify-center rounded-full font-bold">
           B
@@ -45,6 +46,11 @@ const Sidebar = () => {
             icon={<FaBook />}
             text="Subjects"
             link="/admin/subjects"
+          />
+          <SidebarItem
+            icon={<FaQuestion />}
+            text="Quizzes"
+            link="/admin/quizzes"
           />
         </ul>
       </nav>
@@ -108,9 +114,9 @@ const Header = () => {
 
 const AdminLayout = () => {
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="ml-64 flex flex-col min-h-screen">
         <Header />
         <main className="flex-1 p-6 bg-gray-50 overflow-y-auto shadow-inner">
           <Outlet />

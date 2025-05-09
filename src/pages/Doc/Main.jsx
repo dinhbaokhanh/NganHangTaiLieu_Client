@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
-import bg from '../assets/login_background.jpg'
+import bg from '../../assets/login_background.jpg'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSearchDocumentsQuery } from '../redux/api/api'
+import { useSearchDocumentsQuery } from '../../redux/api/api'
 
 const Main = () => {
   const [keyword, setKeyword] = useState('')

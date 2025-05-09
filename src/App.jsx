@@ -11,9 +11,11 @@ import { jwtDecode } from 'jwt-decode'
 import { checkTokenExpiration, refreshTokenIfNeeded } from './utils/checkToken'
 import { loadUserFromStorage, setInitialized } from './redux/reducers/auth'
 
-const Main = lazy(() => import('./pages/Main'))
+const Main = lazy(() => import('./pages/Doc/Main'))
 const Home = lazy(() => import('./pages/Home'))
-const FileDetails = lazy(() => import('./pages/FileDetails'))
+const FileDetails = lazy(() => import('./pages/Doc/FileDetails'))
+const QuizHome = lazy(() => import('./pages/Quiz/QuizHome'))
+const QuizDetails = lazy(() => import('./pages/Quiz/QuizDetails'))
 const Profile = lazy(() => import('./pages/Profile'))
 const ChangePassword = lazy(() => import('./pages/Auth/ChangePassword'))
 const Login = lazy(() => import('./pages/Auth/Login'))
@@ -22,6 +24,7 @@ const Forgot = lazy(() => import('./pages/Auth/ForgotPassword'))
 const Reset = lazy(() => import('./pages/Auth/ResetPassword'))
 const Users = lazy(() => import('./pages/Admin/Users'))
 const Files = lazy(() => import('./pages/Admin/Files'))
+const Quiz = lazy(() => import('./pages/Admin/Quiz'))
 
 const PrivateRoute = ({ children }) => {
   const { token, isAuthenticated, isInitialized } = useSelector(
@@ -120,6 +123,7 @@ const App = () => {
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/main" element={<Home />} />
+            <Route path="/quiz" element={<QuizHome />} />
             <Route path="/" element={<Main />} />
             <Route path="/file/:id" element={<FileDetails />} />
             <Route
@@ -135,6 +139,14 @@ const App = () => {
               element={
                 <PrivateRoute>
                   <ChangePassword />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/quiz/:id"
+              element={
+                <PrivateRoute>
+                  <QuizDetails />
                 </PrivateRoute>
               }
             />
@@ -185,6 +197,7 @@ const App = () => {
             <Route path="/admin/users" element={<Users />} />
             <Route path="/admin/files" element={<Files />} />
             <Route path="/admin/subjects" element={<Subjects />} />
+            <Route path="/admin/quizzes" element={<Quiz />} />
           </Route>
         </Routes>
       </Suspense>

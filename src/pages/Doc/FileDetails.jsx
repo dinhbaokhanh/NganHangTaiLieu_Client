@@ -8,19 +8,19 @@ import {
   FaRegBookmark,
   FaFlag,
 } from 'react-icons/fa'
-import SuggestModal from '../components/shared/SuggestModal'
+import SuggestModal from '../../components/shared/SuggestModal'
 import {
   useGetDocumentByIdQuery,
   useSaveDocumentMutation,
   useUnsaveDocumentMutation,
   useIsDocumentSavedQuery,
-} from '../redux/api/api.js'
-import Comments from '../components/shared/Comments'
-import { useErrors, useAsyncMutation } from '../hooks/hook.js'
+} from '../../redux/api/api.js'
+import Comments from '../../components/shared/Comments'
+import { useErrors, useAsyncMutation } from '../../hooks/hook.js'
 
 import * as pdfjsLib from 'pdfjs-dist'
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.js?url'
-import defaultFileImg from '../assets/doc_image_default.png'
+import defaultFileImg from '../../assets/doc_image_default.png'
 import { useSelector } from 'react-redux'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
