@@ -43,7 +43,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Document', 'User', 'Subject', 'SavedDocument'],
+  tagTypes: ['Document', 'User', 'Subject', 'SavedDocument', 'Quiz'],
 
   endpoints: (builder) => ({
     // --- USER ---
@@ -281,6 +281,54 @@ const api = createApi({
       }),
       invalidatesTags: ['Review'],
     }),
+
+    // --- QUIZ ---
+    getAllQuizzes: builder.query({
+      query: () => ({
+        url: '/quiz/',
+        method: 'GET',
+      }),
+      providesTags: ['Quiz'],
+    }),
+
+    getQuizById: builder.query({
+      query: (id) => ({
+        url: `/quiz/${id}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, id) => [{ type: 'Quiz', id }],
+    }),
+
+    getQuizBySubject: builder.query({
+      query: (subjectName) =>
+        `/quiz/by-subject?subject=${encodeURIComponent(subjectName)}`,
+    }),
+
+    createQuiz: builder.mutation({
+      query: (quizData) => ({
+        url: '/quiz/',
+        method: 'POST',
+        body: quizData,
+      }),
+      invalidatesTags: ['Quiz'],
+    }),
+
+    updateQuiz: builder.mutation({
+      query: ({ id, ...quizData }) => ({
+        url: `/quiz/${id}`,
+        method: 'PUT',
+        body: quizData,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Quiz', id }],
+    }),
+
+    deleteQuiz: builder.mutation({
+      query: (id) => ({
+        url: `/quiz/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Quiz'],
+    }),
   }),
 })
 
@@ -328,4 +376,12 @@ export const {
   // Reply hooks
   useAddReplyMutation,
   useDeleteReplyMutation,
+
+  // Quiz hooks
+  useGetAllQuizzesQuery,
+  useGetQuizByIdQuery,
+  useGetQuizBySubjectQuery,
+  useCreateQuizMutation,
+  useUpdateQuizMutation,
+  useDeleteQuizMutation,
 } = api
