@@ -43,7 +43,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Document', 'User', 'Subject', 'SavedDocument', 'Quiz'],
+  tagTypes: ['Document', 'User', 'Subject', 'SavedDocument', 'Quiz', 'Summary'],
 
   endpoints: (builder) => ({
     // --- USER ---
@@ -162,6 +162,18 @@ const api = createApi({
       query: (keyword) =>
         `/document/search?keyword=${encodeURIComponent(keyword)}`,
       providesTags: ['Document'],
+    }),
+
+    // --- SUMMARY ---
+    generateDocumentSummary: builder.mutation({
+      query: ({ documentId, modelName }) => ({
+        url: `/summary/document/${documentId}`,
+        method: 'POST',
+        body: { modelName },
+      }),
+      invalidatesTags: (result, error, { documentId }) => [
+        { type: 'Summary', id: documentId }
+      ]
     }),
 
     // --- SAVED DOCUMENTS ---
@@ -353,6 +365,9 @@ export const {
   useReplaceDocumentMutation,
   useDeleteDocumentMutation,
   useSearchDocumentsQuery,
+
+  // Summary
+  useGenerateDocumentSummaryMutation,
 
   // Saved Document
   useSaveDocumentMutation,

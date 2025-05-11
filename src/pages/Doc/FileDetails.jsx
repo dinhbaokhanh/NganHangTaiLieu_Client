@@ -3,18 +3,20 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   FaEye,
-  FaDownload,
   FaBookmark,
   FaRegBookmark,
   FaFlag,
 } from 'react-icons/fa'
+import { BsTextParagraph } from 'react-icons/bs'; 
 import SuggestModal from '../../components/shared/SuggestModal'
+import SummaryModal from '../../components/shared/SummaryModal';
 import {
   useGetDocumentByIdQuery,
   useSaveDocumentMutation,
   useUnsaveDocumentMutation,
   useIsDocumentSavedQuery,
   useGetQuizBySubjectQuery,
+  useGenerateDocumentSummaryMutation,
 } from '../../redux/api/api.js'
 import Comments from '../../components/shared/Comments'
 import { useErrors, useAsyncMutation } from '../../hooks/hook.js'
@@ -23,6 +25,7 @@ import * as pdfjsLib from 'pdfjs-dist'
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.js?url'
 import defaultFileImg from '../../assets/doc_image_default.png'
 import { useSelector } from 'react-redux'
+import { toast } from 'react-hot-toast'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
@@ -44,6 +47,7 @@ const FileDetails = () => {
 
   const [saveDoc] = useAsyncMutation(useSaveDocumentMutation)
   const [unsaveDoc] = useAsyncMutation(useUnsaveDocumentMutation)
+  const [generateSummary] = useGenerateDocumentSummaryMutation()
 
   const {
     data: savedStatus,
@@ -54,6 +58,11 @@ const FileDetails = () => {
   const [showModal, setShowModal] = useState(false)
   const [thumbnail, setThumbnail] = useState(null)
   const [isLoadingThumb, setIsLoadingThumb] = useState(false)
+  
+  const [summaryData, setSummaryData] = useState(null)
+  const [isSummarizing, setIsSummarizing] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedModel, setSelectedModel] = useState('google/gemini-2.0-flash-exp:free')
 
   useErrors([{ isError, error }])
 
@@ -89,6 +98,39 @@ const FileDetails = () => {
     if (document?.fileUrl) generateThumbnail()
   }, [document])
 
+  const handleSummarize = async () => {
+    if (!token) return setShowModal(true)
+    
+    setIsSummarizing(true)
+    const requestPayload = {
+      documentId: id,
+      modelName: selectedModel
+    };
+    //console.log('[FE] Sending summary request with payload:', requestPayload);
+    //console.log(`[FE] Target URL should be: /api/summary/document/${id}`);
+
+    try {
+      const response = await generateSummary(requestPayload).unwrap()
+      
+      //console.log('[FE] Summary response received:', response);
+      
+      if (response.success) {
+        setSummaryData(response)
+        setIsModalOpen(true)
+      } else {
+        console.error('[FE] Summary request was not successful (but did not throw):', response);
+        toast.error('Tóm tắt không thành công: ' + (response.message || 'Lỗi không xác định'));
+      }
+    } catch (error) {
+      console.error('[FE] Error during summary generation:', error);
+      console.error('[FE] Error status:', error?.status);
+      console.error('[FE] Error data:', error?.data);
+      toast.error('Lỗi khi tóm tắt tài liệu: ' + (error?.data?.message || error?.message || 'Đã xảy ra lỗi'));
+    } finally {
+      setIsSummarizing(false)
+    }
+  }
+
   const handleAction = async (type) => {
     if (!token) return setShowModal(true)
 
@@ -97,7 +139,7 @@ const FileDetails = () => {
       case 'download':
         window.open(document?.fileUrl, '_blank')
         break
-      case 'save':
+      case 'save': {
         if (isCheckingSaved) return
         const mutation = savedStatus?.isSaved ? unsaveDoc : saveDoc
         const msg = savedStatus?.isSaved
@@ -105,6 +147,10 @@ const FileDetails = () => {
           : 'Đang lưu tài liệu...'
         const result = await mutation(msg, { userId, documentId: id })
         if (result.success) refetchIsSaved()
+        break
+      }
+      case 'summary':
+        await handleSummarize()
         break
       case 'report':
         console.log('Report/Phản hồi tài liệu')
@@ -157,6 +203,7 @@ const FileDetails = () => {
     <div className="flex gap-4 mt-12">
       {[
         { icon: FaEye, label: 'Xem', action: 'view' },
+        { icon: BsTextParagraph, label: 'Tóm tắt', action: 'summary' },
         {
           icon: savedStatus?.isSaved ? FaBookmark : FaRegBookmark,
           label: savedStatus?.isSaved ? 'Bỏ lưu' : 'Lưu',
@@ -166,9 +213,18 @@ const FileDetails = () => {
         <div key={i} className="group relative">
           <button
             onClick={() => handleAction(action)}
-            className="p-3 cursor-pointer w-12 h-12 bg-red-600 text-white rounded-md flex items-center justify-center hover:bg-white hover:text-red-600 border hover:border-red-600 transition"
+            disabled={action === 'summary' && isSummarizing}
+            className={`p-3 w-12 h-12 bg-red-600 text-white rounded-md flex items-center justify-center transition ${
+              action === 'summary' && isSummarizing
+                ? 'opacity-70 cursor-wait'
+                : 'cursor-pointer hover:bg-white hover:text-red-600 border hover:border-red-600'
+            }`}
           >
-            <Icon size={20} />
+            {action === 'summary' && isSummarizing ? (
+              <div className="animate-spin h-5 w-5 border-2 border-t-transparent border-white rounded-full"></div>
+            ) : (
+              <Icon size={20} />
+            )}
           </button>
           <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm font-medium text-white bg-gray-700 rounded w-max opacity-0 group-hover:opacity-100 transition-opacity">
             {label}
@@ -199,7 +255,7 @@ const FileDetails = () => {
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-5xl mx-auto py-6">
         <button
-          className="flex items-center text-red-600 font-semibold mb-4 hover:underline"
+          className="flex items-center text-red-600 font-semibold mb-4 cursor-pointer hover:underline"
           onClick={() => navigate(-1)}
         >
           ← Quay về trang trước
@@ -246,6 +302,13 @@ const FileDetails = () => {
           <Comments documentId={id} />
         </div>
       </div>
+
+      <SummaryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        summaryData={summaryData}
+        documentTitle={summaryData?.documentTitle || document?.title}
+      />
 
       <SuggestModal
         isOpen={showModal}
