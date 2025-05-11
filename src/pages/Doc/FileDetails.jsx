@@ -1,15 +1,10 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import {
-  FaEye,
-  FaBookmark,
-  FaRegBookmark,
-  FaFlag,
-} from 'react-icons/fa'
-import { BsTextParagraph } from 'react-icons/bs'; 
+import { FaEye, FaBookmark, FaRegBookmark, FaFlag } from 'react-icons/fa'
+import { BsTextParagraph } from 'react-icons/bs'
 import SuggestModal from '../../components/shared/SuggestModal'
-import SummaryModal from '../../components/shared/SummaryModal';
+import SummaryModal from '../../components/shared/SummaryModal'
 import {
   useGetDocumentByIdQuery,
   useSaveDocumentMutation,
@@ -58,11 +53,13 @@ const FileDetails = () => {
   const [showModal, setShowModal] = useState(false)
   const [thumbnail, setThumbnail] = useState(null)
   const [isLoadingThumb, setIsLoadingThumb] = useState(false)
-  
+
   const [summaryData, setSummaryData] = useState(null)
   const [isSummarizing, setIsSummarizing] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedModel, setSelectedModel] = useState('google/gemini-2.0-flash-exp:free')
+  const [selectedModel, setSelectedModel] = useState(
+    'google/gemini-2.0-flash-exp:free'
+  )
 
   useErrors([{ isError, error }])
 
@@ -100,32 +97,41 @@ const FileDetails = () => {
 
   const handleSummarize = async () => {
     if (!token) return setShowModal(true)
-    
+
     setIsSummarizing(true)
     const requestPayload = {
       documentId: id,
-      modelName: selectedModel
-    };
+      modelName: selectedModel,
+    }
     //console.log('[FE] Sending summary request with payload:', requestPayload);
     //console.log(`[FE] Target URL should be: /api/summary/document/${id}`);
 
     try {
       const response = await generateSummary(requestPayload).unwrap()
-      
+
       //console.log('[FE] Summary response received:', response);
-      
+
       if (response.success) {
         setSummaryData(response)
         setIsModalOpen(true)
       } else {
-        console.error('[FE] Summary request was not successful (but did not throw):', response);
-        toast.error('Tóm tắt không thành công: ' + (response.message || 'Lỗi không xác định'));
+        console.error(
+          '[FE] Summary request was not successful (but did not throw):',
+          response
+        )
+        toast.error(
+          'Tóm tắt không thành công: ' +
+            (response.message || 'Lỗi không xác định')
+        )
       }
     } catch (error) {
-      console.error('[FE] Error during summary generation:', error);
-      console.error('[FE] Error status:', error?.status);
-      console.error('[FE] Error data:', error?.data);
-      toast.error('Lỗi khi tóm tắt tài liệu: ' + (error?.data?.message || error?.message || 'Đã xảy ra lỗi'));
+      console.error('[FE] Error during summary generation:', error)
+      console.error('[FE] Error status:', error?.status)
+      console.error('[FE] Error data:', error?.data)
+      toast.error(
+        'Lỗi khi tóm tắt tài liệu: ' +
+          (error?.data?.message || error?.message || 'Đã xảy ra lỗi')
+      )
     } finally {
       setIsSummarizing(false)
     }
@@ -200,55 +206,58 @@ const FileDetails = () => {
   )
 
   const ActionButtons = () => (
-    <div className="flex gap-4 mt-12">
-      {[
-        { icon: FaEye, label: 'Xem', action: 'view' },
-        { icon: BsTextParagraph, label: 'Tóm tắt', action: 'summary' },
-        {
-          icon: savedStatus?.isSaved ? FaBookmark : FaRegBookmark,
-          label: savedStatus?.isSaved ? 'Bỏ lưu' : 'Lưu',
-          action: 'save',
-        },
-      ].map(({ icon: Icon, label, action }, i) => (
-        <div key={i} className="group relative">
+    <>
+      <div className="flex gap-4 mt-12">
+        {[
+          { icon: FaEye, label: 'Xem', action: 'view' },
+          { icon: BsTextParagraph, label: 'Tóm tắt', action: 'summary' },
+          {
+            icon: savedStatus?.isSaved ? FaBookmark : FaRegBookmark,
+            label: savedStatus?.isSaved ? 'Bỏ lưu' : 'Lưu',
+            action: 'save',
+          },
+        ].map(({ icon: Icon, label, action }, i) => (
+          <div key={i} className="group relative">
+            <button
+              onClick={() => handleAction(action)}
+              disabled={action === 'summary' && isSummarizing}
+              className={`p-3 w-12 h-12 bg-red-600 text-white rounded-md flex items-center justify-center transition ${
+                action === 'summary' && isSummarizing
+                  ? 'opacity-70 cursor-wait'
+                  : 'cursor-pointer hover:bg-white hover:text-red-600 border hover:border-red-600'
+              }`}
+            >
+              {action === 'summary' && isSummarizing ? (
+                <div className="animate-spin h-5 w-5 border-2 border-t-transparent border-white rounded-full"></div>
+              ) : (
+                <Icon size={20} />
+              )}
+            </button>
+            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm font-medium text-white bg-gray-700 rounded w-max opacity-0 group-hover:opacity-100 transition-opacity">
+              {label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex gap-4 mt-6">
+        {quizId && (
           <button
-            onClick={() => handleAction(action)}
-            disabled={action === 'summary' && isSummarizing}
-            className={`p-3 w-12 h-12 bg-red-600 text-white rounded-md flex items-center justify-center transition ${
-              action === 'summary' && isSummarizing
-                ? 'opacity-70 cursor-wait'
-                : 'cursor-pointer hover:bg-white hover:text-red-600 border hover:border-red-600'
-            }`}
+            onClick={() => navigate(`/quiz/${subjectId}`)}
+            className="flex items-center cursor-pointer gap-2 p-3 px-4 border border--600 text-black rounded-md hover:bg-gray-100 transition"
           >
-            {action === 'summary' && isSummarizing ? (
-              <div className="animate-spin h-5 w-5 border-2 border-t-transparent border-white rounded-full"></div>
-            ) : (
-              <Icon size={20} />
-            )}
+            📝 <span>Làm đề trắc nghiệm</span>
           </button>
-          <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm font-medium text-white bg-gray-700 rounded w-max opacity-0 group-hover:opacity-100 transition-opacity">
-            {label}
-          </span>
-        </div>
-      ))}
-
-      <button
-        onClick={() => handleAction('report')}
-        className="flex items-center cursor-pointer gap-2 p-3 px-4 border border-red-600 text-red-600 rounded-md hover:bg-gray-100 transition"
-      >
-        <FaFlag size={20} />
-        <span>Phản hồi</span>
-      </button>
-
-      {quizId && (
+        )}
         <button
-          onClick={() => navigate(`/quiz/${subjectId}`)}
-          className="flex items-center cursor-pointer gap-2 p-3 px-4 border border-green-600 text-green-600 rounded-md hover:bg-gray-100 transition"
+          onClick={() => handleAction('report')}
+          className="flex items-center cursor-pointer gap-2 p-3 px-4 border border-red-600 text-red-600 rounded-md hover:bg-gray-100 transition"
         >
-          📝 <span>Làm đề trắc nghiệm</span>
+          <FaFlag size={20} />
+          <span>Phản hồi</span>
         </button>
-      )}
-    </div>
+      </div>
+    </>
   )
 
   return (
