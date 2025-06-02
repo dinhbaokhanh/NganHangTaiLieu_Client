@@ -48,7 +48,7 @@ const Main = () => {
 
   const handleDocumentClick = (docId) => {
     setIsSearching(false)
-    navigate(`/documents/${docId}`)
+    navigate(`/files/${docId}`)
   }
 
   return (
