@@ -1,5 +1,10 @@
 import { useState } from "react";
 import { FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { useChangePasswordMutation } from "../../redux/api/api";
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/reducers/auth";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const ChangePassword = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
@@ -8,6 +13,35 @@ const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [changePassword, { isLoading }] = useChangePasswordMutation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      toast.error("Vui lòng nhập đầy đủ thông tin");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Mật khẩu mới và mật khẩu xác nhận không khớp");
+      return;
+    }
+    try {
+      const res = await changePassword({
+        oldPassword,
+        newPassword,
+        confirmPassword,
+      }).unwrap();
+      toast.success(res.message || "Đổi mật khẩu thành công!");
+      dispatch(logout());
+      navigate("/login");
+    } catch (err) {
+      toast.error(
+        err?.data?.message || "Đổi mật khẩu thất bại. Vui lòng thử lại!"
+      );
+    }
+  };
 
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-100px)] px-4 bg-gray-50">
@@ -17,12 +51,7 @@ const ChangePassword = () => {
         </h2>
 
         {/* Form */}
-        <form
-          className="space-y-6"
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {/* Old Password */}
           <div className="relative">
             <label className="block font-semibold text-gray-700 mb-1">
@@ -98,9 +127,10 @@ const ChangePassword = () => {
           {/* Button */}
           <button
             type="submit"
+            disabled={isLoading}
             className="w-full bg-red-600 text-white py-3 rounded-md font-semibold hover:cursor-pointer hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200"
           >
-            Đổi mật khẩu
+            {isLoading ? "Đang đổi mật khẩu..." : "Đổi mật khẩu"}
           </button>
         </form>
       </div>
