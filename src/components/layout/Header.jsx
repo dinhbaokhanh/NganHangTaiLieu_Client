@@ -116,7 +116,7 @@ const Header = () => {
       <div className="relative w-72" ref={searchRef}>
         <div className="relative">
           <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
             onClick={handleSearchButtonClick}
             size={18}
           />
