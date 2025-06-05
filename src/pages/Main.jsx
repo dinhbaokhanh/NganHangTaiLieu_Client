@@ -85,7 +85,7 @@ const Main = () => {
             <button type="submit">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-500"
+                className="h-5 w-5 text-gray-500 cursor-pointer"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -153,7 +153,7 @@ const Main = () => {
             </h2>
             <Link
               to="/main"
-              className="text-red-700 hover:text-red-900 transition font-medium"
+              className="text-red-700 hover:text-red-900 hover:underline transition font-medium"
             >
               Xem tất cả →
             </Link>
@@ -177,7 +177,7 @@ const Main = () => {
                   </p>
                   <Link
                     to={`/file/${doc._id}`}
-                    className="mt-4 inline-block text-red-700 hover:text-red-900 text-sm font-medium"
+                    className="mt-4 inline-block text-red-700 hover:text-red-900 hover:underline text-sm font-medium"
                   >
                     Xem chi tiết →
                   </Link>
@@ -244,7 +244,7 @@ const Main = () => {
 
           <Link
             to="/main"
-            className="inline-block bg-red-800 text-white py-3 px-8 rounded-lg text-xl hover:bg-red-900 transition"
+            className="inline-block bg-red-800 text-white py-3 px-8 rounded-lg text-xl hover:bg-white hover:text-red-800 border border-transparent hover:border-red-800 transition duration-200"
           >
             Khám Phá Ngay
           </Link>
@@ -264,7 +264,7 @@ const Main = () => {
           <div className="flex justify-center gap-6">
             <Link
               to="/quiz"
-              className="inline-block bg-red-800 text-white py-3 px-8 rounded-lg text-xl hover:bg-red-900 transition"
+              className="inline-block bg-red-800 text-white py-3 px-8 rounded-lg text-xl hover:bg-white hover:text-red-800 border border-transparent hover:border-red-800 transition duration-200"
             >
               Bắt Đầu Làm Quiz
             </Link>
@@ -284,7 +284,7 @@ const Main = () => {
 
           <Link
             to="/register"
-            className="inline-block bg-red-700 hover:bg-red-800 text-white text-lg font-semibold px-8 py-3 rounded-full shadow-md transition"
+            className="inline-block bg-red-700 hover:bg-white hover:text-red-700 border border-transparent hover:border-red-700 transition duration-200 text-white text-lg font-semibold px-8 py-3 rounded-full shadow-md"
           >
             Đăng ký tài khoản
           </Link>

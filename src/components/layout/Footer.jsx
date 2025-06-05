@@ -13,7 +13,7 @@ const Footer = () => {
         {/* Mạng xã hội */}
         <div className="flex gap-6">
           <a
-            href="https://facebook.com"
+            href="https://www.facebook.com/dinhbaokhanhngs123"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-white transition duration-200"
@@ -21,7 +21,7 @@ const Footer = () => {
             <FaFacebook size={20} />
           </a>
           <a
-            href="https://github.com"
+            href="https://github.com/dinhbaokhanh"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-white transition duration-200"
@@ -29,7 +29,7 @@ const Footer = () => {
             <FaGithub size={20} />
           </a>
           <a
-            href="mailto:example@gmail.com"
+            href="mailto:khanhdb.b22vt281@stu.ptit.edu.vn"
             className="hover:text-white transition duration-200"
           >
             <FaEnvelope size={20} />

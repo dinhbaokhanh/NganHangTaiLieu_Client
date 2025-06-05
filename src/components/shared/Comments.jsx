@@ -155,7 +155,7 @@ const Comments = ({ documentId }) => {
 
   useErrors([
     {
-      isError: isErrorReviews,
+      isError: isErrorReviews && !!userId, // chỉ báo lỗi nếu đã đăng nhập
       error: errorReviews,
       fallback: () => toast.error('Không thể tải bình luận'),
     },
@@ -239,7 +239,7 @@ const Comments = ({ documentId }) => {
 
   return (
     <div>
-      <h3 className="text-lg font-semibold text-red-700 mb-4">Bình luận</h3>
+      <h3 className="text-lg font-semibold text-red-600 mb-4">Bình luận</h3>
 
       {user ? (
         <div className="flex items-center gap-4 mb-4">
@@ -263,12 +263,12 @@ const Comments = ({ documentId }) => {
         <div className="p-4 bg-gray-100 rounded-lg text-center">
           Vui lòng{' '}
           <span
-            className="text-red-700 font-semibold cursor-pointer hover:underline"
+            className="text-red-600 font-semibold cursor-pointer hover:underline"
             onClick={() => navigate('/login')}
           >
             đăng nhập
           </span>{' '}
-          để bình luận
+          để tham gia bình luận
         </div>
       )}
 
@@ -359,9 +359,11 @@ const Comments = ({ documentId }) => {
             )
           })
         ) : (
-          <div className="text-center py-4 text-gray-500">
-            Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
-          </div>
+          user && (
+            <div className="text-center py-4 text-gray-500">
+              Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
+            </div>
+          )
         )}
       </div>
     </div>

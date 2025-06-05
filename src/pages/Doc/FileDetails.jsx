@@ -297,7 +297,7 @@ const FileDetails = () => {
                 <div className="flex justify-center mt-4">
                   <button
                     onClick={() => navigate('/login')}
-                    className="bg-red-600 cursor-pointer text-white px-6 py-2 rounded hover:bg-red-700 transition"
+                    className="bg-red-600 cursor-pointer text-white px-6 py-2 rounded hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200"
                   >
                     Đăng nhập
                   </button>

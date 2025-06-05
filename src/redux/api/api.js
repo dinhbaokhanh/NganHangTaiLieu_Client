@@ -111,6 +111,13 @@ const api = createApi({
         method: 'GET',
       }),
     }),
+    changePassword: builder.mutation({
+      query: (body) => ({
+        url: '/user/change-password',
+        method: 'PUT',
+        body,
+      }),
+    }),
 
     // --- DOCUMENT ---
     uploadDocument: builder.mutation({
@@ -356,6 +363,7 @@ export const {
   useUpdateUserStatusMutation,
   useDeleteUserMutation,
   useGetUserProfileQuery,
+  useChangePasswordMutation,
 
   // Document
   useUploadDocumentMutation,
