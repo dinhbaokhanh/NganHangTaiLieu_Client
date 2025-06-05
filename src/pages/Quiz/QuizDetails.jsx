@@ -130,7 +130,7 @@ const QuizDetails = () => {
                 <button
                   className={`px-6 py-2 rounded-md font-medium ${
                     allQuestionsAnswered
-                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      ? 'bg-green-600 text-white hover:bg-green-700 cursor-pointer'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
                   onClick={calculateScore}
@@ -140,7 +140,7 @@ const QuizDetails = () => {
                 </button>
                 <button
                   onClick={resetQuiz}
-                  className="px-6 py-2 rounded-md font-medium text-gray-700 border border-gray-300 hover:bg-gray-100"
+                  className="px-6 py-2 rounded-md font-medium text-gray-700 border border-gray-300 hover:bg-gray-100 cursor-pointer"
                 >
                   Làm lại
                 </button>
@@ -152,7 +152,7 @@ const QuizDetails = () => {
                 </p>
                 <button
                   onClick={resetQuiz}
-                  className="mt-6 px-6 py-2 rounded-md font-medium bg-blue-600 text-white hover:bg-blue-700"
+                  className="mt-6 px-6 py-2 rounded-md font-medium bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
                 >
                   Làm lại
                 </button>

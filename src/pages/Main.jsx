@@ -153,7 +153,7 @@ const Main = () => {
             </h2>
             <Link
               to="/main"
-              className="text-red-700 hover:text-red-900 transition font-medium"
+              className="text-red-700 hover:text-red-900 hover:underline transition font-medium"
             >
               Xem tất cả →
             </Link>
@@ -177,7 +177,7 @@ const Main = () => {
                   </p>
                   <Link
                     to={`/file/${doc._id}`}
-                    className="mt-4 inline-block text-red-700 hover:text-red-900 text-sm font-medium"
+                    className="mt-4 inline-block text-red-700 hover:text-red-900 hover:underline text-sm font-medium"
                   >
                     Xem chi tiết →
                   </Link>
