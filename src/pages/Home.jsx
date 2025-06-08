@@ -32,7 +32,6 @@ const Home = () => {
 
   const filteredDocs = documents.filter((doc) => {
     if (tab === 'saved') {
-      // Check if document ID exists in savedDocIds array
       return savedDocIds.includes(doc._id)
     } else if (tab === 'theory') {
       return doc.type === 'Giáo trình'
