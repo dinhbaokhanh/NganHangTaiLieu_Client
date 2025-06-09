@@ -9,6 +9,7 @@ import DocumentCard from '../components/layout/DocumentCard'
 import {
   useGetAllDocumentQuery,
   useGetSavedDocumentsByUserQuery,
+  useGetAllSubjectsQuery,
 } from '../redux/api/api.js'
 
 const Home = () => {
@@ -16,10 +17,7 @@ const Home = () => {
   const navigate = useNavigate()
   const tab = searchParams.get('tab') || 'theory'
 
-
-  const token = useSelector((state) => state.auth?.token)
-  const { userInfo } = useSelector((state) => state.auth)
-
+  const { userInfo, token } = useSelector((state) => state.auth)
   const userId = userInfo?.id
 
   const [showModal, setShowModal] = useState(false)
@@ -29,8 +27,6 @@ const Home = () => {
     useGetAllDocumentQuery()
   const documents = documentData?.documents || []
 
-
-  const { data: documentData, refetch } = useGetAllDocumentQuery()
   const { data: savedDocData } = useGetSavedDocumentsByUserQuery(userId, {
     skip: !userId || tab !== 'saved',
   })
@@ -62,7 +58,6 @@ const Home = () => {
       return matchTab && matchSubject
     })
   }, [documents, tab, savedDocIds, selectedMajor])
-
 
   const handleTabChange = (newTab) => {
     if (newTab === 'saved' && !token) {
@@ -96,7 +91,6 @@ const Home = () => {
       <DocumentTabs activeTab={tab} setActiveTab={handleTabChange} />
 
       <div className="mt-6 flex gap-6">
-        {/* Enhanced Filter Sidebar */}
         <div className="w-72 space-y-4">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-4">
@@ -183,7 +177,6 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Stats Card */}
           <div className="bg-gradient-to-r from-red-50 to-indigo-50 rounded-xl p-4 border border-red-100">
             <div className="flex items-center justify-between">
               <div>
@@ -211,7 +204,6 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Document Grid */}
         <div className="flex-1">
           {filteredDocs.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -255,7 +247,6 @@ const Home = () => {
             </div>
           )}
         </div>
-
       </div>
 
       <SuggestModal
