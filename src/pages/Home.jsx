@@ -9,7 +9,6 @@ import DocumentCard from '../components/layout/DocumentCard'
 import {
   useGetAllDocumentQuery,
   useGetSavedDocumentsByUserQuery,
-  useGetAllSubjectsQuery,
 } from '../redux/api/api.js'
 
 const Home = () => {
@@ -17,7 +16,10 @@ const Home = () => {
   const navigate = useNavigate()
   const tab = searchParams.get('tab') || 'theory'
 
-  const { userInfo, token } = useSelector((state) => state.auth)
+
+  const token = useSelector((state) => state.auth?.token)
+  const { userInfo } = useSelector((state) => state.auth)
+
   const userId = userInfo?.id
 
   const [showModal, setShowModal] = useState(false)
@@ -27,6 +29,8 @@ const Home = () => {
     useGetAllDocumentQuery()
   const documents = documentData?.documents || []
 
+
+  const { data: documentData, refetch } = useGetAllDocumentQuery()
   const { data: savedDocData } = useGetSavedDocumentsByUserQuery(userId, {
     skip: !userId || tab !== 'saved',
   })
@@ -58,6 +62,7 @@ const Home = () => {
       return matchTab && matchSubject
     })
   }, [documents, tab, savedDocIds, selectedMajor])
+
 
   const handleTabChange = (newTab) => {
     if (newTab === 'saved' && !token) {
@@ -250,6 +255,7 @@ const Home = () => {
             </div>
           )}
         </div>
+
       </div>
 
       <SuggestModal
