@@ -15,8 +15,6 @@ import { logout } from '../../redux/reducers/auth' // Import hành động logou
 const Sidebar = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch() // Khởi tạo dispatch
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated)
-
   const handleLogout = () => {
     dispatch(logout())
     toast.success('Đăng xuất thành công!')

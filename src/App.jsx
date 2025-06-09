@@ -189,7 +189,6 @@ const App = () => {
             <Route path="/reset-password/:id/:token" element={<Reset />} />
           </Route>
 
-          {/* Add direct route to admin dashboard for testing */}
           <Route
             path="/admin"
             element={<Navigate to="/admin/dashboard" replace />}
