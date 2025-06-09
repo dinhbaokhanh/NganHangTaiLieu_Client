@@ -179,8 +179,8 @@ const api = createApi({
         body: { modelName },
       }),
       invalidatesTags: (result, error, { documentId }) => [
-        { type: 'Summary', id: documentId }
-      ]
+        { type: 'Summary', id: documentId },
+      ],
     }),
 
     // --- SAVED DOCUMENTS ---
@@ -348,6 +348,15 @@ const api = createApi({
       }),
       invalidatesTags: ['Quiz'],
     }),
+
+    // --- CHATBOT ---
+    sendChatMessage: builder.mutation({
+      query: (message) => ({
+        url: '/chatbot/chat',
+        method: 'POST',
+        body: { message },
+      }),
+    }),
   }),
 })
 
@@ -407,4 +416,7 @@ export const {
   useCreateQuizMutation,
   useUpdateQuizMutation,
   useDeleteQuizMutation,
+
+  //Chatbot hooks
+  useSendChatMessageMutation,
 } = api
