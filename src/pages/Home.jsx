@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux'
 import {
   useGetAllDocumentQuery,
   useGetSavedDocumentsByUserQuery,
+  useGetAllSubjectsQuery,
 } from '../redux/api/api.js'
 import DocumentCard from '../components/layout/DocumentCard.jsx'
 
