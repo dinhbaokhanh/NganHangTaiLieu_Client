@@ -268,7 +268,7 @@ const Feedback = () => {
                         <div className="flex justify-center gap-2">
                           <button
                             onClick={() => handleViewFeedback(feedback)}
-                            className="text-blue-600 hover:text-blue-800 p-1"
+                            className="text-blue-600 hover:text-blue-800 p-1 cursor-pointer"
                             title="Xem chi tiết"
                           >
                             <FaEye />
@@ -292,7 +292,7 @@ const Feedback = () => {
 
                           <button
                             onClick={() => handleDeleteFeedback(feedback)}
-                            className="text-red-600 hover:text-red-800 p-1"
+                            className="text-red-600 hover:text-red-800 p-1 cursor-pointer"
                             title="Xóa"
                             disabled={isDeleting}
                           >
