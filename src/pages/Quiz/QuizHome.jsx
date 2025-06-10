@@ -74,7 +74,7 @@ const QuizHome = () => {
               </div>
               <button
                 onClick={() => handleSubjectSelect(subject._id)}
-                className="mt-4 sm:mt-0 sm:ml-6 px-5 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                className="mt-4 sm:mt-0 sm:ml-6 px-5 py-2 bg-red-600 text-white rounded hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200 cursor-pointer"
               >
                 Xem
               </button>
