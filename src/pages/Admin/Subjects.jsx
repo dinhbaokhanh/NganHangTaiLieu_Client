@@ -7,6 +7,7 @@ import {
   FaChevronRight,
 } from 'react-icons/fa'
 import SubjectForm from '../../components/admin/SubjectForm'
+import RemoveForm from '../../components/admin/RemoveForm'
 import { universityMajors } from '../../constants/category'
 
 import {
@@ -23,6 +24,8 @@ const Subjects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingSubject, setEditingSubject] = useState(null)
   const [selectedMajor, setSelectedMajor] = useState('')
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false)
+  const [selectedSubject, setSelectedSubject] = useState(null)
 
   const {
     data: subjectsData,
@@ -124,6 +127,16 @@ const Subjects = () => {
     }
   }
 
+  // Xử lý xác nhận xóa
+  const handleConfirmDelete = async () => {
+    if (selectedSubject) {
+      await deleteSubject('Đang xoá môn học...', selectedSubject._id)
+      await refetch()
+      setIsRemoveModalOpen(false)
+      setSelectedSubject(null)
+    }
+  }
+
   return (
     <div className="p-6 bg-gray-100 h-full">
       <div className="bg-white p-6 rounded-lg shadow-md">
@@ -204,7 +217,10 @@ const Subjects = () => {
                       <FaEdit />
                     </button>
                     <button
-                      onClick={() => handleDeleteSubject(subject)}
+                      onClick={() => {
+                        setSelectedSubject(subject)
+                        setIsRemoveModalOpen(true)
+                      }}
                       className="text-gray-600 cursor-pointer hover:text-red-600"
                     >
                       <FaTrash />
@@ -222,11 +238,11 @@ const Subjects = () => {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`flex cursor-pointer items-center justify-center gap-2 w-24 px-4 py-2 rounded-md transition
+            className={`flex items-center justify-center gap-2 w-24 px-4 py-2 rounded-md transition
                     ${
                       currentPage === 1
                         ? 'bg-gray-300 text-gray-400 cursor-not-allowed'
-                        : 'bg-gray-200 text-gray-600 hover:bg-red-600 hover:text-white'
+                        : 'bg-gray-200 text-gray-600 hover:bg-red-600 hover:text-white cursor-pointer'
                     }
                   `}
           >
@@ -257,11 +273,11 @@ const Subjects = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`flex cursor-pointer items-center justify-center gap-2 w-24 px-4 py-2 rounded-md transition
+            className={`flex items-center justify-center gap-2 w-24 px-4 py-2 rounded-md transition
                     ${
                       currentPage === totalPages
                         ? 'bg-gray-300 text-gray-400 cursor-not-allowed'
-                        : 'bg-gray-200 text-gray-600 hover:bg-red-600 hover:text-white'
+                        : 'bg-gray-200 text-gray-600 hover:bg-red-600 hover:text-white cursor-pointer'
                     }
                   `}
           >
@@ -279,6 +295,17 @@ const Subjects = () => {
           onSubmit={handleSubjectSubmit}
           onClose={handleModalClose}
           isLoading={isCreating || isUpdating}
+        />
+      )}
+
+      {/* Modal xác nhận xóa môn học */}
+      {isRemoveModalOpen && selectedSubject && (
+        <RemoveForm
+          title="Xác nhận xóa môn học"
+          description={`Bạn có chắc chắn muốn xóa môn học "${selectedSubject.name}"?`}
+          warningMessage="Khi xóa môn học này, tất cả dữ liệu liên quan cũng sẽ bị xóa vĩnh viễn."
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setIsRemoveModalOpen(false)}
         />
       )}
     </div>

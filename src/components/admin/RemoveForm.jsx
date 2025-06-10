@@ -32,7 +32,7 @@ const RemoveForm = ({
         <div className="px-6 py-4 flex justify-end gap-4">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md cursor-pointer hover:bg-gray-200 transition"
+            className="px-4 py-2 text-gray-700 bg-gray-300 rounded-md cursor-pointer hover:bg-gray-400 transition"
           >
             {cancelText}
           </button>

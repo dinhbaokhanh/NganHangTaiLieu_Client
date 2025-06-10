@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   FaPlus,
   FaChevronLeft,
@@ -8,6 +8,7 @@ import {
   FaFile,
 } from 'react-icons/fa'
 import FileForm from '../../components/admin/FileForm'
+import RemoveForm from '../../components/admin/RemoveForm'
 import { useAsyncMutation } from '../../hooks/hook.js'
 import { universityMajors, docTypes } from '../../constants/category.js'
 import {
@@ -16,6 +17,7 @@ import {
   useUpdateDocumentMutation,
   useReplaceDocumentMutation,
   useDeleteDocumentMutation,
+  useGetAllSubjectsQuery,
 } from '../../redux/api/api.js'
 
 const Files = () => {
@@ -23,21 +25,27 @@ const Files = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingDocument, setEditingDocument] = useState(null)
   const [mode, setMode] = useState('add') // 'add' | 'edit' | 'replace'
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false)
+  const [selectedDocument, setSelectedDocument] = useState(null)
 
   const [search, setSearch] = useState('')
   const [selectedMajor, setSelectedMajor] = useState('')
   const [selectedAuthor, setSelectedAuthor] = useState('')
   const [selectedYear, setSelectedYear] = useState('')
   const [selectedType, setSelectedType] = useState('')
+  const [selectedSubject, setSelectedSubject] = useState('')
+  const [showSuggestions, setShowSuggestions] = useState(false)
 
   // API hooks
   const { data: documentData, refetch } = useGetAllDocumentQuery()
+  const { data: subjectsData } = useGetAllSubjectsQuery()
   const [uploadDocument] = useAsyncMutation(useUploadDocumentMutation)
   const [updateDocument] = useAsyncMutation(useUpdateDocumentMutation)
   const [replaceDocument] = useAsyncMutation(useReplaceDocumentMutation)
   const [deleteDocument] = useAsyncMutation(useDeleteDocumentMutation)
 
   const documents = documentData?.documents || []
+  const subjectList = subjectsData?.subjects || []
 
   // Actions
   const handleAddDocument = async (newDocument) => {
@@ -79,10 +87,20 @@ const Files = () => {
     }
   }
 
+  // Gợi ý môn học dựa trên input
+  const filteredSuggestions = useMemo(() => {
+    if (!selectedSubject) return subjectList
+    return subjectList.filter((subject) =>
+      subject.name.toLowerCase().includes(selectedSubject.toLowerCase())
+    )
+  }, [subjectList, selectedSubject])
+
   // Filter
   const filteredDocuments = documents.filter((doc) => {
     const matchesName = doc.title?.toLowerCase().includes(search.toLowerCase())
-    const matchesMajor = selectedMajor ? doc.major === selectedMajor : true
+    const matchesSubject = selectedSubject
+      ? doc.subject?.name?.toLowerCase().includes(selectedSubject.toLowerCase())
+      : true
     const matchesAuthor = selectedAuthor ? doc.author === selectedAuthor : true
     const matchesYear = selectedYear
       ? selectedYear === 'after-2020'
@@ -93,7 +111,7 @@ const Files = () => {
       : true
     const matchesType = selectedType ? doc.type === selectedType : true
     return (
-      matchesName && matchesMajor && matchesAuthor && matchesYear && matchesType
+      matchesName && matchesSubject && matchesAuthor && matchesYear && matchesType
     )
   })
 
@@ -113,6 +131,21 @@ const Files = () => {
     startIndex,
     startIndex + itemsPerPage
   )
+
+  // Xử lý clear filter
+  const clearSubjectFilter = () => {
+    setSelectedSubject('')
+    setShowSuggestions(false)
+  }
+
+  // Xử lý xác nhận xóa
+  const handleConfirmDelete = async () => {
+    if (selectedDocument) {
+      await handleDeleteDocument(selectedDocument._id)
+      setIsRemoveModalOpen(false)
+      setSelectedDocument(null)
+    }
+  }
 
   return (
     <div className="p-6 bg-gray-100 h-full">
@@ -156,18 +189,49 @@ const Files = () => {
               </option>
             ))}
           </select>
-          <select
-            className="px-4 py-2 border rounded-md"
-            value={selectedMajor}
-            onChange={(e) => setSelectedMajor(e.target.value)}
-          >
-            <option value="">Chọn ngành</option>
-            {universityMajors.map((major) => (
-              <option key={major.value} value={major.value}>
-                {major.label}
-              </option>
-            ))}
-          </select>
+          {/* Bộ lọc môn học kiểu autocomplete giống Home */}
+          <div className="relative w-64">
+            <input
+              type="text"
+              value={selectedSubject}
+              onChange={(e) => {
+                setSelectedSubject(e.target.value)
+                setShowSuggestions(true)
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              placeholder="Nhập hoặc chọn môn học..."
+              className="px-4 py-2 border rounded-md w-full pr-8"
+            />
+            {/* Suggestions dropdown */}
+            {showSuggestions && filteredSuggestions.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                {filteredSuggestions.map((subject) => (
+                  <button
+                    key={subject._id}
+                    onClick={() => {
+                      setSelectedSubject(subject.name)
+                      setShowSuggestions(false)
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none transition-colors border-b border-gray-100 last:border-b-0"
+                  >
+                    <span className="text-gray-700">{subject.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {selectedSubject && (
+              <button
+                type="button"
+                onClick={clearSubjectFilter}
+                className="absolute top-1/2 -translate-y-1/2 right-2 font-bold text-red-500 hover:text-red-700 text-xs cursor-pointer p-0"
+                title="Xóa bộ lọc"
+                style={{ lineHeight: 1 }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
           <select
             className="px-4 py-2 border rounded-md"
             value={selectedYear}
@@ -219,7 +283,7 @@ const Files = () => {
                       setMode('edit')
                       setIsModalOpen(true)
                     }}
-                    className="text-gray-600 hover:text-blue-600"
+                    className="text-gray-600 hover:text-blue-600 cursor-pointer"
                   >
                     <FaEdit />
                   </button>
@@ -229,13 +293,16 @@ const Files = () => {
                       setMode('replace')
                       setIsModalOpen(true)
                     }}
-                    className="text-gray-600 hover:text-green-600"
+                    className="text-gray-600 hover:text-green-600 cursor-pointer"
                   >
                     <FaFile />
                   </button>
                   <button
-                    onClick={() => handleDeleteDocument(doc._id)}
-                    className="text-gray-600 hover:text-red-600"
+                    onClick={() => {
+                      setSelectedDocument(doc)
+                      setIsRemoveModalOpen(true)
+                    }}
+                    className="text-gray-600 hover:text-red-600 cursor-pointer"
                   >
                     <FaTrash />
                   </button>
@@ -254,7 +321,7 @@ const Files = () => {
               ${
                 currentPage === 1
                   ? 'bg-gray-300 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 text-gray-600 hover:bg-red-600 hover:text-white'
+                  : 'bg-gray-200 text-gray-600 hover:bg-red-600 hover:text-white cursor-pointer'
               }
             `}
           >
@@ -287,7 +354,7 @@ const Files = () => {
               ${
                 currentPage === totalPages
                   ? 'bg-gray-300 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 text-gray-600 hover:bg-red-600 hover:text-white'
+                  : 'bg-gray-200 text-gray-600 hover:bg-red-600 hover:text-white cursor-pointer'
               }
             `}
           >
@@ -305,6 +372,17 @@ const Files = () => {
           onSubmit={mode === 'edit' ? handleEditDocument : handleAddDocument}
           onReplace={mode === 'replace' ? handleReplaceDocument : null}
           onClose={() => setIsModalOpen(false)}
+        />
+      )}
+
+      {/* Modal xác nhận xóa tài liệu */}
+      {isRemoveModalOpen && selectedDocument && (
+        <RemoveForm
+          title="Xác nhận xóa tài liệu"
+          description={`Bạn có chắc chắn muốn xóa tài liệu "${selectedDocument.title}"?`}
+          warningMessage="Khi xóa tài liệu này, tất cả dữ liệu liên quan cũng sẽ bị xóa vĩnh viễn."
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setIsRemoveModalOpen(false)}
         />
       )}
     </div>
