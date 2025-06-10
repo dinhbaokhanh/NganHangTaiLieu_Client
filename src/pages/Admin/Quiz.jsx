@@ -8,6 +8,7 @@ import {
 } from '../../redux/api/api.js'
 import { FaEdit, FaPlus, FaTrash, FaEye } from 'react-icons/fa'
 import { toast } from 'react-toastify'
+import RemoveForm from '../../components/admin/RemoveForm'
 
 const Quiz = () => {
   const { data, isLoading, isError, refetch } = useGetAllQuizzesQuery()
@@ -36,6 +37,9 @@ const Quiz = () => {
     open: false,
     questions: [],
   })
+
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false)
+  const [selectedQuiz, setSelectedQuiz] = useState(null)
 
   const quizzes = Array.isArray(data?.quizzes) ? data.quizzes : []
   const subjects = Array.isArray(subjectData?.subjects)
@@ -162,16 +166,30 @@ const Quiz = () => {
   }
   console.log(quizzes)
 
+  // Hàm xác nhận xoá
+  const handleConfirmDelete = async () => {
+    if (selectedQuiz) {
+      try {
+        await deleteQuiz(selectedQuiz._id).unwrap()
+        refetch()
+      } catch (err) {
+        console.error('Lỗi khi xóa quiz:', err)
+      }
+      setIsRemoveModalOpen(false)
+      setSelectedQuiz(null)
+    }
+  }
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-red-600">Quản lý Quiz</h2>
+          <h2 className="text-2xl font-bold text-red-600">Quản lý đề trắc nghiệm</h2>
           <button
             onClick={() => openModal()}
-            className="flex items-center cursor-pointer gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            className="flex items-center cursor-pointer gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-white hover:text-red-600 border border-red-600 transition"
           >
-            <FaPlus /> Thêm Quiz
+            <FaPlus /> Thêm đề
           </button>
         </div>
 
@@ -209,7 +227,7 @@ const Quiz = () => {
                           questions: quiz.questions || [],
                         })
                       }
-                      className="ml-2 text-blue-600 hover:underline"
+                      className="ml-2 text-blue-600 hover:underline cursor-pointer"
                     >
                       <FaEye className="inline mr-1" /> Xem
                     </button>
@@ -217,13 +235,16 @@ const Quiz = () => {
                   <td className="border px-4 py-2 text-center space-x-2">
                     <button
                       onClick={() => openModal(quiz)}
-                      className="text-gray-600 hover:text-blue-600"
+                      className="text-gray-600 hover:text-blue-600 cursor-pointer"
                     >
                       <FaEdit />
                     </button>
                     <button
-                      onClick={() => handleDelete(quiz._id)}
-                      className="text-gray-600 hover:text-red-600"
+                      onClick={() => {
+                        setSelectedQuiz(quiz)
+                        setIsRemoveModalOpen(true)
+                      }}
+                      className="text-gray-600 hover:text-red-600 cursor-pointer"
                     >
                       <FaTrash />
                     </button>
@@ -238,7 +259,16 @@ const Quiz = () => {
       {/* Modal Quiz */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20 overflow-auto">
-          <div className="bg-white w-full max-w-2xl p-6 rounded-lg shadow-lg max-h-[80vh] overflow-auto">
+          <div className="bg-white w-full max-w-2xl p-6 rounded-lg shadow-lg max-h-[80vh] overflow-auto relative">
+            {/* Nút đóng X */}
+            <button
+              type="button"
+              onClick={closeModal}
+              className="absolute top-3 right-4 text-xl text-gray-400 hover:text-red-600 font-bold z-10 cursor-pointer"
+              aria-label="Đóng"
+            >
+              x
+            </button>
             <h3 className="text-xl font-semibold mb-4 text-red-600">
               {editingId ? 'Chỉnh sửa Quiz' : 'Thêm Quiz'}
             </h3>
@@ -314,7 +344,7 @@ const Quiz = () => {
 
                           <button
                             onClick={() => handleRemoveQuestion(index)}
-                            className="ml-4 px-3 py-1 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded transition-all"
+                            className="ml-4 px-3 py-1 text-sm font-medium text-white bg-red-600 cursor-pointer hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 rounded transition-all"
                           >
                             Xoá
                           </button>
@@ -376,7 +406,7 @@ const Quiz = () => {
                       <button
                         type="button"
                         onClick={() => removeOption(idx)}
-                        className="text-sm text-red-600"
+                        className="text-sm text-red-600 cursor-pointer"
                       >
                         Xóa
                       </button>
@@ -386,7 +416,7 @@ const Quiz = () => {
                 <button
                   type="button"
                   onClick={addOption}
-                  className="text-blue-600 text-sm mt-2"
+                  className="text-blue-600 text-sm mt-2 cursor-pointer"
                 >
                   + Thêm lựa chọn
                 </button>
@@ -394,7 +424,7 @@ const Quiz = () => {
                   <button
                     type="button"
                     onClick={handleAddQuestion}
-                    className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-black"
+                    className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-black cursor-pointer"
                   >
                     Lưu câu hỏi
                   </button>
@@ -405,13 +435,13 @@ const Quiz = () => {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 border border-gray-400 rounded hover:bg-gray-100"
+                  className="px-4 py-2 text-gray-700 bg-gray-300 rounded cursor-pointer hover:bg-gray-400 transition"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                  className="px-4 py-2 bg-red-600 text-white rounded cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition duration-200"
                   disabled={formData.title.trim() === ''}
                 >
                   {editingId ? 'Cập nhật Quiz' : 'Tạo Quiz'}
@@ -473,6 +503,17 @@ const Quiz = () => {
             )}
           </div>
         </div>
+      )}
+
+      {/* Modal xác nhận xóa */}
+      {isRemoveModalOpen && selectedQuiz && (
+        <RemoveForm
+          title="Xác nhận xóa đề trắc nghiệm"
+          description={`Bạn có chắc chắn muốn xóa đề trắc nghiệm "${selectedQuiz.title}"?`}
+          warningMessage="Khi xóa đề trắc nghiệm này, tất cả dữ liệu liên quan cũng sẽ bị xóa vĩnh viễn."
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setIsRemoveModalOpen(false)}
+        />
       )}
     </div>
   )

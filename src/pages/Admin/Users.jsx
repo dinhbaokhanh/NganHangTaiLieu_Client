@@ -57,7 +57,8 @@ const Users = () => {
   const filteredUsers = users.filter((user) => {
     const matchesSearch = user.username?.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = selectedStatus ? user.status === selectedStatus : true;
-    return matchesSearch && matchesStatus;
+    const notAdmin = user.role !== 'admin';
+    return matchesSearch && matchesStatus && notAdmin;
   });
 
   // Pagination
@@ -232,7 +233,7 @@ const Users = () => {
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-4 py-2 rounded-md transition
+                className={`px-4 py-2 rounded-md transition cursor-pointer
                 ${
                   currentPage === page
                     ? 'bg-red-600 text-white'

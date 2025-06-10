@@ -139,7 +139,7 @@ const Home = () => {
               {selectedMajor && (
                 <button
                   onClick={clearFilter}
-                  className="text-sm text-red-600 hover:text-red-800 font-medium"
+                  className="text-sm text-red-600 hover:text-red-800 font-medium cursor-pointer"
                 >
                   Xóa bộ lọc
                 </button>
@@ -277,7 +277,7 @@ const Home = () => {
               {selectedMajor && (
                 <button
                   onClick={clearFilter}
-                  className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 transition duration-200 cursor-pointer"
                 >
                   Xem tất cả tài liệu
                 </button>

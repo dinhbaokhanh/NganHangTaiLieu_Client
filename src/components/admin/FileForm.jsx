@@ -86,7 +86,7 @@ const FileForm = ({
       <div className="bg-white max-w-3xl w-full p-6 rounded-lg shadow-lg relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-red-600"
+          className="absolute top-4 right-4 text-gray-500 hover:text-red-600 cursor-pointer"
         >
           <FaTimes />
         </button>
@@ -128,13 +128,13 @@ const FileForm = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-gray-200 rounded-md"
+                className="px-4 py-2 text-gray-700 bg-gray-300 cursor-pointer hover:bg-gray-400 transition rounded-md"
               >
                 Hủy
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-yellow-500 text-white rounded-md"
+                className="px-4 py-2 bg-red-600 text-white rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition duration-200"
               >
                 Thay thế
               </button>
@@ -266,13 +266,13 @@ const FileForm = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-gray-200 rounded-md"
+                className="px-4 py-2 text-gray-700 bg-gray-300 cursor-pointer hover:bg-gray-400 transition rounded-md"
               >
                 Hủy
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-red-600 text-white rounded-md"
+                className="px-4 py-2 bg-red-600 cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition duration-200 text-white rounded-md"
               >
                 {mode === 'add' ? 'Thêm' : 'Cập nhật'}
               </button>
