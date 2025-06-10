@@ -249,7 +249,7 @@ const Files = () => {
             <tr className="bg-gray-100">
               <th className="border px-4 py-2">Tiêu đề</th>
               <th className="border px-4 py-2">Thể loại</th>
-              <th className="border px-4 py-2">Ngành</th>
+              {/* <th className="border px-4 py-2">Ngành</th> */}
               <th className="border px-4 py-2">Môn</th>
               <th className="border px-4 py-2">Tác giả</th>
               <th className="border px-4 py-2">Năm</th>
@@ -262,7 +262,7 @@ const Files = () => {
               <tr key={doc._id} className="hover:bg-gray-50">
                 <td className="border px-4 py-2">{doc.title}</td>
                 <td className="border px-4 py-2">{doc.type}</td>
-                <td className="border px-4 py-2">{doc.subject.major}</td>
+                {/* <td className="border px-4 py-2">{doc.subject.major}</td> */}
                 <td className="border px-4 py-2">{doc.subject.name}</td>
                 <td className="border px-4 py-2">{doc.author}</td>
                 <td className="border px-4 py-2">{doc.publishedYear}</td>
