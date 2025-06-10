@@ -26,10 +26,7 @@ const Sidebar = () => {
   return (
     <div className="fixed top-0 left-0 h-screen w-64 bg-gray-800 text-white flex flex-col z-50">
       <div className="flex items-center p-4 bg-red-600">
-        <div className="w-10 h-10 bg-white text-red-600 flex items-center justify-center rounded-full font-bold">
-          B
-        </div>
-        <h2 className="ml-3 text-lg font-semibold">Admin Panel</h2>
+        <h2 className="ml-0 text-lg font-semibold">Trang Quản Trị</h2>
       </div>
 
       <nav className="flex-1 p-4">
@@ -56,7 +53,7 @@ const Sidebar = () => {
           />
           <SidebarItem
             icon={<FaQuestion />}
-            text="Quizzes"
+            text="Đề trắc nghiệm"
             link="/admin/quizzes"
           />
           <SidebarItem
@@ -73,7 +70,7 @@ const Sidebar = () => {
           onClick={handleLogout} // Gọi hàm handleLogout
         >
           <FaSignOutAlt className="mr-3" />
-          <span>Logout</span>
+          <span>Đăng xuất</span>
         </button>
       </div>
     </div>
@@ -117,7 +114,7 @@ const Header = () => {
           className="bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition"
           onClick={handleLogout} // Gọi hàm handleLogout
         >
-          Logout
+          Đăng xuất
         </button>
       </div>
     </header>

@@ -75,7 +75,7 @@ const ChatbotModal = ({ isOpen, onClose }) => {
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:text-gray-200 transition-colors"
+            className="text-white hover:text-gray-200 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -165,7 +165,7 @@ const ChatbotModal = ({ isOpen, onClose }) => {
             <button
               onClick={handleSendMessage}
               disabled={!inputValue.trim()}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-white hover:text-red-600 border border-transparent hover:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center cursor-pointer"
             >
               <Send className="w-4 h-4" />
             </button>

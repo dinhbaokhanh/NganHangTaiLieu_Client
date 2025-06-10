@@ -64,7 +64,7 @@ const FileDetails = () => {
   const [isSummarizing, setIsSummarizing] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedModel, setSelectedModel] = useState(
-    'google/gemini-2.0-flash-exp:free'
+    'deepseek/deepseek-r1-0528:free'
   )
 
   useErrors([{ isError, error }])
