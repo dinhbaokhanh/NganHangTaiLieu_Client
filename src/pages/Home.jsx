@@ -80,11 +80,10 @@ const Home = () => {
   }, [documents, tab, savedDocIds, selectedMajor])
 
   const handleTabChange = (newTab) => {
-    if (newTab === 'saved' && !token) {
-      setShowModal(true)
-    } else {
-      setSearchParams({ tab: newTab })
-    }
+    // Lấy tất cả params hiện tại
+    const params = Object.fromEntries([...searchParams])
+    // Gán tab mới, giữ lại các filter khác (ví dụ major)
+    setSearchParams({ ...params, tab: newTab })
   }
 
   const handleMajorChange = (e) => {
