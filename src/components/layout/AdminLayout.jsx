@@ -7,6 +7,7 @@ import {
   FaSignOutAlt,
   FaBook,
   FaQuestion,
+  FaComment,
 } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux' // Thêm useDispatch từ Redux
@@ -57,6 +58,11 @@ const Sidebar = () => {
             icon={<FaQuestion />}
             text="Quizzes"
             link="/admin/quizzes"
+          />
+          <SidebarItem
+            icon={<FaComment />}
+            text="Phản hồi"
+            link="/admin/feedback"
           />
         </ul>
       </nav>

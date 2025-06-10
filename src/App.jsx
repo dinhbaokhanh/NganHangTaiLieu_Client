@@ -26,6 +26,7 @@ const Reset = lazy(() => import('./pages/Auth/ResetPassword'))
 const Users = lazy(() => import('./pages/Admin/Users'))
 const Files = lazy(() => import('./pages/Admin/Files'))
 const Quiz = lazy(() => import('./pages/Admin/Quiz'))
+const Feedback = lazy(() => import('./pages/Admin/Feedback'))
 
 const PrivateRoute = ({ children }) => {
   const { token, isAuthenticated, isInitialized } = useSelector(
@@ -206,6 +207,7 @@ const App = () => {
             <Route path="/admin/files" element={<Files />} />
             <Route path="/admin/subjects" element={<Subjects />} />
             <Route path="/admin/quizzes" element={<Quiz />} />
+            <Route path="/admin/feedback" element={<Feedback />} />
           </Route>
         </Routes>
       </Suspense>
