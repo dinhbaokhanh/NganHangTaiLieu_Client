@@ -80,13 +80,13 @@ const SubjectForm = ({ mode = 'add', initialData = {}, onSubmit, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 transition"
+              className="px-4 py-2 text-gray-700 bg-gray-300 rounded-md cursor-pointer hover:bg-gray-400 transition"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-white hover:text-red-600 border border-red-600 transition"
+              className="px-4 py-2 bg-red-600 text-white rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition"
             >
               {mode === 'add' ? 'Thêm' : 'Cập nhật'}
             </button>
