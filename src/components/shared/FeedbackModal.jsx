@@ -53,7 +53,7 @@ const FeedbackModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
           </h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl"
+            className="text-gray-400 hover:text-red-600 text-2xl cursor-pointer transition-colors"
             disabled={isSubmitting}
           >
             ×
@@ -98,7 +98,7 @@ const FeedbackModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+              className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors cursor-pointer"
               disabled={isSubmitting}
             >
               Hủy
@@ -106,7 +106,7 @@ const FeedbackModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
             <button
               type="submit"
               disabled={isSubmitting || !reportData.reason.trim()}
-              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
             >
               {isSubmitting ? 'Đang gửi...' : 'Gửi báo cáo'}
             </button>
@@ -116,7 +116,7 @@ const FeedbackModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
         <div className="mt-4 p-3 bg-gray-50 rounded-md">
           <p className="text-xs text-gray-600">
             Báo cáo của bạn sẽ được xem xét và xử lý trong vòng 24-48 giờ. Vui
-            lòng chỉ báo cáo những nội dung thực sự vi phạm.
+            lòng chỉ báo cáo những vấn đề thực sự.
           </p>
         </div>
       </div>
