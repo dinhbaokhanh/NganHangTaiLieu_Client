@@ -93,7 +93,7 @@ const Users = () => {
         setIsRemoveModalOpen(false);
         setSelectedUser(null);
       } catch (error) {
-        console.error('Error deleting user:', error);
+        console.error('Lỗi xóa người dùng:', error);
       }
     }
   };
@@ -110,7 +110,7 @@ const Users = () => {
       setIsStatusModalOpen(false);
       setEditingUser(null);
     } catch (error) {
-      console.error('Error updating user status:', error);
+      console.error('Lỗi cập nhật trạng thái người dùng:', error);
     }
   };
 

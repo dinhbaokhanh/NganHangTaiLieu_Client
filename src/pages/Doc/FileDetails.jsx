@@ -42,6 +42,16 @@ const FileDetails = () => {
   const { userInfo } = useSelector((state) => state.auth)
   const userId = userInfo?.id
 
+  // Thêm state kiểm tra đã xem gần đây cho từng user
+  const [isRecentlyViewed, setIsRecentlyViewed] = useState(false)
+
+  // Kiểm tra khi vào trang
+  useEffect(() => {
+    if (!userId) return setIsRecentlyViewed(false)
+    const viewed = JSON.parse(localStorage.getItem(`viewedDocs_${userId}`) || '[]')
+    setIsRecentlyViewed(viewed.includes(id))
+  }, [id, userId])
+
   const [saveDoc] = useAsyncMutation(useSaveDocumentMutation)
   const [unsaveDoc] = useAsyncMutation(useUnsaveDocumentMutation)
   const [generateSummary] = useGenerateDocumentSummaryMutation()
@@ -164,9 +174,20 @@ const FileDetails = () => {
 
     switch (type) {
       case 'view':
-      case 'download':
+      case 'download': {
+        // Ghi nhận đã xem cho từng user
+        if (userId) {
+          let viewed = JSON.parse(localStorage.getItem(`viewedDocs_${userId}`) || '[]')
+          if (!viewed.includes(id)) {
+            viewed.unshift(id)
+            if (viewed.length > 20) viewed = viewed.slice(0, 20)
+            localStorage.setItem(`viewedDocs_${userId}`, JSON.stringify(viewed))
+          }
+          setIsRecentlyViewed(true)
+        }
         window.open(document?.fileUrl, '_blank')
         break
+      }
       case 'save': {
         if (isCheckingSaved) return
         const mutation = savedStatus?.isSaved ? unsaveDoc : saveDoc
@@ -224,6 +245,14 @@ const FileDetails = () => {
       <p className="text-lg font-semibold text-gray-600">
         Mô tả: {description}
       </p>
+      {/* Hiển thị "Đã xem gần đây" dưới mô tả, trên các nút hành động */}
+      {isRecentlyViewed && (
+        <div className="my-3 flex items-center gap-2">
+          <span className="inline-block bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">
+            Đã xem gần đây
+          </span>
+        </div>
+      )}
     </>
   )
 
