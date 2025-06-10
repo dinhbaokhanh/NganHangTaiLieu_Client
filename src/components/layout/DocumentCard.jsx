@@ -6,7 +6,7 @@ import defaultFileImg from '../../assets/doc_image_default.png'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
-const DocumentCard = ({ doc }) => {
+const DocumentCard = ({ doc, isViewed }) => {
   const [thumbnail, setThumbnail] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
@@ -57,6 +57,12 @@ const DocumentCard = ({ doc }) => {
       className="relative border rounded-lg p-2 shadow-md hover:shadow-lg cursor-pointer transition duration-200"
       onClick={handleClick}
     >
+      {/* Hiển thị ký hiệu "Đã xem gần đây" nếu đã xem */}
+      {isViewed && (
+        <span className="absolute top-2 right-2 bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold shadow">
+          Đã xem gần đây
+        </span>
+      )}
       {isLoading ? (
         <div className="w-full h-40 flex items-center justify-center">
           Loading...

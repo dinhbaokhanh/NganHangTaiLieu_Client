@@ -20,6 +20,16 @@ const Home = () => {
   const { userInfo, token } = useSelector((state) => state.auth)
   const userId = userInfo?.id
 
+  // Lấy danh sách tài liệu đã xem gần đây từ localStorage theo user
+  const viewedDocs = useMemo(() => {
+    if (!userId) return []
+    try {
+      return JSON.parse(localStorage.getItem(`viewedDocs_${userId}`) || '[]')
+    } catch {
+      return []
+    }
+  }, [userId])
+
   const [showModal, setShowModal] = useState(false)
   const [selectedMajor, setSelectedMajor] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -264,7 +274,11 @@ const Home = () => {
           {filteredDocs.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {filteredDocs.map((doc) => (
-                <DocumentCard key={doc._id} doc={doc} />
+                <DocumentCard
+                  key={doc._id}
+                  doc={doc}
+                  isViewed={viewedDocs.includes(doc._id)}
+                />
               ))}
             </div>
           ) : (
