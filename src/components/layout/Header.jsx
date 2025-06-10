@@ -179,12 +179,18 @@ const Header = () => {
       <div className="flex items-center gap-4 relative">
         {token ? (
           <>
-            <FileQuestion
-              className="text-gray-600 cursor-pointer hover:text-red-500 transition duration-200"
-              size={24}
-              onClick={() => navigate('/quiz')}
-              title="Làm trắc nghiệm"
-            />
+            <div className="relative group flex items-center">
+              <FileQuestion
+                className="text-gray-600 cursor-pointer hover:text-red-500 transition duration-200"
+                size={24}
+                onClick={() => navigate('/quiz')}
+                title="Làm đề trắc nghiệm"
+              />
+              {/* label */}
+              <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition">
+                Làm đề trắc nghiệm
+              </span>
+            </div>
             <span className="text-gray-400">|</span>
             <div className="relative" ref={dropdownRef}>
               <div onClick={() => setIsOpen(!isOpen)}>
