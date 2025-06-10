@@ -22,6 +22,7 @@ const Home = () => {
 
   const [showModal, setShowModal] = useState(false)
   const [selectedMajor, setSelectedMajor] = useState('')
+  const [showSuggestions, setShowSuggestions] = useState(false)
 
   const { data: documentData, isLoading: isDocumentsLoading } =
     useGetAllDocumentQuery()
@@ -37,6 +38,14 @@ const Home = () => {
     useGetAllSubjectsQuery()
   const subjectList = subjectsData?.subjects || []
 
+  // Filter suggestions based on input
+  const filteredSuggestions = useMemo(() => {
+    if (!selectedMajor) return subjectList
+    return subjectList.filter((subject) =>
+      subject.name.toLowerCase().includes(selectedMajor.toLowerCase())
+    )
+  }, [subjectList, selectedMajor])
+
   const filteredDocs = useMemo(() => {
     return documents.filter((doc) => {
       let matchTab = false
@@ -51,8 +60,9 @@ const Home = () => {
       let matchSubject = true
       if (selectedMajor && selectedMajor !== '') {
         const docMajor = doc.subject?.name || ''
-        matchSubject =
-          docMajor.toLowerCase().trim() === selectedMajor.toLowerCase().trim()
+        matchSubject = docMajor
+          .toLowerCase()
+          .includes(selectedMajor.toLowerCase())
       }
 
       return matchTab && matchSubject
@@ -69,10 +79,26 @@ const Home = () => {
 
   const handleMajorChange = (e) => {
     setSelectedMajor(e.target.value)
+    setShowSuggestions(true)
+  }
+
+  const handleSuggestionClick = (subjectName) => {
+    setSelectedMajor(subjectName)
+    setShowSuggestions(false)
   }
 
   const clearFilter = () => {
     setSelectedMajor('')
+    setShowSuggestions(false)
+  }
+
+  const handleInputFocus = () => {
+    setShowSuggestions(true)
+  }
+
+  const handleInputBlur = () => {
+    // Delay hiding suggestions to allow clicking on them
+    setTimeout(() => setShowSuggestions(false), 200)
   }
 
   if (isDocumentsLoading || isSubjectsLoading) {
@@ -125,19 +151,16 @@ const Home = () => {
                 Môn học
               </label>
               <div className="relative">
-                <select
+                <input
+                  type="text"
                   value={selectedMajor}
                   onChange={handleMajorChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 appearance-none cursor-pointer hover:border-gray-400"
-                >
-                  <option value="">Tất cả môn học</option>
-                  {subjectList.map((subject) => (
-                    <option key={subject._id} value={subject.name}>
-                      {subject.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                  onFocus={handleInputFocus}
+                  onBlur={handleInputBlur}
+                  placeholder="Nhập hoặc chọn môn học..."
+                  className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
                   <svg
                     className="w-4 h-4 text-gray-400"
                     fill="none"
@@ -148,10 +171,25 @@ const Home = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                     />
                   </svg>
                 </div>
+
+                {/* Suggestions dropdown */}
+                {showSuggestions && filteredSuggestions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {filteredSuggestions.map((subject) => (
+                      <button
+                        key={subject._id}
+                        onClick={() => handleSuggestionClick(subject.name)}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none transition-colors border-b border-gray-100 last:border-b-0"
+                      >
+                        <span className="text-gray-700">{subject.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {selectedMajor && (
@@ -170,7 +208,7 @@ const Home = () => {
                     />
                   </svg>
                   <span className="text-sm text-red-700 font-medium">
-                    Đã chọn: {selectedMajor}
+                    Tìm kiếm: {selectedMajor}
                   </span>
                 </div>
               )}
@@ -233,7 +271,7 @@ const Home = () => {
               </h3>
               <p className="text-gray-500">
                 {selectedMajor
-                  ? `Không tìm thấy tài liệu cho môn: ${selectedMajor}`
+                  ? `Không tìm thấy tài liệu cho: ${selectedMajor}`
                   : 'Không có tài liệu nào trong danh mục này'}
               </p>
               {selectedMajor && (
