@@ -43,7 +43,15 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Document', 'User', 'Subject', 'SavedDocument', 'Quiz', 'Summary'],
+  tagTypes: [
+    'Document',
+    'User',
+    'Subject',
+    'SavedDocument',
+    'Quiz',
+    'Summary',
+    'Feedback',
+  ],
 
   endpoints: (builder) => ({
     // --- USER ---
@@ -349,6 +357,47 @@ const api = createApi({
       invalidatesTags: ['Quiz'],
     }),
 
+    // --- FEEDBACK ---
+    addFeedback: builder.mutation({
+      query: (feedbackData) => ({
+        url: '/feedback',
+        method: 'POST',
+        body: feedbackData,
+      }),
+      invalidatesTags: ['Feedback'],
+    }),
+
+    getFeedbacks: builder.query({
+      query: (params = {}) => {
+        const searchParams = new URLSearchParams(params).toString()
+        return {
+          url: `/feedback?${searchParams}`,
+          method: 'GET',
+        }
+      },
+      providesTags: (result) =>
+        result?.feedbacks
+          ? result.feedbacks.map((fb) => ({ type: 'Feedback', id: fb._id }))
+          : ['Feedback'],
+    }),
+
+    updateFeedbackStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `/feedback/${id}/status`,
+        method: 'PUT',
+        body: { status },
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Feedback', id }],
+    }),
+
+    deleteFeedback: builder.mutation({
+      query: (id) => ({
+        url: `/feedback/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Feedback'],
+    }),
+
     // --- CHATBOT ---
     sendChatMessage: builder.mutation({
       query: (message) => ({
@@ -416,6 +465,12 @@ export const {
   useCreateQuizMutation,
   useUpdateQuizMutation,
   useDeleteQuizMutation,
+
+  // Feedback hooks
+  useAddFeedbackMutation,
+  useGetFeedbacksQuery,
+  useUpdateFeedbackStatusMutation,
+  useDeleteFeedbackMutation,
 
   //Chatbot hooks
   useSendChatMessageMutation,

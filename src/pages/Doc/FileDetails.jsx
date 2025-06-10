@@ -12,6 +12,7 @@ import {
   useIsDocumentSavedQuery,
   useGetQuizBySubjectQuery,
   useGenerateDocumentSummaryMutation,
+  useAddFeedbackMutation,
 } from '../../redux/api/api.js'
 import Comments from '../../components/shared/Comments'
 import { useErrors, useAsyncMutation } from '../../hooks/hook.js'
@@ -21,6 +22,7 @@ import workerSrc from 'pdfjs-dist/build/pdf.worker.min.js?url'
 import defaultFileImg from '../../assets/doc_image_default.png'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-hot-toast'
+import FeedbackModal from '../../components/shared/FeedbackModal.jsx'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
 
@@ -60,9 +62,13 @@ const FileDetails = () => {
     isLoading: isCheckingSaved,
   } = useIsDocumentSavedQuery({ userId, documentId: id }, { skip: !userId })
 
+  const [addFeedback, { isLoading: isAddingFeedback }] =
+    useAddFeedbackMutation()
+
   const [showModal, setShowModal] = useState(false)
   const [thumbnail, setThumbnail] = useState(null)
   const [isLoadingThumb, setIsLoadingThumb] = useState(false)
+  const [showReportModal, setShowReportModal] = useState(false)
 
   const [summaryData, setSummaryData] = useState(null)
   const [isSummarizing, setIsSummarizing] = useState(false)
@@ -113,13 +119,9 @@ const FileDetails = () => {
       documentId: id,
       modelName: selectedModel,
     }
-    //console.log('[FE] Sending summary request with payload:', requestPayload);
-    //console.log(`[FE] Target URL should be: /api/summary/document/${id}`);
 
     try {
       const response = await generateSummary(requestPayload).unwrap()
-
-      //console.log('[FE] Summary response received:', response);
 
       if (response.success) {
         setSummaryData(response)
@@ -144,6 +146,26 @@ const FileDetails = () => {
       )
     } finally {
       setIsSummarizing(false)
+    }
+  }
+
+  const handleReportSubmit = async (reportData) => {
+    try {
+      const feedbackData = {
+        fileId: id,
+        fileName: document?.title || document?.name || 'Unknown File',
+        comment: reportData.reason,
+        category: reportData.category,
+      }
+
+      const result = await addFeedback(feedbackData).unwrap()
+
+      if (result.success) {
+        setShowReportModal(false)
+        toast.success('Báo cáo đã được gửi thành công')
+      }
+    } catch (error) {
+      toast.error('Lỗi khi gửi báo cáo:', error)
     }
   }
 
@@ -180,7 +202,7 @@ const FileDetails = () => {
         await handleSummarize()
         break
       case 'report':
-        console.log('Report/Phản hồi tài liệu')
+        setShowReportModal(true)
         break
       default:
         break
@@ -355,6 +377,13 @@ const FileDetails = () => {
         description="Đăng nhập để sử dụng chức năng này hoặc đăng ký nếu bạn chưa có tài khoản."
         onLogin={() => navigate('/login')}
         onRegister={() => navigate('/register')}
+      />
+
+      <FeedbackModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        onSubmit={handleReportSubmit}
+        isSubmitting={isAddingFeedback}
       />
     </div>
   )
