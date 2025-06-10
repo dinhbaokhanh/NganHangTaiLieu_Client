@@ -24,7 +24,6 @@ const Main = () => {
 
   const { data: documentData, refetch } = useGetAllDocumentQuery()
   const documents = documentData?.documents
-  console.log(documents)
 
   // Đóng popup tìm kiếm nếu click ra ngoài
   useEffect(() => {
