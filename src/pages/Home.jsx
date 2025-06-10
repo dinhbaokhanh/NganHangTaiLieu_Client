@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
@@ -100,6 +100,24 @@ const Home = () => {
     // Delay hiding suggestions to allow clicking on them
     setTimeout(() => setShowSuggestions(false), 200)
   }
+
+  // Đọc giá trị filter môn học từ URL khi load hoặc khi URL thay đổi
+  useEffect(() => {
+    const urlMajor = searchParams.get('major') || ''
+    setSelectedMajor(urlMajor)
+  }, [searchParams])
+
+  // Khi selectedMajor thay đổi, cập nhật lại query string trên URL
+  useEffect(() => {
+    const params = Object.fromEntries([...searchParams])
+    if (selectedMajor) {
+      setSearchParams({ ...params, major: selectedMajor })
+    } else {
+      const { major, ...rest } = params
+      setSearchParams(rest)
+    }
+    // eslint-disable-next-line
+  }, [selectedMajor])
 
   if (isDocumentsLoading || isSubjectsLoading) {
     return (
