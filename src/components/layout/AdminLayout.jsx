@@ -38,11 +38,19 @@ const Sidebar = () => {
             text="Dashboard"
             link="/admin/dashboard"
           />
-          <SidebarItem icon={<FaUsers />} text="Users" link="/admin/users" />
-          <SidebarItem icon={<FaFolder />} text="Files" link="/admin/files" />
+          <SidebarItem
+            icon={<FaUsers />}
+            text="Người dùng"
+            link="/admin/users"
+          />
+          <SidebarItem
+            icon={<FaFolder />}
+            text="Tài liệu"
+            link="/admin/files"
+          />
           <SidebarItem
             icon={<FaBook />}
-            text="Subjects"
+            text="Môn học"
             link="/admin/subjects"
           />
           <SidebarItem
@@ -98,7 +106,7 @@ const Header = () => {
   return (
     <header className="bg-white shadow-md p-4 flex justify-end items-center">
       <div className="flex items-center space-x-4">
-        <span className="text-black">Welcome, Admin</span>
+        <span className="text-black">Chào mừng , Admin</span>
         <button
           className="bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-white hover:text-red-600 border border-red-600 transition"
           onClick={handleLogout} // Gọi hàm handleLogout
