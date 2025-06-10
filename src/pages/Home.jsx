@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
@@ -19,6 +19,16 @@ const Home = () => {
 
   const { userInfo, token } = useSelector((state) => state.auth)
   const userId = userInfo?.id
+
+  // Lấy danh sách tài liệu đã xem gần đây từ localStorage theo user
+  const viewedDocs = useMemo(() => {
+    if (!userId) return []
+    try {
+      return JSON.parse(localStorage.getItem(`viewedDocs_${userId}`) || '[]')
+    } catch {
+      return []
+    }
+  }, [userId])
 
   const [showModal, setShowModal] = useState(false)
   const [selectedMajor, setSelectedMajor] = useState('')
@@ -100,6 +110,24 @@ const Home = () => {
     // Delay hiding suggestions to allow clicking on them
     setTimeout(() => setShowSuggestions(false), 200)
   }
+
+  // Đọc giá trị filter môn học từ URL khi load hoặc khi URL thay đổi
+  useEffect(() => {
+    const urlMajor = searchParams.get('major') || ''
+    setSelectedMajor(urlMajor)
+  }, [searchParams])
+
+  // Khi selectedMajor thay đổi, cập nhật lại query string trên URL
+  useEffect(() => {
+    const params = Object.fromEntries([...searchParams])
+    if (selectedMajor) {
+      setSearchParams({ ...params, major: selectedMajor })
+    } else {
+      const { major, ...rest } = params
+      setSearchParams(rest)
+    }
+    // eslint-disable-next-line
+  }, [selectedMajor])
 
   if (isDocumentsLoading || isSubjectsLoading) {
     return (
@@ -246,7 +274,11 @@ const Home = () => {
           {filteredDocs.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {filteredDocs.map((doc) => (
-                <DocumentCard key={doc._id} doc={doc} />
+                <DocumentCard
+                  key={doc._id}
+                  doc={doc}
+                  isViewed={viewedDocs.includes(doc._id)}
+                />
               ))}
             </div>
           ) : (
