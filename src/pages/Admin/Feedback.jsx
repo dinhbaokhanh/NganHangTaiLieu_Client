@@ -45,8 +45,6 @@ const Feedback = () => {
 
   const feedbacks = feedbackData?.feedbacks || []
 
-  console.log(feedbacks)
-
   const feedbackStatuses = [
     {
       value: 'Chờ xử lý',
